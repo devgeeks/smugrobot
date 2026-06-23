@@ -1,0 +1,26 @@
+{
+  "name": "@smugrobot/ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./tokens/tokens.css": "./src/tokens/tokens.css",
+    "./tokens/base.css": "./src/tokens/base.css",
+    "./components/vault.js": "./src/components/vault.js",
+    "./components/vault-ui.d.ts": "./src/components/vault-ui.d.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "*"
+  }
+}
