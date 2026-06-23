@@ -1,0 +1,118 @@
+{
+  "name": "echidna.js",
+  "version": "0.1.0",
+  "description": "Encrypted document store with adapters for multiple environments",
+  "author": "tommy-carlos williams",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./adapters/memory": {
+      "import": {
+        "types": "./dist/adapters/memory.d.ts",
+        "default": "./dist/adapters/memory.js"
+      },
+      "require": {
+        "types": "./dist/adapters/memory.d.cts",
+        "default": "./dist/adapters/memory.cjs"
+      }
+    },
+    "./adapters/localstorage": {
+      "import": {
+        "types": "./dist/adapters/localstorage.d.ts",
+        "default": "./dist/adapters/localstorage.js"
+      },
+      "require": {
+        "types": "./dist/adapters/localstorage.d.cts",
+        "default": "./dist/adapters/localstorage.cjs"
+      }
+    },
+    "./adapters/node-fs": {
+      "import": {
+        "types": "./dist/adapters/node-fs.d.ts",
+        "default": "./dist/adapters/node-fs.js"
+      },
+      "require": {
+        "types": "./dist/adapters/node-fs.d.cts",
+        "default": "./dist/adapters/node-fs.cjs"
+      }
+    },
+    "./adapters/async-storage": {
+      "import": {
+        "types": "./dist/adapters/async-storage.d.ts",
+        "default": "./dist/adapters/async-storage.js"
+      },
+      "require": {
+        "types": "./dist/adapters/async-storage.d.cts",
+        "default": "./dist/adapters/async-storage.cjs"
+      }
+    },
+    "./adapters/indexeddb": {
+      "import": {
+        "types": "./dist/adapters/indexeddb.d.ts",
+        "default": "./dist/adapters/indexeddb.js"
+      },
+      "require": {
+        "types": "./dist/adapters/indexeddb.d.cts",
+        "default": "./dist/adapters/indexeddb.cjs"
+      }
+    },
+    "./adapters/expo-file-system": {
+      "import": {
+        "types": "./dist/adapters/expo-file-system.d.ts",
+        "default": "./dist/adapters/expo-file-system.js"
+      },
+      "require": {
+        "types": "./dist/adapters/expo-file-system.d.cts",
+        "default": "./dist/adapters/expo-file-system.cjs"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "scrypt-js": "^3.0.1",
+    "tweetnacl": "^1.0.3"
+  },
+  "peerDependencies": {
+    "@react-native-async-storage/async-storage": ">=1.0.0",
+    "expo-file-system": ">=17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@react-native-async-storage/async-storage": {
+      "optional": true
+    },
+    "expo-file-system": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "fake-indexeddb": "^6.2.5",
+    "tsup": "^8.5.0",
+    "typescript": "*",
+    "vitest": "^3.0.0"
+  }
+}
