@@ -304,9 +304,10 @@ customElements.define('vault-my-thing', VaultMyThing);
 ```
 
 **After adding a new component:**
-1. Add it to `packages/ui/src/components/vault.js`
-2. Add TypeScript types to `packages/ui/src/components/vault-ui.d.ts` — both the element interface and the `HTMLElementTagNameMap` augmentation
-3. Add a section to `packages/ui/style-guide.html` showing all variants
+1. Create `packages/ui/src/components/vault-my-thing.js` following the template above — import TOKEN_BRIDGE, define the class, call `customElements.define`, export the class.
+2. Add the export to `packages/ui/src/components/vault.js` (the barrel).
+3. Add TypeScript types to `packages/ui/src/components/vault-ui.d.ts` — both the element interface and the `HTMLElementTagNameMap` augmentation.
+4. Add a section to `packages/ui/style-guide/index.html` showing all variants.
 
 ---
 

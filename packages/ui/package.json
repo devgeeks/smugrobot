@@ -13,6 +13,18 @@
     "./tokens/tokens.css": "./src/tokens/tokens.css",
     "./tokens/base.css": "./src/tokens/base.css",
     "./components/vault.js": "./src/components/vault.js",
+    "./components/token-bridge.js": "./src/components/token-bridge.js",
+    "./components/vault-theme.js": "./src/components/vault-theme.js",
+    "./components/vault-button.js": "./src/components/vault-button.js",
+    "./components/vault-input.js": "./src/components/vault-input.js",
+    "./components/vault-textarea.js": "./src/components/vault-textarea.js",
+    "./components/vault-badge.js": "./src/components/vault-badge.js",
+    "./components/vault-card.js": "./src/components/vault-card.js",
+    "./components/vault-toggle.js": "./src/components/vault-toggle.js",
+    "./components/vault-select.js": "./src/components/vault-select.js",
+    "./components/vault-alert.js": "./src/components/vault-alert.js",
+    "./components/vault-spinner.js": "./src/components/vault-spinner.js",
+    "./components/vault-avatar.js": "./src/components/vault-avatar.js",
     "./components/vault-ui.d.ts": "./src/components/vault-ui.d.ts"
   },
   "scripts": {
