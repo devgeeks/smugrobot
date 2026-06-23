@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./src/tokens/tokens.css">
-  <link rel="stylesheet" href="./src/tokens/base.css">
+  <link rel="stylesheet" href="../src/tokens/tokens.css">
+  <link rel="stylesheet" href="../src/tokens/base.css">
   <style>
     /* ── Style guide chrome ── */
     .sg-layout {
@@ -45,7 +45,6 @@
       font-size: var(--text-xs);
       font-weight: 500;
       letter-spacing: 0.1em;
-      text-transform: uppercase;
       color: var(--text-muted);
       padding: var(--sp-3) var(--sp-4) var(--sp-1);
     }
@@ -103,7 +102,6 @@
       font-size: var(--text-sm);
       font-weight: 500;
       letter-spacing: 0.08em;
-      text-transform: uppercase;
       color: var(--text-muted);
       margin-bottom: var(--sp-3);
       padding-bottom: var(--sp-2);
@@ -257,7 +255,6 @@
       font-size: var(--text-xs);
       font-weight: 600;
       letter-spacing: 0.06em;
-      text-transform: uppercase;
       color: var(--cipher-text);
       margin-bottom: var(--sp-1);
     }
@@ -289,7 +286,6 @@
       font-size: var(--text-xs);
       font-weight: 500;
       letter-spacing: 0.08em;
-      text-transform: uppercase;
       color: var(--text-muted);
       text-align: left;
       padding: var(--sp-2) var(--sp-3);
@@ -366,7 +362,6 @@
       font-size: var(--text-xs);
       font-weight: 500;
       letter-spacing: 0.08em;
-      text-transform: uppercase;
       color: var(--text-secondary);
     }
   </style>
@@ -552,7 +547,6 @@
 font-size:      var(--text-xs);
 font-weight:    500;
 letter-spacing: 0.08em;
-text-transform: uppercase;
 color:          var(--text-secondary);</pre>
       </div>
     </section>
@@ -1294,7 +1288,7 @@ document.querySelector('vault-alert').addEventListener('vault-dismiss', () =&gt;
         <code>localStorage</code> and can follow OS preference.
       </p>
 
-      <pre class="sg-code">import { VaultTheme } from './src/components/vault.js';
+      <pre class="sg-code">import { VaultTheme } from '../src/components/vault.js';
 
 VaultTheme.init();        // call once on boot — restores saved preference
 VaultTheme.set('dark');   // force dark
@@ -1317,9 +1311,9 @@ VaultTheme.get();         // returns 'dark' | 'light'</pre>
   </main>
 </div>
 
-<script type="module" src="./src/components/vault.js"></script>
+<script type="module" src="../src/components/vault.js"></script>
 <script type="module">
-  import { VaultTheme } from './src/components/vault.js';
+  import { VaultTheme } from '../src/components/vault.js';
   VaultTheme.init();
 
   const toggle = document.getElementById('theme-toggle');

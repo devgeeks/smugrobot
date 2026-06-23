@@ -220,7 +220,6 @@ font-family:    var(--font-mono);
 font-size:      var(--text-xs);
 font-weight:    500;
 letter-spacing: 0.08em;
-text-transform: uppercase;
 color:          var(--text-secondary);
 ```
 
@@ -289,7 +288,6 @@ class VaultMyThing extends HTMLElement {
           font-size:      var(--text-xs);
           font-weight:    500;
           letter-spacing: 0.08em;
-          text-transform: uppercase;
           color:          var(--text-secondary);
         }
       </style>

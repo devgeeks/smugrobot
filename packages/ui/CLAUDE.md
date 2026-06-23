@@ -123,7 +123,7 @@ Rule: use `--cipher` for backgrounds/borders/glows. Use `--cipher-text` for any 
 --text-3xl: 1.875rem  --text-4xl: 2.25rem
 ```
 
-Labels use `--font-mono` at `--text-xs`, `font-weight: 500`, `letter-spacing: 0.08em`, `text-transform: uppercase`.
+Labels use `--font-mono` at `--text-xs`, `font-weight: 500`, `letter-spacing: 0.08em`.
 
 ### Radius
 
@@ -292,7 +292,6 @@ When building a one-off component that isn't in the library, follow this pattern
   font-size:      var(--text-xs);
   font-weight:    500;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
   color:          var(--text-secondary);
 }
 ```

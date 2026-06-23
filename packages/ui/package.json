@@ -18,7 +18,8 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "styleguide": "open http://localhost:3900/style-guide && npx serve . --listen 3900"
   },
   "devDependencies": {
     "typescript": "*"

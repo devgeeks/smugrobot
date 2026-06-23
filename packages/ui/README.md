@@ -465,7 +465,6 @@ class VaultMyThing extends HTMLElement {
           font-size:      var(--text-xs);
           font-weight:    500;
           letter-spacing: 0.08em;
-          text-transform: uppercase;
           color:          var(--text-secondary);
         }
       </style>
@@ -525,10 +524,10 @@ This augments `HTMLElementTagNameMap` so `querySelector('vault-input')` returns 
 Open `style-guide.html` in a browser for a live reference of every component in all variants, design token swatches, the full type scale, spacing scale, and design decision rationale.
 
 ```sh
-open packages/ui/style-guide.html
+npm run styleguide
 ```
 
-No build step or server required — the file loads fonts from Google Fonts and all other assets from relative paths.
+Serves the package via `npx serve` at `http://localhost:3900/style-guide/`. No build step required.
 
 ---
 
