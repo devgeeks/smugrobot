@@ -56,6 +56,7 @@ export interface SetMetaOptions {
 export type EchidnaJsErrorCode =
   | "WRONG_KEY"
   | "CORRUPT_BLOB"
+  | "INVALID_KEY"
   | "NOT_FOUND"
   | "KDF_FAILED"
   | "VAULT_EXISTS"

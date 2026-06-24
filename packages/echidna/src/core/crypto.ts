@@ -13,6 +13,12 @@ export function generateNonce(): Uint8Array {
 }
 
 export function encrypt(plaintext: string, key: Uint8Array): Uint8Array {
+  if (key.length !== nacl.secretbox.keyLength) {
+    throw new EchidnaJsError(
+      `Key must be ${nacl.secretbox.keyLength} bytes, got ${key.length}`,
+      "INVALID_KEY",
+    )
+  }
   const nonce = generateNonce()
   const plaintextBytes = new TextEncoder().encode(plaintext)
   const ciphertext = nacl.secretbox(plaintextBytes, nonce, key)
@@ -24,6 +30,12 @@ export function encrypt(plaintext: string, key: Uint8Array): Uint8Array {
 }
 
 export function decrypt(blob: Uint8Array, key: Uint8Array): string {
+  if (key.length !== nacl.secretbox.keyLength) {
+    throw new EchidnaJsError(
+      `Key must be ${nacl.secretbox.keyLength} bytes, got ${key.length}`,
+      "INVALID_KEY",
+    )
+  }
   if (blob.length < MIN_BLOB_LENGTH) {
     throw new EchidnaJsError("Blob too short to be valid", "CORRUPT_BLOB")
   }

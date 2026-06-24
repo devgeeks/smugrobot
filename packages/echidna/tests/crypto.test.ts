@@ -50,4 +50,17 @@ describe("crypto", () => {
     const blob = encrypt("secret", key)
     expect(() => decrypt(blob, nacl.randomBytes(32))).toThrow(EchidnaJsError)
   })
+
+  it("encrypt with wrong-length key throws INVALID_KEY", () => {
+    expect(() => encrypt("test", nacl.randomBytes(16))).toThrow(
+      expect.objectContaining({ code: "INVALID_KEY" }),
+    )
+  })
+
+  it("decrypt with wrong-length key throws INVALID_KEY", () => {
+    const blob = encrypt("test", key)
+    expect(() => decrypt(blob, nacl.randomBytes(16))).toThrow(
+      expect.objectContaining({ code: "INVALID_KEY" }),
+    )
+  })
 })
