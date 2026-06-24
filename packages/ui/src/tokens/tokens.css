@@ -52,8 +52,8 @@
   --sp-16: 64px;
 
   /* ── Typography ── */
-  --font-mono: 'IBM Plex Mono', monospace;
-  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', monospace;
+  --font-body: 'Geist', system-ui, sans-serif;
 
   --text-xs:   0.70rem;
   --text-sm:   0.8125rem;

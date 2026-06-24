@@ -17,8 +17,7 @@ Read `packages/ui/CLAUDE.md` now if you haven't already — it is the authoritat
 Every page using vault-ui must load these in order:
 
 ```html
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="path/to/tokens/fonts.css">
 <link rel="stylesheet" href="path/to/tokens/tokens.css">
 <link rel="stylesheet" href="path/to/tokens/base.css">
 <script type="module" src="path/to/components/vault.js"></script>
@@ -192,8 +191,8 @@ var(--sp-10) /* 40px */  var(--sp-12) /* 48px */  var(--sp-16) /* 64px */
 
 **Typography**
 ```css
-var(--font-mono)   /* IBM Plex Mono — headings, labels, code, badges, buttons */
-var(--font-body)   /* Inter — prose, input values, descriptions */
+var(--font-mono)   /* Geist Mono — headings, labels, code, badges, buttons */
+var(--font-body)   /* Geist Sans — prose, input values, descriptions */
 ```
 
 **Motion (all respect prefers-reduced-motion)**

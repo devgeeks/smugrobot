@@ -16,7 +16,7 @@ vault-ui/
 ```
 
 Every app using this library must import in this order:
-1. Google Fonts (IBM Plex Mono 400/500/600 + Inter 400/500/600)
+1. `src/tokens/fonts.css`
 2. `src/tokens/tokens.css`
 3. `src/tokens/base.css`
 4. `src/components/vault.js` (as `type="module"`)
@@ -115,8 +115,8 @@ Rule: use `--cipher` for backgrounds/borders/glows. Use `--cipher-text` for any 
 ### Typography
 
 ```
---font-mono: 'IBM Plex Mono', monospace   → headings, labels, code, metadata
---font-body: 'Inter', system-ui, sans     → prose, input values, descriptions
+--font-mono: 'Geist Mono', monospace   → headings, labels, code, metadata
+--font-body: 'Geist', system-ui, sans  → prose, input values, descriptions
 
 --text-xs: 0.70rem    --text-sm: 0.8125rem  --text-base: 0.9375rem
 --text-lg: 1.0625rem  --text-xl: 1.25rem    --text-2xl: 1.5rem
@@ -241,8 +241,7 @@ document.querySelector('vault-select').addEventListener('vault-change', e => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My App</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="vault-ui/src/tokens/fonts.css">
   <link rel="stylesheet" href="vault-ui/src/tokens/tokens.css">
   <link rel="stylesheet" href="vault-ui/src/tokens/base.css">
 </head>

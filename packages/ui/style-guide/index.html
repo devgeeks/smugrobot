@@ -1,969 +1,1857 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vault UI — Style Guide</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../src/tokens/tokens.css">
-  <link rel="stylesheet" href="../src/tokens/base.css">
-  <style>
-    /* ── Style guide chrome ── */
-    .sg-layout {
-      display: grid;
-      grid-template-columns: 220px 1fr;
-      min-height: 100vh;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vault UI — Style Guide</title>
+    <link rel="stylesheet" href="../src/tokens/fonts.css" />
+    <link rel="stylesheet" href="../src/tokens/tokens.css" />
+    <link rel="stylesheet" href="../src/tokens/base.css" />
+    <style>
+      /* ── Style guide chrome ── */
+      .sg-layout {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        min-height: 100vh;
+      }
 
-    /* Sidebar nav */
-    .sg-nav {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
-      background: var(--surface-raised);
-      border-right: 1px solid var(--surface-border);
-      padding: var(--sp-6) 0;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-    .sg-nav-logo {
-      font-family: var(--font-mono);
-      font-size: var(--text-sm);
-      font-weight: 600;
-      color: var(--cipher-text);
-      padding: 0 var(--sp-4) var(--sp-4);
-      border-bottom: 1px solid var(--surface-border);
-      margin-bottom: var(--sp-3);
-      letter-spacing: 0.06em;
-    }
-    .sg-nav-section {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-      padding: var(--sp-3) var(--sp-4) var(--sp-1);
-    }
-    .sg-nav a {
-      display: block;
-      font-family: var(--font-body);
-      font-size: var(--text-sm);
-      color: var(--text-secondary);
-      text-decoration: none;
-      padding: var(--sp-1) var(--sp-4);
-      border-radius: 0;
-      transition: color var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out);
-    }
-    .sg-nav a:hover { color: var(--text-primary); background: var(--surface-hover); }
-    .sg-nav a:focus-visible { outline: none; box-shadow: inset var(--focus-ring); }
-    .sg-nav-footer {
-      margin-top: auto;
-      padding: var(--sp-4);
-      border-top: 1px solid var(--surface-border);
-    }
+      /* Sidebar nav */
+      .sg-nav {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        background: var(--surface-raised);
+        border-right: 1px solid var(--surface-border);
+        padding: var(--sp-6) 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .sg-nav-logo {
+        font-family: var(--font-mono);
+        font-size: var(--text-sm);
+        font-weight: 600;
+        color: var(--cipher-text);
+        padding: 0 var(--sp-4) var(--sp-4);
+        border-bottom: 1px solid var(--surface-border);
+        margin-bottom: var(--sp-3);
+        letter-spacing: 0.06em;
+      }
+      .sg-nav-section {
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        padding: var(--sp-3) var(--sp-4) var(--sp-1);
+      }
+      .sg-nav a {
+        display: block;
+        font-family: var(--font-body);
+        font-size: var(--text-sm);
+        color: var(--text-secondary);
+        text-decoration: none;
+        padding: var(--sp-1) var(--sp-4);
+        border-radius: 0;
+        transition:
+          color var(--duration-fast) var(--ease-out),
+          background var(--duration-fast) var(--ease-out);
+      }
+      .sg-nav a:hover {
+        color: var(--text-primary);
+        background: var(--surface-hover);
+      }
+      .sg-nav a:focus-visible {
+        outline: none;
+        box-shadow: inset var(--focus-ring);
+      }
+      .sg-nav-footer {
+        margin-top: auto;
+        padding: var(--sp-4);
+        border-top: 1px solid var(--surface-border);
+      }
 
-    /* Main content */
-    .sg-main {
-      padding: var(--sp-12) var(--sp-10);
-      max-width: 900px;
-    }
+      /* Main content */
+      .sg-main {
+        padding: var(--sp-12) var(--sp-10);
+        max-width: 900px;
+      }
 
-    /* Sections */
-    .sg-section {
-      margin-bottom: var(--sp-16);
-      scroll-margin-top: var(--sp-6);
-    }
-    .sg-section-title {
-      font-family: var(--font-mono);
-      font-size: var(--text-2xl);
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: var(--sp-2);
-    }
-    .sg-section-desc {
-      font-family: var(--font-body);
-      font-size: var(--text-base);
-      color: var(--text-secondary);
-      margin-bottom: var(--sp-8);
-      line-height: 1.6;
-      max-width: 640px;
-    }
+      /* Sections */
+      .sg-section {
+        margin-bottom: var(--sp-16);
+        scroll-margin-top: var(--sp-6);
+      }
+      .sg-section-title {
+        font-family: var(--font-mono);
+        font-size: var(--text-2xl);
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: var(--sp-2);
+      }
+      .sg-section-desc {
+        font-family: var(--font-body);
+        font-size: var(--text-base);
+        color: var(--text-secondary);
+        margin-bottom: var(--sp-8);
+        line-height: 1.6;
+        max-width: 640px;
+      }
 
-    /* Sub-sections */
-    .sg-sub {
-      margin-bottom: var(--sp-8);
-    }
-    .sg-sub-title {
-      font-family: var(--font-mono);
-      font-size: var(--text-sm);
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-      margin-bottom: var(--sp-3);
-      padding-bottom: var(--sp-2);
-      border-bottom: 1px solid var(--surface-border);
-    }
+      /* Sub-sections */
+      .sg-sub {
+        margin-bottom: var(--sp-8);
+      }
+      .sg-sub-title {
+        font-family: var(--font-mono);
+        font-size: var(--text-sm);
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        margin-bottom: var(--sp-3);
+        padding-bottom: var(--sp-2);
+        border-bottom: 1px solid var(--surface-border);
+      }
 
-    /* Preview blocks */
-    .sg-preview {
-      background: var(--surface-raised);
-      border: 1px solid var(--surface-border);
-      border-radius: var(--radius-lg);
-      padding: var(--sp-6);
-      margin-bottom: var(--sp-2);
-    }
-    .sg-preview-dark {
-      background: var(--ink-950);
-    }
-    .sg-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: var(--sp-3);
-    }
-    .sg-col {
-      display: flex;
-      flex-direction: column;
-      gap: var(--sp-3);
-    }
-    .sg-grid {
-      display: grid;
-      gap: var(--sp-4);
-    }
-    .sg-grid-2 { grid-template-columns: repeat(2, 1fr); }
-    .sg-grid-3 { grid-template-columns: repeat(3, 1fr); }
+      /* Preview blocks */
+      .sg-preview {
+        background: var(--surface-raised);
+        border: 1px solid var(--surface-border);
+        border-radius: var(--radius-lg);
+        padding: var(--sp-6);
+        margin-bottom: var(--sp-2);
+      }
+      .sg-preview-dark {
+        background: var(--ink-950);
+      }
+      .sg-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--sp-3);
+      }
+      .sg-col {
+        display: flex;
+        flex-direction: column;
+        gap: var(--sp-3);
+      }
+      .sg-grid {
+        display: grid;
+        gap: var(--sp-4);
+      }
+      .sg-grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .sg-grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
 
-    /* Code blocks */
-    .sg-code {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      background: var(--surface-overlay);
-      border: 1px solid var(--surface-border);
-      border-radius: var(--radius-md);
-      padding: var(--sp-3) var(--sp-4);
-      color: var(--text-secondary);
-      overflow-x: auto;
-      white-space: pre;
-      margin-bottom: var(--sp-6);
-    }
+      /* Code blocks */
+      .sg-code {
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+        background: var(--surface-overlay);
+        border: 1px solid var(--surface-border);
+        border-radius: var(--radius-md);
+        padding: var(--sp-3) var(--sp-4);
+        color: var(--text-secondary);
+        overflow-x: auto;
+        white-space: pre;
+        margin-bottom: var(--sp-6);
+      }
 
-    /* Color swatches */
-    .sg-swatch-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: var(--sp-3);
-    }
-    .sg-swatch {
-      display: flex;
-      flex-direction: column;
-      gap: var(--sp-1);
-    }
-    .sg-swatch-color {
-      height: 48px;
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .sg-swatch-name {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      color: var(--text-secondary);
-    }
-    .sg-swatch-hex {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      color: var(--text-muted);
-    }
+      /* Color swatches */
+      .sg-swatch-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: var(--sp-3);
+      }
+      .sg-swatch {
+        display: flex;
+        flex-direction: column;
+        gap: var(--sp-1);
+      }
+      .sg-swatch-color {
+        height: 48px;
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .sg-swatch-name {
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+        color: var(--text-secondary);
+      }
+      .sg-swatch-hex {
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+        color: var(--text-muted);
+      }
 
-    /* Semantic token rows */
-    .sg-token-row {
-      display: flex;
-      align-items: center;
-      gap: var(--sp-3);
-      padding: var(--sp-2) 0;
-      border-bottom: 1px solid var(--surface-border);
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-    }
-    .sg-token-row:last-child { border-bottom: none; }
-    .sg-token-dot {
-      width: 20px;
-      height: 20px;
-      border-radius: var(--radius-sm);
-      flex-shrink: 0;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .sg-token-name { color: var(--cipher-text); flex: 1; }
-    .sg-token-desc { color: var(--text-muted); font-size: 0.65rem; }
+      /* Semantic token rows */
+      .sg-token-row {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-3);
+        padding: var(--sp-2) 0;
+        border-bottom: 1px solid var(--surface-border);
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+      }
+      .sg-token-row:last-child {
+        border-bottom: none;
+      }
+      .sg-token-dot {
+        width: 20px;
+        height: 20px;
+        border-radius: var(--radius-sm);
+        flex-shrink: 0;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .sg-token-name {
+        color: var(--cipher-text);
+        flex: 1;
+      }
+      .sg-token-desc {
+        color: var(--text-muted);
+        font-size: 0.65rem;
+      }
 
-    /* Type scale rows */
-    .sg-type-row {
-      display: flex;
-      align-items: baseline;
-      gap: var(--sp-4);
-      padding: var(--sp-3) 0;
-      border-bottom: 1px solid var(--surface-border);
-    }
-    .sg-type-row:last-child { border-bottom: none; }
-    .sg-type-meta {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      color: var(--text-muted);
-      width: 140px;
-      flex-shrink: 0;
-    }
+      /* Type scale rows */
+      .sg-type-row {
+        display: flex;
+        align-items: baseline;
+        gap: var(--sp-4);
+        padding: var(--sp-3) 0;
+        border-bottom: 1px solid var(--surface-border);
+      }
+      .sg-type-row:last-child {
+        border-bottom: none;
+      }
+      .sg-type-meta {
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+        color: var(--text-muted);
+        width: 140px;
+        flex-shrink: 0;
+      }
 
-    /* Spacing scale */
-    .sg-space-row {
-      display: flex;
-      align-items: center;
-      gap: var(--sp-4);
-      padding: var(--sp-2) 0;
-    }
-    .sg-space-bar {
-      background: var(--cipher);
-      height: 8px;
-      border-radius: var(--radius-sm);
-      opacity: 0.6;
-    }
-    .sg-space-label {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      color: var(--text-muted);
-      width: 60px;
-      flex-shrink: 0;
-    }
-    .sg-space-value {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      color: var(--text-secondary);
-    }
+      /* Spacing scale */
+      .sg-space-row {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-4);
+        padding: var(--sp-2) 0;
+      }
+      .sg-space-bar {
+        background: var(--cipher);
+        height: 8px;
+        border-radius: var(--radius-sm);
+        opacity: 0.6;
+      }
+      .sg-space-label {
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+        color: var(--text-muted);
+        width: 60px;
+        flex-shrink: 0;
+      }
+      .sg-space-value {
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+        color: var(--text-secondary);
+      }
 
-    /* Decision callout */
-    .sg-decision {
-      background: var(--surface-overlay);
-      border-left: 3px solid var(--cipher);
-      border-radius: 0 var(--radius-md) var(--radius-md) 0;
-      padding: var(--sp-3) var(--sp-4);
-      margin-bottom: var(--sp-4);
-    }
-    .sg-decision-title {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      color: var(--cipher-text);
-      margin-bottom: var(--sp-1);
-    }
-    .sg-decision p {
-      font-family: var(--font-body);
-      font-size: var(--text-sm);
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
-    .sg-decision code {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      background: var(--surface-border);
-      padding: 1px 5px;
-      border-radius: var(--radius-sm);
-      color: var(--text-primary);
-      border: none;
-    }
+      /* Decision callout */
+      .sg-decision {
+        background: var(--surface-overlay);
+        border-left: 3px solid var(--cipher);
+        border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        padding: var(--sp-3) var(--sp-4);
+        margin-bottom: var(--sp-4);
+      }
+      .sg-decision-title {
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        color: var(--cipher-text);
+        margin-bottom: var(--sp-1);
+      }
+      .sg-decision p {
+        font-family: var(--font-body);
+        font-size: var(--text-sm);
+        color: var(--text-secondary);
+        line-height: 1.6;
+      }
+      .sg-decision code {
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+        background: var(--surface-border);
+        padding: 1px 5px;
+        border-radius: var(--radius-sm);
+        color: var(--text-primary);
+        border: none;
+      }
 
-    /* Rule table */
-    .sg-rule-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: var(--text-sm);
-      margin-bottom: var(--sp-6);
-    }
-    .sg-rule-table th {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-      text-align: left;
-      padding: var(--sp-2) var(--sp-3);
-      border-bottom: 1px solid var(--surface-border);
-    }
-    .sg-rule-table td {
-      font-family: var(--font-body);
-      color: var(--text-secondary);
-      padding: var(--sp-2) var(--sp-3);
-      border-bottom: 1px solid var(--surface-border);
-      vertical-align: top;
-      line-height: 1.5;
-    }
-    .sg-rule-table td:first-child {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      color: var(--cipher-text);
-      white-space: nowrap;
-    }
-    .sg-rule-table tr:last-child td { border-bottom: none; }
+      /* Rule table */
+      .sg-rule-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--text-sm);
+        margin-bottom: var(--sp-6);
+      }
+      .sg-rule-table th {
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        text-align: left;
+        padding: var(--sp-2) var(--sp-3);
+        border-bottom: 1px solid var(--surface-border);
+      }
+      .sg-rule-table td {
+        font-family: var(--font-body);
+        color: var(--text-secondary);
+        padding: var(--sp-2) var(--sp-3);
+        border-bottom: 1px solid var(--surface-border);
+        vertical-align: top;
+        line-height: 1.5;
+      }
+      .sg-rule-table td:first-child {
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+        color: var(--cipher-text);
+        white-space: nowrap;
+      }
+      .sg-rule-table tr:last-child td {
+        border-bottom: none;
+      }
 
-    /* Radius demo */
-    .sg-radius-row {
-      display: flex;
-      align-items: flex-end;
-      gap: var(--sp-4);
-      flex-wrap: wrap;
-    }
-    .sg-radius-box {
-      background: var(--surface-overlay);
-      border: 1.5px solid var(--surface-border);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: var(--sp-1);
-      width: 72px;
-      height: 56px;
-    }
-    .sg-radius-name {
-      font-family: var(--font-mono);
-      font-size: 0.6rem;
-      color: var(--text-muted);
-      text-align: center;
-    }
+      /* Radius demo */
+      .sg-radius-row {
+        display: flex;
+        align-items: flex-end;
+        gap: var(--sp-4);
+        flex-wrap: wrap;
+      }
+      .sg-radius-box {
+        background: var(--surface-overlay);
+        border: 1.5px solid var(--surface-border);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: var(--sp-1);
+        width: 72px;
+        height: 56px;
+      }
+      .sg-radius-name {
+        font-family: var(--font-mono);
+        font-size: 0.6rem;
+        color: var(--text-muted);
+        text-align: center;
+      }
 
-    /* Motion demo */
-    .sg-motion-preview {
-      display: flex;
-      gap: var(--sp-4);
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .sg-motion-dot {
-      width: 16px;
-      height: 16px;
-      border-radius: var(--radius-full);
-      background: var(--cipher);
-      cursor: pointer;
-      transition: transform var(--duration-normal) var(--ease-out);
-    }
-    .sg-motion-dot:hover { transform: scale(1.8); }
+      /* Motion demo */
+      .sg-motion-preview {
+        display: flex;
+        gap: var(--sp-4);
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .sg-motion-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: var(--radius-full);
+        background: var(--cipher);
+        cursor: pointer;
+        transition: transform var(--duration-normal) var(--ease-out);
+      }
+      .sg-motion-dot:hover {
+        transform: scale(1.8);
+      }
 
-    /* Divider */
-    hr.sg-divider {
-      border: none;
-      border-top: 1px solid var(--surface-border);
-      margin: var(--sp-8) 0;
-    }
+      /* Divider */
+      hr.sg-divider {
+        border: none;
+        border-top: 1px solid var(--surface-border);
+        margin: var(--sp-8) 0;
+      }
 
-    /* label style example */
-    .sg-label-example {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      color: var(--text-secondary);
-    }
-  </style>
-</head>
-<body>
-<div class="sg-layout">
+      /* label style example */
+      .sg-label-example {
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        color: var(--text-secondary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sg-layout">
+      <!-- ── Sidebar ── -->
+      <nav class="sg-nav" aria-label="Style guide navigation">
+        <div class="sg-nav-logo">Vault UI</div>
 
-  <!-- ── Sidebar ── -->
-  <nav class="sg-nav" aria-label="Style guide navigation">
-    <div class="sg-nav-logo">Vault UI</div>
+        <span class="sg-nav-section">Foundations</span>
+        <a href="#colors">Colors</a>
+        <a href="#typography">Typography</a>
+        <a href="#spacing">Spacing</a>
+        <a href="#radius">Radius</a>
+        <a href="#motion">Motion</a>
+        <a href="#focus">Focus &amp; Shadows</a>
 
-    <span class="sg-nav-section">Foundations</span>
-    <a href="#colors">Colors</a>
-    <a href="#typography">Typography</a>
-    <a href="#spacing">Spacing</a>
-    <a href="#radius">Radius</a>
-    <a href="#motion">Motion</a>
-    <a href="#focus">Focus &amp; Shadows</a>
+        <span class="sg-nav-section">Components</span>
+        <a href="#button">Button</a>
+        <a href="#input">Input</a>
+        <a href="#textarea">Textarea</a>
+        <a href="#badge">Badge</a>
+        <a href="#card">Card</a>
+        <a href="#toggle">Toggle</a>
+        <a href="#select">Select</a>
+        <a href="#alert">Alert</a>
+        <a href="#spinner">Spinner</a>
+        <a href="#avatar">Avatar</a>
 
-    <span class="sg-nav-section">Components</span>
-    <a href="#button">Button</a>
-    <a href="#input">Input</a>
-    <a href="#textarea">Textarea</a>
-    <a href="#badge">Badge</a>
-    <a href="#card">Card</a>
-    <a href="#toggle">Toggle</a>
-    <a href="#select">Select</a>
-    <a href="#alert">Alert</a>
-    <a href="#spinner">Spinner</a>
-    <a href="#avatar">Avatar</a>
+        <span class="sg-nav-section">Reference</span>
+        <a href="#decisions">Design decisions</a>
+        <a href="#rules">Rules</a>
+        <a href="#events">Events</a>
+        <a href="#theme">Theming</a>
 
-    <span class="sg-nav-section">Reference</span>
-    <a href="#decisions">Design decisions</a>
-    <a href="#rules">Rules</a>
-    <a href="#events">Events</a>
-    <a href="#theme">Theming</a>
+        <div class="sg-nav-footer">
+          <vault-toggle
+            id="theme-toggle"
+            label="Light mode"
+            size="sm"
+          ></vault-toggle>
+        </div>
+      </nav>
 
-    <div class="sg-nav-footer">
-      <vault-toggle id="theme-toggle" label="Light mode" size="sm"></vault-toggle>
-    </div>
-  </nav>
-
-  <!-- ── Main ── -->
-  <main class="sg-main">
-
-    <!-- ════════════════════════════════════════════════════════════════
+      <!-- ── Main ── -->
+      <main class="sg-main">
+        <!-- ════════════════════════════════════════════════════════════════
          COLORS
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="colors">
-      <h2 class="sg-section-title">Colors</h2>
-      <p class="sg-section-desc">
-        All colors are CSS custom properties. Never hardcode hex values — always use the token names.
-        The palette is built around a cool-dark green-gray base called "ink", with four semantic
-        accent colors: <strong>cipher</strong> (trust, success), <strong>warn</strong>,
-        <strong>danger</strong>, and <strong>info</strong>.
-      </p>
+        <section class="sg-section" id="colors">
+          <h2 class="sg-section-title">Colors</h2>
+          <p class="sg-section-desc">
+            All colors are CSS custom properties. Never hardcode hex values —
+            always use the token names. The palette is built around a cool-dark
+            green-gray base called "ink", with four semantic accent colors:
+            <strong>cipher</strong> (trust, success), <strong>warn</strong>,
+            <strong>danger</strong>, and <strong>info</strong>.
+          </p>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Ink palette</div>
-        <div class="sg-preview">
-          <div class="sg-swatch-grid">
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#0D0F0E"></div><div class="sg-swatch-name">--ink-950</div><div class="sg-swatch-hex">#0D0F0E</div></div>
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#141817"></div><div class="sg-swatch-name">--ink-900</div><div class="sg-swatch-hex">#141817</div></div>
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#1C2020"></div><div class="sg-swatch-name">--ink-800</div><div class="sg-swatch-hex">#1C2020</div></div>
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#252B2A"></div><div class="sg-swatch-name">--ink-700</div><div class="sg-swatch-hex">#252B2A</div></div>
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#303938"></div><div class="sg-swatch-name">--ink-600</div><div class="sg-swatch-hex">#303938</div></div>
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#7C8A87"></div><div class="sg-swatch-name">--ink-500</div><div class="sg-swatch-hex">#7C8A87</div></div>
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#687270"></div><div class="sg-swatch-name">--ink-400</div><div class="sg-swatch-hex">#687270</div></div>
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#8E9A98"></div><div class="sg-swatch-name">--ink-300</div><div class="sg-swatch-hex">#8E9A98</div></div>
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#CDD4D1"></div><div class="sg-swatch-name">--ink-100</div><div class="sg-swatch-hex">#CDD4D1</div></div>
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#F2F5F3;border-color:rgba(0,0,0,0.1)"></div><div class="sg-swatch-name">--ink-50</div><div class="sg-swatch-hex">#F2F5F3</div></div>
+          <div class="sg-sub">
+            <div class="sg-sub-title">Ink palette</div>
+            <div class="sg-preview">
+              <div class="sg-swatch-grid">
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="background: #0d0f0e"
+                  ></div>
+                  <div class="sg-swatch-name">--ink-950</div>
+                  <div class="sg-swatch-hex">#0D0F0E</div>
+                </div>
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="background: #141817"
+                  ></div>
+                  <div class="sg-swatch-name">--ink-900</div>
+                  <div class="sg-swatch-hex">#141817</div>
+                </div>
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="background: #1c2020"
+                  ></div>
+                  <div class="sg-swatch-name">--ink-800</div>
+                  <div class="sg-swatch-hex">#1C2020</div>
+                </div>
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="background: #252b2a"
+                  ></div>
+                  <div class="sg-swatch-name">--ink-700</div>
+                  <div class="sg-swatch-hex">#252B2A</div>
+                </div>
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="background: #303938"
+                  ></div>
+                  <div class="sg-swatch-name">--ink-600</div>
+                  <div class="sg-swatch-hex">#303938</div>
+                </div>
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="background: #7c8a87"
+                  ></div>
+                  <div class="sg-swatch-name">--ink-500</div>
+                  <div class="sg-swatch-hex">#7C8A87</div>
+                </div>
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="background: #687270"
+                  ></div>
+                  <div class="sg-swatch-name">--ink-400</div>
+                  <div class="sg-swatch-hex">#687270</div>
+                </div>
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="background: #8e9a98"
+                  ></div>
+                  <div class="sg-swatch-name">--ink-300</div>
+                  <div class="sg-swatch-hex">#8E9A98</div>
+                </div>
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="background: #cdd4d1"
+                  ></div>
+                  <div class="sg-swatch-name">--ink-100</div>
+                  <div class="sg-swatch-hex">#CDD4D1</div>
+                </div>
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="
+                      background: #f2f5f3;
+                      border-color: rgba(0, 0, 0, 0.1);
+                    "
+                  ></div>
+                  <div class="sg-swatch-name">--ink-50</div>
+                  <div class="sg-swatch-hex">#F2F5F3</div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Accent colors</div>
-        <div class="sg-preview">
-          <div class="sg-swatch-grid">
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#2ECC8F"></div><div class="sg-swatch-name">--cipher</div><div class="sg-swatch-hex">#2ECC8F</div></div>
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#1E9966"></div><div class="sg-swatch-name">--cipher-dim</div><div class="sg-swatch-hex">#1E9966</div></div>
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#E8A838"></div><div class="sg-swatch-name">--warn</div><div class="sg-swatch-hex">#E8A838</div></div>
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#C08020"></div><div class="sg-swatch-name">--warn-dim</div><div class="sg-swatch-hex">#C08020</div></div>
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#D95F5F"></div><div class="sg-swatch-name">--danger</div><div class="sg-swatch-hex">#D95F5F</div></div>
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#B03E3E"></div><div class="sg-swatch-name">--danger-dim</div><div class="sg-swatch-hex">#B03E3E</div></div>
-            <div class="sg-swatch"><div class="sg-swatch-color" style="background:#569CD6"></div><div class="sg-swatch-name">--info</div><div class="sg-swatch-hex">#569CD6</div></div>
+          <div class="sg-sub">
+            <div class="sg-sub-title">Accent colors</div>
+            <div class="sg-preview">
+              <div class="sg-swatch-grid">
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="background: #2ecc8f"
+                  ></div>
+                  <div class="sg-swatch-name">--cipher</div>
+                  <div class="sg-swatch-hex">#2ECC8F</div>
+                </div>
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="background: #1e9966"
+                  ></div>
+                  <div class="sg-swatch-name">--cipher-dim</div>
+                  <div class="sg-swatch-hex">#1E9966</div>
+                </div>
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="background: #e8a838"
+                  ></div>
+                  <div class="sg-swatch-name">--warn</div>
+                  <div class="sg-swatch-hex">#E8A838</div>
+                </div>
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="background: #c08020"
+                  ></div>
+                  <div class="sg-swatch-name">--warn-dim</div>
+                  <div class="sg-swatch-hex">#C08020</div>
+                </div>
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="background: #d95f5f"
+                  ></div>
+                  <div class="sg-swatch-name">--danger</div>
+                  <div class="sg-swatch-hex">#D95F5F</div>
+                </div>
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="background: #b03e3e"
+                  ></div>
+                  <div class="sg-swatch-name">--danger-dim</div>
+                  <div class="sg-swatch-hex">#B03E3E</div>
+                </div>
+                <div class="sg-swatch">
+                  <div
+                    class="sg-swatch-color"
+                    style="background: #569cd6"
+                  ></div>
+                  <div class="sg-swatch-name">--info</div>
+                  <div class="sg-swatch-hex">#569CD6</div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">WCAG text tokens — use these for readable text, not the raw accents</div>
-        <p style="font-size:var(--text-sm);color:var(--text-secondary);margin-bottom:var(--sp-3);font-family:var(--font-body);">
-          The vivid accent values fail WCAG AA on light backgrounds. These <code>-text</code> variants
-          automatically switch to darker shades in light mode while the base accents stay vivid for
-          backgrounds, borders, and glows.
-        </p>
-        <div class="sg-preview">
-          <div class="sg-token-row">
-            <div class="sg-token-dot" style="background:var(--cipher-text)"></div>
-            <span class="sg-token-name">--cipher-text</span>
-            <span class="sg-token-desc">Dark: #2ECC8F (vivid) · Light: #0F5735 (8.62:1 AAA)</span>
+          <div class="sg-sub">
+            <div class="sg-sub-title">
+              WCAG text tokens — use these for readable text, not the raw
+              accents
+            </div>
+            <p
+              style="
+                font-size: var(--text-sm);
+                color: var(--text-secondary);
+                margin-bottom: var(--sp-3);
+                font-family: var(--font-body);
+              "
+            >
+              The vivid accent values fail WCAG AA on light backgrounds. These
+              <code>-text</code> variants automatically switch to darker shades
+              in light mode while the base accents stay vivid for backgrounds,
+              borders, and glows.
+            </p>
+            <div class="sg-preview">
+              <div class="sg-token-row">
+                <div
+                  class="sg-token-dot"
+                  style="background: var(--cipher-text)"
+                ></div>
+                <span class="sg-token-name">--cipher-text</span>
+                <span class="sg-token-desc"
+                  >Dark: #2ECC8F (vivid) · Light: #0F5735 (8.62:1 AAA)</span
+                >
+              </div>
+              <div class="sg-token-row">
+                <div
+                  class="sg-token-dot"
+                  style="background: var(--warn-text)"
+                ></div>
+                <span class="sg-token-name">--warn-text</span>
+                <span class="sg-token-desc"
+                  >Dark: #E8A838 · Light: #5C3E0A (9.77:1 AAA)</span
+                >
+              </div>
+              <div class="sg-token-row">
+                <div
+                  class="sg-token-dot"
+                  style="background: var(--danger-text)"
+                ></div>
+                <span class="sg-token-name">--danger-text</span>
+                <span class="sg-token-desc"
+                  >Dark: #D95F5F · Light: #C0392B (5.44:1 AA)</span
+                >
+              </div>
+              <div class="sg-token-row">
+                <div
+                  class="sg-token-dot"
+                  style="background: var(--info-text)"
+                ></div>
+                <span class="sg-token-name">--info-text</span>
+                <span class="sg-token-desc"
+                  >Dark: #569CD6 · Light: #1A5FA8 (6.47:1 AA)</span
+                >
+              </div>
+            </div>
           </div>
-          <div class="sg-token-row">
-            <div class="sg-token-dot" style="background:var(--warn-text)"></div>
-            <span class="sg-token-name">--warn-text</span>
-            <span class="sg-token-desc">Dark: #E8A838 · Light: #5C3E0A (9.77:1 AAA)</span>
-          </div>
-          <div class="sg-token-row">
-            <div class="sg-token-dot" style="background:var(--danger-text)"></div>
-            <span class="sg-token-name">--danger-text</span>
-            <span class="sg-token-desc">Dark: #D95F5F · Light: #C0392B (5.44:1 AA)</span>
-          </div>
-          <div class="sg-token-row">
-            <div class="sg-token-dot" style="background:var(--info-text)"></div>
-            <span class="sg-token-name">--info-text</span>
-            <span class="sg-token-desc">Dark: #569CD6 · Light: #1A5FA8 (6.47:1 AA)</span>
-          </div>
-        </div>
-      </div>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Semantic tokens — use these in components, not raw ink values</div>
-        <div class="sg-preview">
-          <div class="sg-token-row"><div class="sg-token-dot" style="background:var(--surface-base);border:1px solid var(--surface-border)"></div><span class="sg-token-name">--surface-base</span><span class="sg-token-desc">Page background</span></div>
-          <div class="sg-token-row"><div class="sg-token-dot" style="background:var(--surface-raised)"></div><span class="sg-token-name">--surface-raised</span><span class="sg-token-desc">Cards, panels</span></div>
-          <div class="sg-token-row"><div class="sg-token-dot" style="background:var(--surface-overlay)"></div><span class="sg-token-name">--surface-overlay</span><span class="sg-token-desc">Inputs, dropdowns, modals</span></div>
-          <div class="sg-token-row"><div class="sg-token-dot" style="background:var(--surface-border)"></div><span class="sg-token-name">--surface-border</span><span class="sg-token-desc">All borders</span></div>
-          <div class="sg-token-row"><div class="sg-token-dot" style="background:var(--surface-hover)"></div><span class="sg-token-name">--surface-hover</span><span class="sg-token-desc">Hover backgrounds</span></div>
-          <div class="sg-token-row"><div class="sg-token-dot" style="background:var(--text-primary);border-radius:var(--radius-full);width:12px;height:12px;margin:4px"></div><span class="sg-token-name">--text-primary</span><span class="sg-token-desc">Body text</span></div>
-          <div class="sg-token-row"><div class="sg-token-dot" style="background:var(--text-secondary);border-radius:var(--radius-full);width:12px;height:12px;margin:4px"></div><span class="sg-token-name">--text-secondary</span><span class="sg-token-desc">Labels, descriptions</span></div>
-          <div class="sg-token-row"><div class="sg-token-dot" style="background:var(--text-muted);border-radius:var(--radius-full);width:12px;height:12px;margin:4px"></div><span class="sg-token-name">--text-muted</span><span class="sg-token-desc">Placeholders, hints, timestamps</span></div>
-          <div class="sg-token-row"><div class="sg-token-dot" style="background:var(--text-accent);border-radius:var(--radius-full);width:12px;height:12px;margin:4px"></div><span class="sg-token-name">--text-accent</span><span class="sg-token-desc">= --cipher-text · link-like emphasis</span></div>
-        </div>
-      </div>
-    </section>
+          <div class="sg-sub">
+            <div class="sg-sub-title">
+              Semantic tokens — use these in components, not raw ink values
+            </div>
+            <div class="sg-preview">
+              <div class="sg-token-row">
+                <div
+                  class="sg-token-dot"
+                  style="
+                    background: var(--surface-base);
+                    border: 1px solid var(--surface-border);
+                  "
+                ></div>
+                <span class="sg-token-name">--surface-base</span
+                ><span class="sg-token-desc">Page background</span>
+              </div>
+              <div class="sg-token-row">
+                <div
+                  class="sg-token-dot"
+                  style="background: var(--surface-raised)"
+                ></div>
+                <span class="sg-token-name">--surface-raised</span
+                ><span class="sg-token-desc">Cards, panels</span>
+              </div>
+              <div class="sg-token-row">
+                <div
+                  class="sg-token-dot"
+                  style="background: var(--surface-overlay)"
+                ></div>
+                <span class="sg-token-name">--surface-overlay</span
+                ><span class="sg-token-desc">Inputs, dropdowns, modals</span>
+              </div>
+              <div class="sg-token-row">
+                <div
+                  class="sg-token-dot"
+                  style="background: var(--surface-border)"
+                ></div>
+                <span class="sg-token-name">--surface-border</span
+                ><span class="sg-token-desc">All borders</span>
+              </div>
+              <div class="sg-token-row">
+                <div
+                  class="sg-token-dot"
+                  style="background: var(--surface-hover)"
+                ></div>
+                <span class="sg-token-name">--surface-hover</span
+                ><span class="sg-token-desc">Hover backgrounds</span>
+              </div>
+              <div class="sg-token-row">
+                <div
+                  class="sg-token-dot"
+                  style="
+                    background: var(--text-primary);
+                    border-radius: var(--radius-full);
+                    width: 12px;
+                    height: 12px;
+                    margin: 4px;
+                  "
+                ></div>
+                <span class="sg-token-name">--text-primary</span
+                ><span class="sg-token-desc">Body text</span>
+              </div>
+              <div class="sg-token-row">
+                <div
+                  class="sg-token-dot"
+                  style="
+                    background: var(--text-secondary);
+                    border-radius: var(--radius-full);
+                    width: 12px;
+                    height: 12px;
+                    margin: 4px;
+                  "
+                ></div>
+                <span class="sg-token-name">--text-secondary</span
+                ><span class="sg-token-desc">Labels, descriptions</span>
+              </div>
+              <div class="sg-token-row">
+                <div
+                  class="sg-token-dot"
+                  style="
+                    background: var(--text-muted);
+                    border-radius: var(--radius-full);
+                    width: 12px;
+                    height: 12px;
+                    margin: 4px;
+                  "
+                ></div>
+                <span class="sg-token-name">--text-muted</span
+                ><span class="sg-token-desc"
+                  >Placeholders, hints, timestamps</span
+                >
+              </div>
+              <div class="sg-token-row">
+                <div
+                  class="sg-token-dot"
+                  style="
+                    background: var(--text-accent);
+                    border-radius: var(--radius-full);
+                    width: 12px;
+                    height: 12px;
+                    margin: 4px;
+                  "
+                ></div>
+                <span class="sg-token-name">--text-accent</span
+                ><span class="sg-token-desc"
+                  >= --cipher-text · link-like emphasis</span
+                >
+              </div>
+            </div>
+          </div>
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          TYPOGRAPHY
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="typography">
-      <h2 class="sg-section-title">Typography</h2>
-      <p class="sg-section-desc">
-        Two font families, each with a strict role. IBM Plex Mono carries all UI chrome —
-        labels, headings, code, metadata, button text. Inter carries all human-readable content —
-        input values, prose, descriptions.
-      </p>
+        <section class="sg-section" id="typography">
+          <h2 class="sg-section-title">Typography</h2>
+          <p class="sg-section-desc">
+            Two font families, each with a strict role. Geist Mono carries all
+            UI chrome — labels, headings, code, metadata, button text. Geist
+            Sans carries all human-readable content — input values, prose,
+            descriptions.
+          </p>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Font families</div>
-        <div class="sg-preview">
-          <div style="margin-bottom:var(--sp-4)">
-            <div style="font-family:var(--font-mono);font-size:var(--text-xl);font-weight:600;margin-bottom:var(--sp-1)">IBM Plex Mono</div>
-            <div style="font-family:var(--font-mono);font-size:var(--text-sm);color:var(--text-muted)">--font-mono · Headings, labels, code, badges, button text, metadata</div>
-            <div style="font-family:var(--font-mono);font-size:var(--text-base);color:var(--text-secondary);margin-top:var(--sp-2)">ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789</div>
+          <div class="sg-sub">
+            <div class="sg-sub-title">Font families</div>
+            <div class="sg-preview">
+              <div style="margin-bottom: var(--sp-4)">
+                <div
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: var(--text-xl);
+                    font-weight: 600;
+                    margin-bottom: var(--sp-1);
+                  "
+                >
+                  Geist Mono
+                </div>
+                <div
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: var(--text-sm);
+                    color: var(--text-muted);
+                  "
+                >
+                  --font-mono · Headings, labels, code, badges, button text,
+                  metadata
+                </div>
+                <div
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: var(--text-base);
+                    color: var(--text-secondary);
+                    margin-top: var(--sp-2);
+                  "
+                >
+                  The quick brown fox jumps over the lazy dog. 0123456789
+                </div>
+              </div>
+              <hr class="sg-divider" style="margin: var(--sp-4) 0" />
+              <div>
+                <div
+                  style="
+                    font-family: var(--font-body);
+                    font-size: var(--text-xl);
+                    font-weight: 600;
+                    margin-bottom: var(--sp-1);
+                  "
+                >
+                  Geist Sans
+                </div>
+                <div
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: var(--text-sm);
+                    color: var(--text-muted);
+                  "
+                >
+                  --font-body · Prose, input values, descriptions, alert body
+                </div>
+                <div
+                  style="
+                    font-family: var(--font-body);
+                    font-size: var(--text-base);
+                    color: var(--text-secondary);
+                    margin-top: var(--sp-2);
+                  "
+                >
+                  The quick brown fox jumps over the lazy dog. 0123456789
+                </div>
+              </div>
+            </div>
           </div>
-          <hr class="sg-divider" style="margin:var(--sp-4) 0">
-          <div>
-            <div style="font-family:var(--font-body);font-size:var(--text-xl);font-weight:600;margin-bottom:var(--sp-1)">Inter</div>
-            <div style="font-family:var(--font-mono);font-size:var(--text-sm);color:var(--text-muted)">--font-body · Prose, input values, descriptions, alert body</div>
-            <div style="font-family:var(--font-body);font-size:var(--text-base);color:var(--text-secondary);margin-top:var(--sp-2)">The quick brown fox jumps over the lazy dog.</div>
+
+          <div class="sg-sub">
+            <div class="sg-sub-title">Type scale</div>
+            <div class="sg-preview">
+              <div class="sg-type-row">
+                <span class="sg-type-meta">--text-4xl · 2.25rem</span
+                ><span
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: var(--text-4xl);
+                    font-weight: 600;
+                    line-height: 1;
+                  "
+                  >Vault</span
+                >
+              </div>
+              <div class="sg-type-row">
+                <span class="sg-type-meta">--text-3xl · 1.875rem</span
+                ><span
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: var(--text-3xl);
+                    font-weight: 600;
+                    line-height: 1;
+                  "
+                  >Vault</span
+                >
+              </div>
+              <div class="sg-type-row">
+                <span class="sg-type-meta">--text-2xl · 1.5rem</span
+                ><span
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: var(--text-2xl);
+                    font-weight: 600;
+                    line-height: 1;
+                  "
+                  >Vault</span
+                >
+              </div>
+              <div class="sg-type-row">
+                <span class="sg-type-meta">--text-xl · 1.25rem</span
+                ><span
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: var(--text-xl);
+                    font-weight: 600;
+                  "
+                  >Vault UI</span
+                >
+              </div>
+              <div class="sg-type-row">
+                <span class="sg-type-meta">--text-lg · 1.0625rem</span
+                ><span
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: var(--text-lg);
+                  "
+                  >Vault UI component library</span
+                >
+              </div>
+              <div class="sg-type-row">
+                <span class="sg-type-meta">--text-base · 0.9375rem</span
+                ><span
+                  style="
+                    font-family: var(--font-body);
+                    font-size: var(--text-base);
+                  "
+                  >Body text. Input values. Descriptions.</span
+                >
+              </div>
+              <div class="sg-type-row">
+                <span class="sg-type-meta">--text-sm · 0.8125rem</span
+                ><span
+                  style="
+                    font-family: var(--font-body);
+                    font-size: var(--text-sm);
+                  "
+                  >Small body. Alert text. Nav links.</span
+                >
+              </div>
+              <div class="sg-type-row">
+                <span class="sg-type-meta">--text-xs · 0.70rem</span
+                ><span class="sg-label-example"
+                  >Field label · mono · 500 · uppercase · 0.08em</span
+                >
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Type scale</div>
-        <div class="sg-preview">
-          <div class="sg-type-row"><span class="sg-type-meta">--text-4xl · 2.25rem</span><span style="font-family:var(--font-mono);font-size:var(--text-4xl);font-weight:600;line-height:1">Vault</span></div>
-          <div class="sg-type-row"><span class="sg-type-meta">--text-3xl · 1.875rem</span><span style="font-family:var(--font-mono);font-size:var(--text-3xl);font-weight:600;line-height:1">Vault</span></div>
-          <div class="sg-type-row"><span class="sg-type-meta">--text-2xl · 1.5rem</span><span style="font-family:var(--font-mono);font-size:var(--text-2xl);font-weight:600;line-height:1">Vault</span></div>
-          <div class="sg-type-row"><span class="sg-type-meta">--text-xl · 1.25rem</span><span style="font-family:var(--font-mono);font-size:var(--text-xl);font-weight:600">Vault UI</span></div>
-          <div class="sg-type-row"><span class="sg-type-meta">--text-lg · 1.0625rem</span><span style="font-family:var(--font-mono);font-size:var(--text-lg)">Vault UI component library</span></div>
-          <div class="sg-type-row"><span class="sg-type-meta">--text-base · 0.9375rem</span><span style="font-family:var(--font-body);font-size:var(--text-base)">Body text. Input values. Descriptions.</span></div>
-          <div class="sg-type-row"><span class="sg-type-meta">--text-sm · 0.8125rem</span><span style="font-family:var(--font-body);font-size:var(--text-sm)">Small body. Alert text. Nav links.</span></div>
-          <div class="sg-type-row"><span class="sg-type-meta">--text-xs · 0.70rem</span><span class="sg-label-example">Field label · mono · 500 · uppercase · 0.08em</span></div>
-        </div>
-      </div>
-
-      <div class="sg-sub">
-        <div class="sg-sub-title">Label style — all field labels must look exactly like this</div>
-        <pre class="sg-code">font-family:    var(--font-mono);
+          <div class="sg-sub">
+            <div class="sg-sub-title">
+              Label style — all field labels must look exactly like this
+            </div>
+            <pre class="sg-code">
+font-family:    var(--font-mono);
 font-size:      var(--text-xs);
 font-weight:    500;
 letter-spacing: 0.08em;
-color:          var(--text-secondary);</pre>
-      </div>
-    </section>
+color:          var(--text-secondary);</pre
+            >
+          </div>
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          SPACING
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="spacing">
-      <h2 class="sg-section-title">Spacing</h2>
-      <p class="sg-section-desc">
-        4px base grid. All padding, margin, and gap values must use <code>--sp-*</code> tokens.
-        Never use arbitrary px or rem values.
-      </p>
-      <div class="sg-preview">
-        <div class="sg-space-row"><span class="sg-space-label">--sp-1</span><div class="sg-space-bar" style="width:4px"></div><span class="sg-space-value">4px</span></div>
-        <div class="sg-space-row"><span class="sg-space-label">--sp-2</span><div class="sg-space-bar" style="width:8px"></div><span class="sg-space-value">8px</span></div>
-        <div class="sg-space-row"><span class="sg-space-label">--sp-3</span><div class="sg-space-bar" style="width:12px"></div><span class="sg-space-value">12px</span></div>
-        <div class="sg-space-row"><span class="sg-space-label">--sp-4</span><div class="sg-space-bar" style="width:16px"></div><span class="sg-space-value">16px</span></div>
-        <div class="sg-space-row"><span class="sg-space-label">--sp-5</span><div class="sg-space-bar" style="width:20px"></div><span class="sg-space-value">20px</span></div>
-        <div class="sg-space-row"><span class="sg-space-label">--sp-6</span><div class="sg-space-bar" style="width:24px"></div><span class="sg-space-value">24px</span></div>
-        <div class="sg-space-row"><span class="sg-space-label">--sp-8</span><div class="sg-space-bar" style="width:32px"></div><span class="sg-space-value">32px</span></div>
-        <div class="sg-space-row"><span class="sg-space-label">--sp-10</span><div class="sg-space-bar" style="width:40px"></div><span class="sg-space-value">40px</span></div>
-        <div class="sg-space-row"><span class="sg-space-label">--sp-12</span><div class="sg-space-bar" style="width:48px"></div><span class="sg-space-value">48px</span></div>
-        <div class="sg-space-row"><span class="sg-space-label">--sp-16</span><div class="sg-space-bar" style="width:64px"></div><span class="sg-space-value">64px</span></div>
-      </div>
-    </section>
+        <section class="sg-section" id="spacing">
+          <h2 class="sg-section-title">Spacing</h2>
+          <p class="sg-section-desc">
+            4px base grid. All padding, margin, and gap values must use
+            <code>--sp-*</code> tokens. Never use arbitrary px or rem values.
+          </p>
+          <div class="sg-preview">
+            <div class="sg-space-row">
+              <span class="sg-space-label">--sp-1</span>
+              <div class="sg-space-bar" style="width: 4px"></div>
+              <span class="sg-space-value">4px</span>
+            </div>
+            <div class="sg-space-row">
+              <span class="sg-space-label">--sp-2</span>
+              <div class="sg-space-bar" style="width: 8px"></div>
+              <span class="sg-space-value">8px</span>
+            </div>
+            <div class="sg-space-row">
+              <span class="sg-space-label">--sp-3</span>
+              <div class="sg-space-bar" style="width: 12px"></div>
+              <span class="sg-space-value">12px</span>
+            </div>
+            <div class="sg-space-row">
+              <span class="sg-space-label">--sp-4</span>
+              <div class="sg-space-bar" style="width: 16px"></div>
+              <span class="sg-space-value">16px</span>
+            </div>
+            <div class="sg-space-row">
+              <span class="sg-space-label">--sp-5</span>
+              <div class="sg-space-bar" style="width: 20px"></div>
+              <span class="sg-space-value">20px</span>
+            </div>
+            <div class="sg-space-row">
+              <span class="sg-space-label">--sp-6</span>
+              <div class="sg-space-bar" style="width: 24px"></div>
+              <span class="sg-space-value">24px</span>
+            </div>
+            <div class="sg-space-row">
+              <span class="sg-space-label">--sp-8</span>
+              <div class="sg-space-bar" style="width: 32px"></div>
+              <span class="sg-space-value">32px</span>
+            </div>
+            <div class="sg-space-row">
+              <span class="sg-space-label">--sp-10</span>
+              <div class="sg-space-bar" style="width: 40px"></div>
+              <span class="sg-space-value">40px</span>
+            </div>
+            <div class="sg-space-row">
+              <span class="sg-space-label">--sp-12</span>
+              <div class="sg-space-bar" style="width: 48px"></div>
+              <span class="sg-space-value">48px</span>
+            </div>
+            <div class="sg-space-row">
+              <span class="sg-space-label">--sp-16</span>
+              <div class="sg-space-bar" style="width: 64px"></div>
+              <span class="sg-space-value">64px</span>
+            </div>
+          </div>
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          RADIUS
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="radius">
-      <h2 class="sg-section-title">Radius</h2>
-      <p class="sg-section-desc">
-        Four steps. Hard rule: never exceed <code>--radius-lg</code> (12px) on non-circular shapes.
-        Pills and avatars use <code>--radius-full</code>.
-      </p>
-      <div class="sg-preview">
-        <div class="sg-radius-row">
-          <div style="display:flex;flex-direction:column;align-items:center;gap:var(--sp-2)">
-            <div class="sg-radius-box" style="border-radius:var(--radius-sm)"></div>
-            <span class="sg-radius-name">--radius-sm<br>4px</span>
+        <section class="sg-section" id="radius">
+          <h2 class="sg-section-title">Radius</h2>
+          <p class="sg-section-desc">
+            Four steps. Hard rule: never exceed <code>--radius-lg</code> (12px)
+            on non-circular shapes. Pills and avatars use
+            <code>--radius-full</code>.
+          </p>
+          <div class="sg-preview">
+            <div class="sg-radius-row">
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  gap: var(--sp-2);
+                "
+              >
+                <div
+                  class="sg-radius-box"
+                  style="border-radius: var(--radius-sm)"
+                ></div>
+                <span class="sg-radius-name">--radius-sm<br />4px</span>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  gap: var(--sp-2);
+                "
+              >
+                <div
+                  class="sg-radius-box"
+                  style="border-radius: var(--radius-md)"
+                ></div>
+                <span class="sg-radius-name">--radius-md<br />8px</span>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  gap: var(--sp-2);
+                "
+              >
+                <div
+                  class="sg-radius-box"
+                  style="border-radius: var(--radius-lg)"
+                ></div>
+                <span class="sg-radius-name"
+                  >--radius-lg<br />12px · max for cards</span
+                >
+              </div>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  gap: var(--sp-2);
+                "
+              >
+                <div
+                  class="sg-radius-box"
+                  style="
+                    border-radius: var(--radius-full);
+                    width: 56px;
+                    height: 56px;
+                  "
+                ></div>
+                <span class="sg-radius-name"
+                  >--radius-full<br />9999px · pills, avatars</span
+                >
+              </div>
+            </div>
           </div>
-          <div style="display:flex;flex-direction:column;align-items:center;gap:var(--sp-2)">
-            <div class="sg-radius-box" style="border-radius:var(--radius-md)"></div>
-            <span class="sg-radius-name">--radius-md<br>8px</span>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:center;gap:var(--sp-2)">
-            <div class="sg-radius-box" style="border-radius:var(--radius-lg)"></div>
-            <span class="sg-radius-name">--radius-lg<br>12px · max for cards</span>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:center;gap:var(--sp-2)">
-            <div class="sg-radius-box" style="border-radius:var(--radius-full);width:56px;height:56px"></div>
-            <span class="sg-radius-name">--radius-full<br>9999px · pills, avatars</span>
-          </div>
-        </div>
-      </div>
-    </section>
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          MOTION
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="motion">
-      <h2 class="sg-section-title">Motion</h2>
-      <p class="sg-section-desc">
-        Motion communicates state changes — it is never decorative. All transitions must respect
-        <code>prefers-reduced-motion</code> (durations are set to 0ms automatically via
-        <code>tokens.css</code>). Default easing is <code>--ease-out</code>.
-      </p>
-      <div class="sg-preview">
-        <table class="sg-rule-table">
-          <thead><tr><th>Token</th><th>Value</th><th>Use</th></tr></thead>
-          <tbody>
-            <tr><td>--duration-fast</td><td style="font-family:var(--font-mono);font-size:var(--text-xs)">100ms</td><td>Micro-interactions: hover, press, button states</td></tr>
-            <tr><td>--duration-normal</td><td style="font-family:var(--font-mono);font-size:var(--text-xs)">175ms</td><td>State changes: focus, toggle, expand</td></tr>
-            <tr><td>--duration-slow</td><td style="font-family:var(--font-mono);font-size:var(--text-xs)">300ms</td><td>Entrances, alert slide-in</td></tr>
-            <tr><td>--ease-out</td><td style="font-family:var(--font-mono);font-size:var(--text-xs)">cubic-bezier(0,0,0.2,1)</td><td>Default for all transitions</td></tr>
-            <tr><td>--ease-in</td><td style="font-family:var(--font-mono);font-size:var(--text-xs)">cubic-bezier(0.4,0,1,1)</td><td>Exit animations</td></tr>
-            <tr><td>--ease-inout</td><td style="font-family:var(--font-mono);font-size:var(--text-xs)">cubic-bezier(0.4,0,0.2,1)</td><td>Shared-element transitions</td></tr>
-          </tbody>
-        </table>
-        <div style="font-family:var(--font-body);font-size:var(--text-sm);color:var(--text-muted);margin-bottom:var(--sp-3)">Hover these dots to see the ease-out motion:</div>
-        <div class="sg-motion-preview">
-          <div class="sg-motion-dot" title="ease-out · 175ms"></div>
-          <div class="sg-motion-dot" title="ease-out · 175ms"></div>
-          <div class="sg-motion-dot" title="ease-out · 175ms"></div>
-        </div>
-      </div>
-    </section>
+        <section class="sg-section" id="motion">
+          <h2 class="sg-section-title">Motion</h2>
+          <p class="sg-section-desc">
+            Motion communicates state changes — it is never decorative. All
+            transitions must respect
+            <code>prefers-reduced-motion</code> (durations are set to 0ms
+            automatically via <code>tokens.css</code>). Default easing is
+            <code>--ease-out</code>.
+          </p>
+          <div class="sg-preview">
+            <table class="sg-rule-table">
+              <thead>
+                <tr>
+                  <th>Token</th>
+                  <th>Value</th>
+                  <th>Use</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>--duration-fast</td>
+                  <td
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                    "
+                  >
+                    100ms
+                  </td>
+                  <td>Micro-interactions: hover, press, button states</td>
+                </tr>
+                <tr>
+                  <td>--duration-normal</td>
+                  <td
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                    "
+                  >
+                    175ms
+                  </td>
+                  <td>State changes: focus, toggle, expand</td>
+                </tr>
+                <tr>
+                  <td>--duration-slow</td>
+                  <td
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                    "
+                  >
+                    300ms
+                  </td>
+                  <td>Entrances, alert slide-in</td>
+                </tr>
+                <tr>
+                  <td>--ease-out</td>
+                  <td
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                    "
+                  >
+                    cubic-bezier(0,0,0.2,1)
+                  </td>
+                  <td>Default for all transitions</td>
+                </tr>
+                <tr>
+                  <td>--ease-in</td>
+                  <td
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                    "
+                  >
+                    cubic-bezier(0.4,0,1,1)
+                  </td>
+                  <td>Exit animations</td>
+                </tr>
+                <tr>
+                  <td>--ease-inout</td>
+                  <td
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                    "
+                  >
+                    cubic-bezier(0.4,0,0.2,1)
+                  </td>
+                  <td>Shared-element transitions</td>
+                </tr>
+              </tbody>
+            </table>
+            <div
+              style="
+                font-family: var(--font-body);
+                font-size: var(--text-sm);
+                color: var(--text-muted);
+                margin-bottom: var(--sp-3);
+              "
+            >
+              Hover these dots to see the ease-out motion:
+            </div>
+            <div class="sg-motion-preview">
+              <div class="sg-motion-dot" title="ease-out · 175ms"></div>
+              <div class="sg-motion-dot" title="ease-out · 175ms"></div>
+              <div class="sg-motion-dot" title="ease-out · 175ms"></div>
+            </div>
+          </div>
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          FOCUS
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="focus">
-      <h2 class="sg-section-title">Focus &amp; Shadows</h2>
-      <p class="sg-section-desc">
-        Every interactive element must have a <code>:focus-visible</code> state using
-        <code>box-shadow: var(--focus-ring)</code>. Never use <code>outline</code> for focus —
-        it cannot be rounded to match the element. The double-ring ensures visibility on any background.
-      </p>
-      <div class="sg-preview">
-        <div style="display:flex;gap:var(--sp-4);flex-wrap:wrap;align-items:center;">
-          <vault-button variant="primary" style="box-shadow:var(--focus-ring)">Focus ring example</vault-button>
-          <vault-input label="Focused state" value="Focus example" style="width:220px;--border-color:var(--cipher)"></vault-input>
-        </div>
-        <hr class="sg-divider">
-        <table class="sg-rule-table">
-          <thead><tr><th>Token</th><th>Value</th></tr></thead>
-          <tbody>
-            <tr><td>--focus-ring</td><td style="font-family:var(--font-mono);font-size:var(--text-xs)">0 0 0 2px var(--surface-base), 0 0 0 4px var(--cipher)</td></tr>
-            <tr><td>--shadow-sm</td><td style="font-family:var(--font-mono);font-size:var(--text-xs)">0 1px 2px rgba(0,0,0,0.35)</td></tr>
-            <tr><td>--shadow-md</td><td style="font-family:var(--font-mono);font-size:var(--text-xs)">0 4px 8px rgba(0,0,0,0.45)</td></tr>
-            <tr><td>--shadow-lg</td><td style="font-family:var(--font-mono);font-size:var(--text-xs)">0 8px 24px rgba(0,0,0,0.55)</td></tr>
-            <tr><td>--shadow-accent</td><td style="font-family:var(--font-mono);font-size:var(--text-xs)">0 0 12px rgba(46,204,143,0.25)</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+        <section class="sg-section" id="focus">
+          <h2 class="sg-section-title">Focus &amp; Shadows</h2>
+          <p class="sg-section-desc">
+            Every interactive element must have a
+            <code>:focus-visible</code> state using
+            <code>box-shadow: var(--focus-ring)</code>. Never use
+            <code>outline</code> for focus — it cannot be rounded to match the
+            element. The double-ring ensures visibility on any background.
+          </p>
+          <div class="sg-preview">
+            <div
+              style="
+                display: flex;
+                gap: var(--sp-4);
+                flex-wrap: wrap;
+                align-items: center;
+              "
+            >
+              <vault-button
+                variant="primary"
+                style="box-shadow: var(--focus-ring)"
+                >Focus ring example</vault-button
+              >
+              <vault-input
+                label="Focused state"
+                value="Focus example"
+                style="width: 220px; --border-color: var(--cipher)"
+              ></vault-input>
+            </div>
+            <hr class="sg-divider" />
+            <table class="sg-rule-table">
+              <thead>
+                <tr>
+                  <th>Token</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>--focus-ring</td>
+                  <td
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                    "
+                  >
+                    0 0 0 2px var(--surface-base), 0 0 0 4px var(--cipher)
+                  </td>
+                </tr>
+                <tr>
+                  <td>--shadow-sm</td>
+                  <td
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                    "
+                  >
+                    0 1px 2px rgba(0,0,0,0.35)
+                  </td>
+                </tr>
+                <tr>
+                  <td>--shadow-md</td>
+                  <td
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                    "
+                  >
+                    0 4px 8px rgba(0,0,0,0.45)
+                  </td>
+                </tr>
+                <tr>
+                  <td>--shadow-lg</td>
+                  <td
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                    "
+                  >
+                    0 8px 24px rgba(0,0,0,0.55)
+                  </td>
+                </tr>
+                <tr>
+                  <td>--shadow-accent</td>
+                  <td
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                    "
+                  >
+                    0 0 12px rgba(46,204,143,0.25)
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          BUTTON
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="button">
-      <h2 class="sg-section-title">vault-button</h2>
-      <p class="sg-section-desc">
-        Variants signal semantic intent. <strong>primary</strong> for the main call to action —
-        only one per view. <strong>secondary</strong> for supporting actions.
-        <strong>ghost</strong> for low-priority or toolbar actions.
-        <strong>danger</strong> for destructive, irreversible actions only.
-      </p>
+        <section class="sg-section" id="button">
+          <h2 class="sg-section-title">vault-button</h2>
+          <p class="sg-section-desc">
+            Variants signal semantic intent. <strong>primary</strong> for the
+            main call to action — only one per view.
+            <strong>secondary</strong> for supporting actions.
+            <strong>ghost</strong> for low-priority or toolbar actions.
+            <strong>danger</strong> for destructive, irreversible actions only.
+          </p>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Variants</div>
-        <div class="sg-preview">
-          <div class="sg-row">
-            <vault-button variant="primary">Primary</vault-button>
-            <vault-button variant="secondary">Secondary</vault-button>
-            <vault-button variant="ghost">Ghost</vault-button>
-            <vault-button variant="danger">Danger</vault-button>
+          <div class="sg-sub">
+            <div class="sg-sub-title">Variants</div>
+            <div class="sg-preview">
+              <div class="sg-row">
+                <vault-button variant="primary">Primary</vault-button>
+                <vault-button variant="secondary">Secondary</vault-button>
+                <vault-button variant="ghost">Ghost</vault-button>
+                <vault-button variant="danger">Danger</vault-button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Sizes</div>
-        <div class="sg-preview">
-          <div class="sg-row" style="align-items:flex-end">
-            <vault-button variant="primary" size="sm">Small</vault-button>
-            <vault-button variant="primary" size="md">Medium</vault-button>
-            <vault-button variant="primary" size="lg">Large</vault-button>
+          <div class="sg-sub">
+            <div class="sg-sub-title">Sizes</div>
+            <div class="sg-preview">
+              <div class="sg-row" style="align-items: flex-end">
+                <vault-button variant="primary" size="sm">Small</vault-button>
+                <vault-button variant="primary" size="md">Medium</vault-button>
+                <vault-button variant="primary" size="lg">Large</vault-button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">States</div>
-        <div class="sg-preview">
-          <div class="sg-row">
-            <vault-button variant="primary" disabled>Disabled</vault-button>
-            <vault-button variant="primary" loading>Loading</vault-button>
-            <vault-button variant="secondary" disabled>Disabled</vault-button>
-            <vault-button variant="danger" loading>Deleting</vault-button>
+          <div class="sg-sub">
+            <div class="sg-sub-title">States</div>
+            <div class="sg-preview">
+              <div class="sg-row">
+                <vault-button variant="primary" disabled>Disabled</vault-button>
+                <vault-button variant="primary" loading>Loading</vault-button>
+                <vault-button variant="secondary" disabled
+                  >Disabled</vault-button
+                >
+                <vault-button variant="danger" loading>Deleting</vault-button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <pre class="sg-code">&lt;vault-button variant="primary"&gt;Unlock&lt;/vault-button&gt;
+          <pre class="sg-code">
+&lt;vault-button variant="primary"&gt;Unlock&lt;/vault-button&gt;
 &lt;vault-button variant="secondary"&gt;Cancel&lt;/vault-button&gt;
 &lt;vault-button variant="ghost" size="sm"&gt;Edit&lt;/vault-button&gt;
-&lt;vault-button variant="danger" loading&gt;Deleting…&lt;/vault-button&gt;</pre>
+&lt;vault-button variant="danger" loading&gt;Deleting…&lt;/vault-button&gt;</pre
+          >
 
-      <table class="sg-rule-table">
-        <thead><tr><th>Attribute</th><th>Values</th><th>Default</th></tr></thead>
-        <tbody>
-          <tr><td>variant</td><td>primary · secondary · ghost · danger</td><td>primary</td></tr>
-          <tr><td>size</td><td>sm · md · lg</td><td>md</td></tr>
-          <tr><td>disabled</td><td>boolean</td><td>false</td></tr>
-          <tr><td>loading</td><td>boolean — disables and shows spinner</td><td>false</td></tr>
-        </tbody>
-      </table>
-    </section>
+          <table class="sg-rule-table">
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Values</th>
+                <th>Default</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>variant</td>
+                <td>primary · secondary · ghost · danger</td>
+                <td>primary</td>
+              </tr>
+              <tr>
+                <td>size</td>
+                <td>sm · md · lg</td>
+                <td>md</td>
+              </tr>
+              <tr>
+                <td>disabled</td>
+                <td>boolean</td>
+                <td>false</td>
+              </tr>
+              <tr>
+                <td>loading</td>
+                <td>boolean — disables and shows spinner</td>
+                <td>false</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          INPUT
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="input">
-      <h2 class="sg-section-title">vault-input</h2>
-      <p class="sg-section-desc">
-        Single-line text input. Border turns cipher-green on focus; red on error. The
-        <code>prefix-icon</code> attribute renders inline before the input — useful for
-        currency symbols, search glyphs, or short prefixes.
-      </p>
+        <section class="sg-section" id="input">
+          <h2 class="sg-section-title">vault-input</h2>
+          <p class="sg-section-desc">
+            Single-line text input. Border turns cipher-green on focus; red on
+            error. The
+            <code>prefix-icon</code> attribute renders inline before the input —
+            useful for currency symbols, search glyphs, or short prefixes.
+          </p>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Variants</div>
-        <div class="sg-preview">
-          <div class="sg-col" style="max-width:380px">
-            <vault-input label="Default" placeholder="Enter text…"></vault-input>
-            <vault-input label="With hint" hint="Must be at least 12 characters" placeholder="Passphrase…"></vault-input>
-            <vault-input label="With error" error="This field is required" value="bad input"></vault-input>
-            <vault-input label="With prefix" prefix-icon="$" value="99.00" type="number"></vault-input>
-            <vault-input label="Password" type="password" value="mysecret"></vault-input>
-            <vault-input label="Required" required placeholder="Cannot be empty"></vault-input>
-            <vault-input label="Disabled" disabled value="Cannot edit this"></vault-input>
-            <vault-input label="Read only" readonly value="Read only value"></vault-input>
+          <div class="sg-sub">
+            <div class="sg-sub-title">Variants</div>
+            <div class="sg-preview">
+              <div class="sg-col" style="max-width: 380px">
+                <vault-input
+                  label="Default"
+                  placeholder="Enter text…"
+                ></vault-input>
+                <vault-input
+                  label="With hint"
+                  hint="Must be at least 12 characters"
+                  placeholder="Passphrase…"
+                ></vault-input>
+                <vault-input
+                  label="With error"
+                  error="This field is required"
+                  value="bad input"
+                ></vault-input>
+                <vault-input
+                  label="With prefix"
+                  prefix-icon="$"
+                  value="99.00"
+                  type="number"
+                ></vault-input>
+                <vault-input
+                  label="Password"
+                  type="password"
+                  value="mysecret"
+                ></vault-input>
+                <vault-input
+                  label="Required"
+                  required
+                  placeholder="Cannot be empty"
+                ></vault-input>
+                <vault-input
+                  label="Disabled"
+                  disabled
+                  value="Cannot edit this"
+                ></vault-input>
+                <vault-input
+                  label="Read only"
+                  readonly
+                  value="Read only value"
+                ></vault-input>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <pre class="sg-code">&lt;vault-input label="Passphrase" type="password" required&gt;&lt;/vault-input&gt;
+          <pre class="sg-code">
+&lt;vault-input label="Passphrase" type="password" required&gt;&lt;/vault-input&gt;
 &lt;vault-input label="Amount" prefix-icon="$" type="number"&gt;&lt;/vault-input&gt;
 &lt;vault-input label="Email" error="Invalid email address"&gt;&lt;/vault-input&gt;
 
 // Events
 input.addEventListener('vault-input',  e =&gt; console.log(e.detail.value)); // every keystroke
-input.addEventListener('vault-change', e =&gt; console.log(e.detail.value)); // on blur / Enter</pre>
+input.addEventListener('vault-change', e =&gt; console.log(e.detail.value)); // on blur / Enter</pre
+          >
 
-      <table class="sg-rule-table">
-        <thead><tr><th>Attribute</th><th>Notes</th></tr></thead>
-        <tbody>
-          <tr><td>label</td><td>Rendered as a mono uppercase label above the field</td></tr>
-          <tr><td>type</td><td>Any native input type. Default: text</td></tr>
-          <tr><td>value</td><td>Reflected to/from the inner input</td></tr>
-          <tr><td>error</td><td>Shown instead of hint; turns border red; sets aria-invalid</td></tr>
-          <tr><td>hint</td><td>Helper text below the field. Hidden when error is set</td></tr>
-          <tr><td>prefix-icon</td><td>Short text rendered before the cursor (e.g. "$", "https://")</td></tr>
-          <tr><td>required · disabled · readonly</td><td>Forwarded to the native input</td></tr>
-        </tbody>
-      </table>
-    </section>
+          <table class="sg-rule-table">
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>label</td>
+                <td>Rendered as a mono uppercase label above the field</td>
+              </tr>
+              <tr>
+                <td>type</td>
+                <td>Any native input type. Default: text</td>
+              </tr>
+              <tr>
+                <td>value</td>
+                <td>Reflected to/from the inner input</td>
+              </tr>
+              <tr>
+                <td>error</td>
+                <td>
+                  Shown instead of hint; turns border red; sets aria-invalid
+                </td>
+              </tr>
+              <tr>
+                <td>hint</td>
+                <td>Helper text below the field. Hidden when error is set</td>
+              </tr>
+              <tr>
+                <td>prefix-icon</td>
+                <td>
+                  Short text rendered before the cursor (e.g. "$", "https://")
+                </td>
+              </tr>
+              <tr>
+                <td>required · disabled · readonly</td>
+                <td>Forwarded to the native input</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          TEXTAREA
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="textarea">
-      <h2 class="sg-section-title">vault-textarea</h2>
-      <p class="sg-section-desc">
-        Multi-line text. <code>resize="auto"</code> grows the textarea as the user types — never
-        shows a scrollbar. <code>maxlength</code> adds a live character counter bottom-right.
-      </p>
+        <section class="sg-section" id="textarea">
+          <h2 class="sg-section-title">vault-textarea</h2>
+          <p class="sg-section-desc">
+            Multi-line text. <code>resize="auto"</code> grows the textarea as
+            the user types — never shows a scrollbar.
+            <code>maxlength</code> adds a live character counter bottom-right.
+          </p>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Variants</div>
-        <div class="sg-preview">
-          <div class="sg-col" style="max-width:380px">
-            <vault-textarea label="Notes" hint="Stored encrypted"></vault-textarea>
-            <vault-textarea label="Auto-resize" resize="auto" placeholder="Grows as you type…"></vault-textarea>
-            <vault-textarea label="With counter" maxlength="200" placeholder="Max 200 characters…"></vault-textarea>
-            <vault-textarea label="Error state" error="Required field" rows="2"></vault-textarea>
+          <div class="sg-sub">
+            <div class="sg-sub-title">Variants</div>
+            <div class="sg-preview">
+              <div class="sg-col" style="max-width: 380px">
+                <vault-textarea
+                  label="Notes"
+                  hint="Stored encrypted"
+                ></vault-textarea>
+                <vault-textarea
+                  label="Auto-resize"
+                  resize="auto"
+                  placeholder="Grows as you type…"
+                ></vault-textarea>
+                <vault-textarea
+                  label="With counter"
+                  maxlength="200"
+                  placeholder="Max 200 characters…"
+                ></vault-textarea>
+                <vault-textarea
+                  label="Error state"
+                  error="Required field"
+                  rows="2"
+                ></vault-textarea>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <pre class="sg-code">&lt;vault-textarea label="Body" resize="auto"&gt;&lt;/vault-textarea&gt;
-&lt;vault-textarea label="Summary" maxlength="280" rows="3"&gt;&lt;/vault-textarea&gt;</pre>
+          <pre class="sg-code">
+&lt;vault-textarea label="Body" resize="auto"&gt;&lt;/vault-textarea&gt;
+&lt;vault-textarea label="Summary" maxlength="280" rows="3"&gt;&lt;/vault-textarea&gt;</pre
+          >
 
-      <table class="sg-rule-table">
-        <thead><tr><th>Attribute</th><th>Notes</th></tr></thead>
-        <tbody>
-          <tr><td>label</td><td>Mono uppercase label</td></tr>
-          <tr><td>rows</td><td>Initial visible rows. Default: 4</td></tr>
-          <tr><td>maxlength</td><td>Shows a live counter when set</td></tr>
-          <tr><td>resize</td><td>none · vertical · auto. Default: vertical</td></tr>
-          <tr><td>error · hint</td><td>Same as vault-input</td></tr>
-        </tbody>
-      </table>
-    </section>
+          <table class="sg-rule-table">
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>label</td>
+                <td>Mono uppercase label</td>
+              </tr>
+              <tr>
+                <td>rows</td>
+                <td>Initial visible rows. Default: 4</td>
+              </tr>
+              <tr>
+                <td>maxlength</td>
+                <td>Shows a live counter when set</td>
+              </tr>
+              <tr>
+                <td>resize</td>
+                <td>none · vertical · auto. Default: vertical</td>
+              </tr>
+              <tr>
+                <td>error · hint</td>
+                <td>Same as vault-input</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          BADGE
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="badge">
-      <h2 class="sg-section-title">vault-badge</h2>
-      <p class="sg-section-desc">
-        Inline status label. Always pair with a label — never rely on color alone to convey meaning.
-        Add <code>dot</code> for a compact status indicator alongside text.
-      </p>
+        <section class="sg-section" id="badge">
+          <h2 class="sg-section-title">vault-badge</h2>
+          <p class="sg-section-desc">
+            Inline status label. Always pair with a label — never rely on color
+            alone to convey meaning. Add <code>dot</code> for a compact status
+            indicator alongside text.
+          </p>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Variants</div>
-        <div class="sg-preview">
-          <div class="sg-row">
-            <vault-badge variant="default">Default</vault-badge>
-            <vault-badge variant="success">Verified</vault-badge>
-            <vault-badge variant="warn">Pending</vault-badge>
-            <vault-badge variant="danger">Revoked</vault-badge>
-            <vault-badge variant="info">Syncing</vault-badge>
+          <div class="sg-sub">
+            <div class="sg-sub-title">Variants</div>
+            <div class="sg-preview">
+              <div class="sg-row">
+                <vault-badge variant="default">Default</vault-badge>
+                <vault-badge variant="success">Verified</vault-badge>
+                <vault-badge variant="warn">Pending</vault-badge>
+                <vault-badge variant="danger">Revoked</vault-badge>
+                <vault-badge variant="info">Syncing</vault-badge>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">With dot</div>
-        <div class="sg-preview">
-          <div class="sg-row">
-            <vault-badge variant="default" dot>Offline</vault-badge>
-            <vault-badge variant="success" dot>Encrypted</vault-badge>
-            <vault-badge variant="warn" dot>Expiring soon</vault-badge>
-            <vault-badge variant="danger" dot>Key error</vault-badge>
-            <vault-badge variant="info" dot>Syncing</vault-badge>
+          <div class="sg-sub">
+            <div class="sg-sub-title">With dot</div>
+            <div class="sg-preview">
+              <div class="sg-row">
+                <vault-badge variant="default" dot>Offline</vault-badge>
+                <vault-badge variant="success" dot>Encrypted</vault-badge>
+                <vault-badge variant="warn" dot>Expiring soon</vault-badge>
+                <vault-badge variant="danger" dot>Key error</vault-badge>
+                <vault-badge variant="info" dot>Syncing</vault-badge>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <pre class="sg-code">&lt;vault-badge variant="success" dot&gt;Encrypted&lt;/vault-badge&gt;
-&lt;vault-badge variant="warn"&gt;Pending review&lt;/vault-badge&gt;</pre>
-    </section>
+          <pre class="sg-code">
+&lt;vault-badge variant="success" dot&gt;Encrypted&lt;/vault-badge&gt;
+&lt;vault-badge variant="warn"&gt;Pending review&lt;/vault-badge&gt;</pre
+          >
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          CARD
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="card">
-      <h2 class="sg-section-title">vault-card</h2>
-      <p class="sg-section-desc">
-        Layout container. Defaults to <code>--surface-raised</code> background, <code>--radius-lg</code>
-        (12px max), no border by default. Add <code>border</code> when the card needs to stand out
-        on a raised surface; add <code>elevated</code> for modal-like prominence.
-      </p>
+        <section class="sg-section" id="card">
+          <h2 class="sg-section-title">vault-card</h2>
+          <p class="sg-section-desc">
+            Layout container. Defaults to
+            <code>--surface-raised</code> background,
+            <code>--radius-lg</code> (12px max), no border by default. Add
+            <code>border</code> when the card needs to stand out on a raised
+            surface; add <code>elevated</code> for modal-like prominence.
+          </p>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Variants</div>
-        <div class="sg-preview">
-          <div class="sg-grid sg-grid-3">
-            <vault-card>
-              <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);margin-bottom:var(--sp-2)">Default · padding md</div>
-              <div style="font-family:var(--font-body);font-size:var(--text-sm);color:var(--text-secondary)">Content goes here.</div>
-            </vault-card>
-            <vault-card border>
-              <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);margin-bottom:var(--sp-2)">Border</div>
-              <div style="font-family:var(--font-body);font-size:var(--text-sm);color:var(--text-secondary)">Useful on raised bg.</div>
-            </vault-card>
-            <vault-card elevated>
-              <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);margin-bottom:var(--sp-2)">Elevated</div>
-              <div style="font-family:var(--font-body);font-size:var(--text-sm);color:var(--text-secondary)">Modal prominence.</div>
-            </vault-card>
-            <vault-card padding="sm" border>
-              <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted)">padding="sm" · 12px</div>
-            </vault-card>
-            <vault-card padding="md" border>
-              <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted)">padding="md" · 16px</div>
-            </vault-card>
-            <vault-card padding="lg" border>
-              <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted)">padding="lg" · 24px</div>
-            </vault-card>
+          <div class="sg-sub">
+            <div class="sg-sub-title">Variants</div>
+            <div class="sg-preview">
+              <div class="sg-grid sg-grid-3">
+                <vault-card>
+                  <div
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                      color: var(--text-muted);
+                      margin-bottom: var(--sp-2);
+                    "
+                  >
+                    Default · padding md
+                  </div>
+                  <div
+                    style="
+                      font-family: var(--font-body);
+                      font-size: var(--text-sm);
+                      color: var(--text-secondary);
+                    "
+                  >
+                    Content goes here.
+                  </div>
+                </vault-card>
+                <vault-card border>
+                  <div
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                      color: var(--text-muted);
+                      margin-bottom: var(--sp-2);
+                    "
+                  >
+                    Border
+                  </div>
+                  <div
+                    style="
+                      font-family: var(--font-body);
+                      font-size: var(--text-sm);
+                      color: var(--text-secondary);
+                    "
+                  >
+                    Useful on raised bg.
+                  </div>
+                </vault-card>
+                <vault-card elevated>
+                  <div
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                      color: var(--text-muted);
+                      margin-bottom: var(--sp-2);
+                    "
+                  >
+                    Elevated
+                  </div>
+                  <div
+                    style="
+                      font-family: var(--font-body);
+                      font-size: var(--text-sm);
+                      color: var(--text-secondary);
+                    "
+                  >
+                    Modal prominence.
+                  </div>
+                </vault-card>
+                <vault-card padding="sm" border>
+                  <div
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                      color: var(--text-muted);
+                    "
+                  >
+                    padding="sm" · 12px
+                  </div>
+                </vault-card>
+                <vault-card padding="md" border>
+                  <div
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                      color: var(--text-muted);
+                    "
+                  >
+                    padding="md" · 16px
+                  </div>
+                </vault-card>
+                <vault-card padding="lg" border>
+                  <div
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: var(--text-xs);
+                      color: var(--text-muted);
+                    "
+                  >
+                    padding="lg" · 24px
+                  </div>
+                </vault-card>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <pre class="sg-code">&lt;vault-card border elevated padding="lg"&gt;
+          <pre class="sg-code">
+&lt;vault-card border elevated padding="lg"&gt;
   &lt;vault-input label="Passphrase" type="password" required&gt;&lt;/vault-input&gt;
   &lt;vault-button variant="primary"&gt;Unlock vault&lt;/vault-button&gt;
-&lt;/vault-card&gt;</pre>
-    </section>
+&lt;/vault-card&gt;</pre
+          >
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          TOGGLE
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="toggle">
-      <h2 class="sg-section-title">vault-toggle</h2>
-      <p class="sg-section-desc">
-        Boolean switch. Uses ARIA <code>role="switch"</code>. Track turns cipher-green when
-        checked. The <code>hint</code> attribute adds explanatory text below the label.
-      </p>
+        <section class="sg-section" id="toggle">
+          <h2 class="sg-section-title">vault-toggle</h2>
+          <p class="sg-section-desc">
+            Boolean switch. Uses ARIA <code>role="switch"</code>. Track turns
+            cipher-green when checked. The <code>hint</code> attribute adds
+            explanatory text below the label.
+          </p>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Sizes &amp; states</div>
-        <div class="sg-preview">
-          <div class="sg-col" style="max-width:320px">
-            <vault-toggle label="Notifications" hint="Receive unlock alerts"></vault-toggle>
-            <vault-toggle label="Auto-lock" checked></vault-toggle>
-            <vault-toggle label="Small unchecked" size="sm"></vault-toggle>
-            <vault-toggle label="Small checked" size="sm" checked></vault-toggle>
-            <vault-toggle label="Disabled" disabled></vault-toggle>
-            <vault-toggle label="Disabled on" disabled checked></vault-toggle>
+          <div class="sg-sub">
+            <div class="sg-sub-title">Sizes &amp; states</div>
+            <div class="sg-preview">
+              <div class="sg-col" style="max-width: 320px">
+                <vault-toggle
+                  label="Notifications"
+                  hint="Receive unlock alerts"
+                ></vault-toggle>
+                <vault-toggle label="Auto-lock" checked></vault-toggle>
+                <vault-toggle label="Small unchecked" size="sm"></vault-toggle>
+                <vault-toggle
+                  label="Small checked"
+                  size="sm"
+                  checked
+                ></vault-toggle>
+                <vault-toggle label="Disabled" disabled></vault-toggle>
+                <vault-toggle
+                  label="Disabled on"
+                  disabled
+                  checked
+                ></vault-toggle>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <pre class="sg-code">&lt;vault-toggle label="Auto-lock" checked&gt;&lt;/vault-toggle&gt;
+          <pre class="sg-code">
+&lt;vault-toggle label="Auto-lock" checked&gt;&lt;/vault-toggle&gt;
 
 toggle.addEventListener('vault-change', e =&gt; {
   console.log(e.detail.checked); // boolean
-});</pre>
-    </section>
+});</pre
+          >
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          SELECT
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="select">
-      <h2 class="sg-section-title">vault-select</h2>
-      <p class="sg-section-desc">
-        Dropdown using a native <code>&lt;select&gt;</code> inside shadow DOM.
-        Child <code>&lt;option&gt;</code> elements are synced via MutationObserver — add or remove
-        options in the light DOM at any time.
-      </p>
+        <section class="sg-section" id="select">
+          <h2 class="sg-section-title">vault-select</h2>
+          <p class="sg-section-desc">
+            Dropdown using a native <code>&lt;select&gt;</code> inside shadow
+            DOM. Child <code>&lt;option&gt;</code> elements are synced via
+            MutationObserver — add or remove options in the light DOM at any
+            time.
+          </p>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Variants</div>
-        <div class="sg-preview">
-          <div class="sg-col" style="max-width:320px">
-            <vault-select label="KDF algorithm" value="scrypt">
-              <option value="scrypt">scrypt (recommended)</option>
-              <option value="pbkdf2">PBKDF2</option>
-            </vault-select>
-            <vault-select label="With hint" hint="Controls unlock speed vs. security">
-              <option value="low">Low security</option>
-              <option value="high" selected>High security</option>
-            </vault-select>
-            <vault-select label="With error" error="Selection required" required>
-              <option value="">Choose…</option>
-              <option value="a">Option A</option>
-              <option value="b">Option B</option>
-            </vault-select>
+          <div class="sg-sub">
+            <div class="sg-sub-title">Variants</div>
+            <div class="sg-preview">
+              <div class="sg-col" style="max-width: 320px">
+                <vault-select label="KDF algorithm" value="scrypt">
+                  <option value="scrypt">scrypt (recommended)</option>
+                  <option value="pbkdf2">PBKDF2</option>
+                </vault-select>
+                <vault-select
+                  label="With hint"
+                  hint="Controls unlock speed vs. security"
+                >
+                  <option value="low">Low security</option>
+                  <option value="high" selected>High security</option>
+                </vault-select>
+                <vault-select
+                  label="With error"
+                  error="Selection required"
+                  required
+                >
+                  <option value="">Choose…</option>
+                  <option value="a">Option A</option>
+                  <option value="b">Option B</option>
+                </vault-select>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <pre class="sg-code">&lt;vault-select label="Region" required&gt;
+          <pre class="sg-code">
+&lt;vault-select label="Region" required&gt;
   &lt;option value=""&gt;Choose…&lt;/option&gt;
   &lt;option value="us"&gt;United States&lt;/option&gt;
   &lt;option value="eu"&gt;Europe&lt;/option&gt;
@@ -971,287 +1859,531 @@ toggle.addEventListener('vault-change', e =&gt; {
 
 select.addEventListener('vault-change', e =&gt; {
   console.log(e.detail.value); // selected option value
-});</pre>
-    </section>
+});</pre
+          >
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          ALERT
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="alert">
-      <h2 class="sg-section-title">vault-alert</h2>
-      <p class="sg-section-desc">
-        Contextual message with a semantic icon and variant color. Always includes a label alongside
-        the color to meet WCAG contrast requirements. <code>dismissible</code> adds a close button
-        and fires <code>vault-dismiss</code> when clicked.
-      </p>
+        <section class="sg-section" id="alert">
+          <h2 class="sg-section-title">vault-alert</h2>
+          <p class="sg-section-desc">
+            Contextual message with a semantic icon and variant color. Always
+            includes a label alongside the color to meet WCAG contrast
+            requirements. <code>dismissible</code> adds a close button and fires
+            <code>vault-dismiss</code> when clicked.
+          </p>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Variants</div>
-        <div class="sg-preview">
-          <div class="sg-col">
-            <vault-alert variant="info" title="Sync in progress">Your vault is syncing with the server. Changes may take a moment to appear.</vault-alert>
-            <vault-alert variant="success" title="Vault unlocked">All documents are now accessible. Auto-lock in 15 minutes.</vault-alert>
-            <vault-alert variant="warn" title="Key expires soon">Your encryption key expires in 7 days. Rotate it before expiry.</vault-alert>
-            <vault-alert variant="danger" title="Decryption failed">Wrong passphrase or corrupted vault. Check your credentials.</vault-alert>
+          <div class="sg-sub">
+            <div class="sg-sub-title">Variants</div>
+            <div class="sg-preview">
+              <div class="sg-col">
+                <vault-alert variant="info" title="Sync in progress"
+                  >Your vault is syncing with the server. Changes may take a
+                  moment to appear.</vault-alert
+                >
+                <vault-alert variant="success" title="Vault unlocked"
+                  >All documents are now accessible. Auto-lock in 15
+                  minutes.</vault-alert
+                >
+                <vault-alert variant="warn" title="Key expires soon"
+                  >Your encryption key expires in 7 days. Rotate it before
+                  expiry.</vault-alert
+                >
+                <vault-alert variant="danger" title="Decryption failed"
+                  >Wrong passphrase or corrupted vault. Check your
+                  credentials.</vault-alert
+                >
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Dismissible</div>
-        <div class="sg-preview">
-          <div class="sg-col">
-            <vault-alert variant="info" title="Tip" dismissible>Tab through fields using the keyboard — all components are fully accessible.</vault-alert>
-            <vault-alert variant="warn" dismissible>Session expires in 5 minutes.</vault-alert>
+          <div class="sg-sub">
+            <div class="sg-sub-title">Dismissible</div>
+            <div class="sg-preview">
+              <div class="sg-col">
+                <vault-alert variant="info" title="Tip" dismissible
+                  >Tab through fields using the keyboard — all components are
+                  fully accessible.</vault-alert
+                >
+                <vault-alert variant="warn" dismissible
+                  >Session expires in 5 minutes.</vault-alert
+                >
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <pre class="sg-code">&lt;vault-alert variant="danger" title="Wrong key"&gt;
+          <pre class="sg-code">
+&lt;vault-alert variant="danger" title="Wrong key"&gt;
   Decryption failed. Check your passphrase.
 &lt;/vault-alert&gt;
 
 // Dismissible
-alert.addEventListener('vault-dismiss', () =&gt; { /* alert is now hidden */ });</pre>
-    </section>
+alert.addEventListener('vault-dismiss', () =&gt; { /* alert is now hidden */ });</pre
+          >
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          SPINNER
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="spinner">
-      <h2 class="sg-section-title">vault-spinner</h2>
-      <p class="sg-section-desc">
-        Loading indicator. The <code>label</code> attribute is sr-only — it provides an accessible
-        status message without visible text. Animation is suppressed automatically under
-        <code>prefers-reduced-motion</code>.
-      </p>
+        <section class="sg-section" id="spinner">
+          <h2 class="sg-section-title">vault-spinner</h2>
+          <p class="sg-section-desc">
+            Loading indicator. The <code>label</code> attribute is sr-only — it
+            provides an accessible status message without visible text.
+            Animation is suppressed automatically under
+            <code>prefers-reduced-motion</code>.
+          </p>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Sizes</div>
-        <div class="sg-preview">
-          <div class="sg-row" style="align-items:center">
-            <vault-spinner size="sm" label="Loading…"></vault-spinner>
-            <vault-spinner size="md" label="Loading…"></vault-spinner>
-            <vault-spinner size="lg" label="Loading…"></vault-spinner>
+          <div class="sg-sub">
+            <div class="sg-sub-title">Sizes</div>
+            <div class="sg-preview">
+              <div class="sg-row" style="align-items: center">
+                <vault-spinner size="sm" label="Loading…"></vault-spinner>
+                <vault-spinner size="md" label="Loading…"></vault-spinner>
+                <vault-spinner size="lg" label="Loading…"></vault-spinner>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <pre class="sg-code">&lt;vault-spinner size="md" label="Unlocking vault…"&gt;&lt;/vault-spinner&gt;</pre>
+          <pre class="sg-code">
+&lt;vault-spinner size="md" label="Unlocking vault…"&gt;&lt;/vault-spinner&gt;</pre
+          >
 
-      <table class="sg-rule-table">
-        <thead><tr><th>Attribute</th><th>Values</th><th>Default</th></tr></thead>
-        <tbody>
-          <tr><td>size</td><td>sm (16px) · md (24px) · lg (40px)</td><td>md</td></tr>
-          <tr><td>label</td><td>Screen-reader text. Rendered as role="status"</td><td>Loading…</td></tr>
-        </tbody>
-      </table>
-    </section>
+          <table class="sg-rule-table">
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Values</th>
+                <th>Default</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>size</td>
+                <td>sm (16px) · md (24px) · lg (40px)</td>
+                <td>md</td>
+              </tr>
+              <tr>
+                <td>label</td>
+                <td>Screen-reader text. Rendered as role="status"</td>
+                <td>Loading…</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          AVATAR
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="avatar">
-      <h2 class="sg-section-title">vault-avatar</h2>
-      <p class="sg-section-desc">
-        User or entity avatar. Falls back to initials (max 2 chars from name) when no
-        <code>src</code> is provided. The <code>status</code> dot uses semantic colors:
-        cipher-green for online, warn for away, danger for busy.
-      </p>
+        <section class="sg-section" id="avatar">
+          <h2 class="sg-section-title">vault-avatar</h2>
+          <p class="sg-section-desc">
+            User or entity avatar. Falls back to initials (max 2 chars from
+            name) when no
+            <code>src</code> is provided. The <code>status</code> dot uses
+            semantic colors: cipher-green for online, warn for away, danger for
+            busy.
+          </p>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Sizes &amp; fallbacks</div>
-        <div class="sg-preview">
-          <div class="sg-row" style="align-items:flex-end">
-            <vault-avatar name="Tommy Williams" size="sm"></vault-avatar>
-            <vault-avatar name="Tommy Williams" size="md"></vault-avatar>
-            <vault-avatar name="Tommy Williams" size="lg"></vault-avatar>
-            <vault-avatar name="Ada Lovelace" size="md"></vault-avatar>
-            <vault-avatar name="X" size="md"></vault-avatar>
+          <div class="sg-sub">
+            <div class="sg-sub-title">Sizes &amp; fallbacks</div>
+            <div class="sg-preview">
+              <div class="sg-row" style="align-items: flex-end">
+                <vault-avatar name="Tommy Williams" size="sm"></vault-avatar>
+                <vault-avatar name="Tommy Williams" size="md"></vault-avatar>
+                <vault-avatar name="Tommy Williams" size="lg"></vault-avatar>
+                <vault-avatar name="Ada Lovelace" size="md"></vault-avatar>
+                <vault-avatar name="X" size="md"></vault-avatar>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div class="sg-sub">
-        <div class="sg-sub-title">Status indicators</div>
-        <div class="sg-preview">
-          <div class="sg-row">
-            <vault-avatar name="Tommy Williams" status="online"></vault-avatar>
-            <vault-avatar name="Ada Lovelace" status="away"></vault-avatar>
-            <vault-avatar name="Grace Hopper" status="busy"></vault-avatar>
-            <vault-avatar name="Alan Turing" status="offline"></vault-avatar>
+          <div class="sg-sub">
+            <div class="sg-sub-title">Status indicators</div>
+            <div class="sg-preview">
+              <div class="sg-row">
+                <vault-avatar
+                  name="Tommy Williams"
+                  status="online"
+                ></vault-avatar>
+                <vault-avatar name="Ada Lovelace" status="away"></vault-avatar>
+                <vault-avatar name="Grace Hopper" status="busy"></vault-avatar>
+                <vault-avatar
+                  name="Alan Turing"
+                  status="offline"
+                ></vault-avatar>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <pre class="sg-code">&lt;vault-avatar name="Tommy Williams" status="online"&gt;&lt;/vault-avatar&gt;
-&lt;vault-avatar name="Ada Lovelace" src="/avatars/ada.jpg" size="lg"&gt;&lt;/vault-avatar&gt;</pre>
+          <pre class="sg-code">
+&lt;vault-avatar name="Tommy Williams" status="online"&gt;&lt;/vault-avatar&gt;
+&lt;vault-avatar name="Ada Lovelace" src="/avatars/ada.jpg" size="lg"&gt;&lt;/vault-avatar&gt;</pre
+          >
 
-      <table class="sg-rule-table">
-        <thead><tr><th>Attribute</th><th>Notes</th></tr></thead>
-        <tbody>
-          <tr><td>name</td><td>Used for initials and aria-label</td></tr>
-          <tr><td>src</td><td>Image URL. Initials shown as fallback when absent</td></tr>
-          <tr><td>size</td><td>sm (32px) · md (40px) · lg (56px). Default: md</td></tr>
-          <tr><td>status</td><td>online · offline · away · busy</td></tr>
-        </tbody>
-      </table>
-    </section>
+          <table class="sg-rule-table">
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>name</td>
+                <td>Used for initials and aria-label</td>
+              </tr>
+              <tr>
+                <td>src</td>
+                <td>Image URL. Initials shown as fallback when absent</td>
+              </tr>
+              <tr>
+                <td>size</td>
+                <td>sm (32px) · md (40px) · lg (56px). Default: md</td>
+              </tr>
+              <tr>
+                <td>status</td>
+                <td>online · offline · away · busy</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          DESIGN DECISIONS
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="decisions">
-      <h2 class="sg-section-title">Design decisions</h2>
-      <p class="sg-section-desc">
-        Why things are the way they are — the reasoning behind choices that aren't obvious from
-        the code alone.
-      </p>
+        <section class="sg-section" id="decisions">
+          <h2 class="sg-section-title">Design decisions</h2>
+          <p class="sg-section-desc">
+            Why things are the way they are — the reasoning behind choices that
+            aren't obvious from the code alone.
+          </p>
 
-      <div class="sg-decision">
-        <div class="sg-decision-title">Zero dependencies / native Web Components</div>
-        <p>
-          Every component extends <code>HTMLElement</code> with Shadow DOM. No framework, no
-          bundler required at runtime. This means the library works in any app — React, Vue, Svelte,
-          plain HTML — without adapter packages or version conflicts. Shadow DOM gives strong style
-          isolation: app CSS cannot accidentally override component internals.
-        </p>
-      </div>
+          <div class="sg-decision">
+            <div class="sg-decision-title">
+              Zero dependencies / native Web Components
+            </div>
+            <p>
+              Every component extends <code>HTMLElement</code> with Shadow DOM.
+              No framework, no bundler required at runtime. This means the
+              library works in any app — React, Vue, Svelte, plain HTML —
+              without adapter packages or version conflicts. Shadow DOM gives
+              strong style isolation: app CSS cannot accidentally override
+              component internals.
+            </p>
+          </div>
 
-      <div class="sg-decision">
-        <div class="sg-decision-title">CSS custom properties cross shadow DOM boundaries</div>
-        <p>
-          CSS custom properties (variables) inherit through shadow roots automatically — this is
-          intentional in the spec. The <code>TOKEN_BRIDGE</code> pattern in each component is
-          therefore minimal: just <code>box-sizing: border-box</code> and <code>:host { display: block }</code>.
-          It does not need to re-declare all tokens, and nothing outside the shadow root can
-          accidentally override component logic via regular CSS selectors.
-        </p>
-      </div>
+          <div class="sg-decision">
+            <div class="sg-decision-title">
+              CSS custom properties cross shadow DOM boundaries
+            </div>
+            <p>
+              CSS custom properties (variables) inherit through shadow roots
+              automatically — this is intentional in the spec. The
+              <code>TOKEN_BRIDGE</code> pattern in each component is therefore
+              minimal: just <code>box-sizing: border-box</code> and
+              <code>:host { display: block }</code>. It does not need to
+              re-declare all tokens, and nothing outside the shadow root can
+              accidentally override component logic via regular CSS selectors.
+            </p>
+          </div>
 
-      <div class="sg-decision">
-        <div class="sg-decision-title">Semantic tokens over raw ink values</div>
-        <p>
-          Components never reference <code>--ink-*</code> values directly. They use
-          <code>--surface-*</code> and <code>--text-*</code> semantic tokens.
-          This means the entire theme can switch (dark ↔ light) by changing 9 token values on
-          <code>[data-theme="light"]</code>, and every component updates for free without
-          any component-level CSS changes.
-        </p>
-      </div>
+          <div class="sg-decision">
+            <div class="sg-decision-title">
+              Semantic tokens over raw ink values
+            </div>
+            <p>
+              Components never reference <code>--ink-*</code> values directly.
+              They use <code>--surface-*</code> and
+              <code>--text-*</code> semantic tokens. This means the entire theme
+              can switch (dark ↔ light) by changing 9 token values on
+              <code>[data-theme="light"]</code>, and every component updates for
+              free without any component-level CSS changes.
+            </p>
+          </div>
 
-      <div class="sg-decision">
-        <div class="sg-decision-title">Split accent tokens: --cipher vs --cipher-text</div>
-        <p>
-          <code>--cipher</code> (<code>#2ECC8F</code>) is vivid and only passes WCAG contrast
-          on dark backgrounds, so it's reserved for fills, borders, and glows.
-          <code>--cipher-text</code> switches to a much darker value (<code>#0F5735</code>)
-          in light mode, achieving 8.62:1 contrast (AAA). The same split applies to
-          warn, danger, and info. This prevents the common mistake of using a vivid
-          brand color as readable text on white.
-        </p>
-      </div>
+          <div class="sg-decision">
+            <div class="sg-decision-title">
+              Split accent tokens: --cipher vs --cipher-text
+            </div>
+            <p>
+              <code>--cipher</code> (<code>#2ECC8F</code>) is vivid and only
+              passes WCAG contrast on dark backgrounds, so it's reserved for
+              fills, borders, and glows. <code>--cipher-text</code> switches to
+              a much darker value (<code>#0F5735</code>) in light mode,
+              achieving 8.62:1 contrast (AAA). The same split applies to warn,
+              danger, and info. This prevents the common mistake of using a
+              vivid brand color as readable text on white.
+            </p>
+          </div>
 
-      <div class="sg-decision">
-        <div class="sg-decision-title">box-shadow for focus, not outline</div>
-        <p>
-          <code>outline</code> does not follow border-radius in older browsers and cannot be
-          offset from the element surface. <code>box-shadow: var(--focus-ring)</code> is
-          a double ring — 2px same as background color, 4px cipher green — which creates
-          a visible gap between the element and the ring, making it legible on any background
-          color.
-        </p>
-      </div>
+          <div class="sg-decision">
+            <div class="sg-decision-title">
+              box-shadow for focus, not outline
+            </div>
+            <p>
+              <code>outline</code> does not follow border-radius in older
+              browsers and cannot be offset from the element surface.
+              <code>box-shadow: var(--focus-ring)</code> is a double ring — 2px
+              same as background color, 4px cipher green — which creates a
+              visible gap between the element and the ring, making it legible on
+              any background color.
+            </p>
+          </div>
 
-      <div class="sg-decision">
-        <div class="sg-decision-title">vault-select syncs via MutationObserver</div>
-        <p>
-          Native <code>&lt;option&gt;</code> elements cannot be projected into a shadow DOM
-          <code>&lt;select&gt;</code> via <code>&lt;slot&gt;</code> — browsers do not allow
-          slotted options. The component instead watches its light DOM children via
-          <code>MutationObserver</code> and clones them into the shadow <code>&lt;select&gt;</code>
-          on every change. This lets callers write idiomatic <code>&lt;option&gt;</code> markup
-          while still getting the styled wrapper.
-        </p>
-      </div>
+          <div class="sg-decision">
+            <div class="sg-decision-title">
+              vault-select syncs via MutationObserver
+            </div>
+            <p>
+              Native <code>&lt;option&gt;</code> elements cannot be projected
+              into a shadow DOM <code>&lt;select&gt;</code> via
+              <code>&lt;slot&gt;</code> — browsers do not allow slotted options.
+              The component instead watches its light DOM children via
+              <code>MutationObserver</code> and clones them into the shadow
+              <code>&lt;select&gt;</code> on every change. This lets callers
+              write idiomatic <code>&lt;option&gt;</code> markup while still
+              getting the styled wrapper.
+            </p>
+          </div>
 
-      <div class="sg-decision">
-        <div class="sg-decision-title">--cipher signals trust only — never decorative</div>
-        <p>
-          Cipher green is the system's primary signal for "verified", "encrypted", "active".
-          Using it decoratively (e.g. a green header for branding) would erode its meaning.
-          In a privacy-focused product, users need to be able to trust that a green indicator
-          means something specific.
-        </p>
-      </div>
+          <div class="sg-decision">
+            <div class="sg-decision-title">
+              --cipher signals trust only — never decorative
+            </div>
+            <p>
+              Cipher green is the system's primary signal for "verified",
+              "encrypted", "active". Using it decoratively (e.g. a green header
+              for branding) would erode its meaning. In a privacy-focused
+              product, users need to be able to trust that a green indicator
+              means something specific.
+            </p>
+          </div>
 
-      <div class="sg-decision">
-        <div class="sg-decision-title">Two font roles, no mixing</div>
-        <p>
-          IBM Plex Mono for all UI chrome (labels, headings, code, button text, badges).
-          Inter for all human-readable content (prose, input values, descriptions). The contrast
-          between a monospaced label and a proportional body text is intentional — it makes
-          the boundary between "system" and "user content" visually clear.
-        </p>
-      </div>
-    </section>
+          <div class="sg-decision">
+            <div class="sg-decision-title">Two font roles, no mixing</div>
+            <p>
+              Geist Mono for all UI chrome (labels, headings, code, button text,
+              badges). Geist Sans for all human-readable content (prose, input
+              values, descriptions). The contrast between a monospaced label and
+              a proportional body text is intentional — it makes the boundary
+              between "system" and "user content" visually clear.
+            </p>
+          </div>
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          RULES
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="rules">
-      <h2 class="sg-section-title">Rules</h2>
-      <p class="sg-section-desc">Non-negotiable constraints. Every component and custom implementation must follow these.</p>
+        <section class="sg-section" id="rules">
+          <h2 class="sg-section-title">Rules</h2>
+          <p class="sg-section-desc">
+            Non-negotiable constraints. Every component and custom
+            implementation must follow these.
+          </p>
 
-      <table class="sg-rule-table">
-        <thead><tr><th>Category</th><th>Rule</th></tr></thead>
-        <tbody>
-          <tr><td>Color</td><td>Never hardcode hex values. Always use tokens.</td></tr>
-          <tr><td>Color</td><td>Use <code>--cipher</code> for backgrounds, borders, fills, glows only.</td></tr>
-          <tr><td>Color</td><td>Use <code>--cipher-text</code> (and <code>--warn-text</code>, etc.) for any readable text that conveys status.</td></tr>
-          <tr><td>Color</td><td><code>--cipher</code> signals trust and verified state only. Never decorative.</td></tr>
-          <tr><td>Color</td><td>Never convey meaning with color alone — always pair with an icon or label.</td></tr>
-          <tr><td>Typography</td><td><code>--font-mono</code> for all headings, labels, code, badges, button text, metadata.</td></tr>
-          <tr><td>Typography</td><td><code>--font-body</code> for all prose, input values, descriptions, alert body text.</td></tr>
-          <tr><td>Spacing</td><td>All padding, margin, gap must use <code>--sp-*</code> tokens. No arbitrary px/rem.</td></tr>
-          <tr><td>Borders</td><td>All borders: <code>1px solid var(--surface-border)</code> or <code>1.5px solid</code> for interactive elements.</td></tr>
-          <tr><td>Radius</td><td>Never exceed <code>--radius-lg</code> (12px) on non-circular elements.</td></tr>
-          <tr><td>Focus</td><td>Every interactive element must have <code>:focus-visible</code> with <code>box-shadow: var(--focus-ring)</code>.</td></tr>
-          <tr><td>Focus</td><td>Never use <code>outline</code> for focus — always <code>box-shadow</code>.</td></tr>
-          <tr><td>Motion</td><td>Every transition must respect <code>prefers-reduced-motion</code> (already handled in tokens.css).</td></tr>
-          <tr><td>Motion</td><td>Use <code>var(--ease-out)</code> by default.</td></tr>
-          <tr><td>Motion</td><td>Only animate properties that communicate a state change. No decorative animation.</td></tr>
-          <tr><td>WCAG</td><td>All text must meet 4.5:1 contrast ratio (AA).</td></tr>
-          <tr><td>WCAG</td><td>All UI components and graphical objects must meet 3:1 (borders, icons).</td></tr>
-          <tr><td>New components</td><td>Extend <code>HTMLElement</code>. Use Shadow DOM (<code>attachShadow({ mode: 'open' })</code>).</td></tr>
-          <tr><td>New components</td><td>Inject <code>TOKEN_BRIDGE</code> into each shadow root.</td></tr>
-          <tr><td>New components</td><td>Emit custom events with <code>{ bubbles: true, composed: true }</code>.</td></tr>
-          <tr><td>New components</td><td>Add TypeScript types to <code>vault-ui.d.ts</code> and augment <code>HTMLElementTagNameMap</code>.</td></tr>
-        </tbody>
-      </table>
-    </section>
+          <table class="sg-rule-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Rule</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Color</td>
+                <td>Never hardcode hex values. Always use tokens.</td>
+              </tr>
+              <tr>
+                <td>Color</td>
+                <td>
+                  Use <code>--cipher</code> for backgrounds, borders, fills,
+                  glows only.
+                </td>
+              </tr>
+              <tr>
+                <td>Color</td>
+                <td>
+                  Use <code>--cipher-text</code> (and <code>--warn-text</code>,
+                  etc.) for any readable text that conveys status.
+                </td>
+              </tr>
+              <tr>
+                <td>Color</td>
+                <td>
+                  <code>--cipher</code> signals trust and verified state only.
+                  Never decorative.
+                </td>
+              </tr>
+              <tr>
+                <td>Color</td>
+                <td>
+                  Never convey meaning with color alone — always pair with an
+                  icon or label.
+                </td>
+              </tr>
+              <tr>
+                <td>Typography</td>
+                <td>
+                  <code>--font-mono</code> for all headings, labels, code,
+                  badges, button text, metadata.
+                </td>
+              </tr>
+              <tr>
+                <td>Typography</td>
+                <td>
+                  <code>--font-body</code> for all prose, input values,
+                  descriptions, alert body text.
+                </td>
+              </tr>
+              <tr>
+                <td>Spacing</td>
+                <td>
+                  All padding, margin, gap must use <code>--sp-*</code> tokens.
+                  No arbitrary px/rem.
+                </td>
+              </tr>
+              <tr>
+                <td>Borders</td>
+                <td>
+                  All borders: <code>1px solid var(--surface-border)</code> or
+                  <code>1.5px solid</code> for interactive elements.
+                </td>
+              </tr>
+              <tr>
+                <td>Radius</td>
+                <td>
+                  Never exceed <code>--radius-lg</code> (12px) on non-circular
+                  elements.
+                </td>
+              </tr>
+              <tr>
+                <td>Focus</td>
+                <td>
+                  Every interactive element must have
+                  <code>:focus-visible</code> with
+                  <code>box-shadow: var(--focus-ring)</code>.
+                </td>
+              </tr>
+              <tr>
+                <td>Focus</td>
+                <td>
+                  Never use <code>outline</code> for focus — always
+                  <code>box-shadow</code>.
+                </td>
+              </tr>
+              <tr>
+                <td>Motion</td>
+                <td>
+                  Every transition must respect
+                  <code>prefers-reduced-motion</code> (already handled in
+                  tokens.css).
+                </td>
+              </tr>
+              <tr>
+                <td>Motion</td>
+                <td>Use <code>var(--ease-out)</code> by default.</td>
+              </tr>
+              <tr>
+                <td>Motion</td>
+                <td>
+                  Only animate properties that communicate a state change. No
+                  decorative animation.
+                </td>
+              </tr>
+              <tr>
+                <td>WCAG</td>
+                <td>All text must meet 4.5:1 contrast ratio (AA).</td>
+              </tr>
+              <tr>
+                <td>WCAG</td>
+                <td>
+                  All UI components and graphical objects must meet 3:1
+                  (borders, icons).
+                </td>
+              </tr>
+              <tr>
+                <td>New components</td>
+                <td>
+                  Extend <code>HTMLElement</code>. Use Shadow DOM (<code
+                    >attachShadow({ mode: 'open' })</code
+                  >).
+                </td>
+              </tr>
+              <tr>
+                <td>New components</td>
+                <td>Inject <code>TOKEN_BRIDGE</code> into each shadow root.</td>
+              </tr>
+              <tr>
+                <td>New components</td>
+                <td>
+                  Emit custom events with
+                  <code>{ bubbles: true, composed: true }</code>.
+                </td>
+              </tr>
+              <tr>
+                <td>New components</td>
+                <td>
+                  Add TypeScript types to <code>vault-ui.d.ts</code> and augment
+                  <code>HTMLElementTagNameMap</code>.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          EVENTS
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="events">
-      <h2 class="sg-section-title">Events</h2>
-      <p class="sg-section-desc">
-        All custom events bubble out of shadow DOM (<code>composed: true</code>). Listen on the
-        component element or any ancestor.
-      </p>
+        <section class="sg-section" id="events">
+          <h2 class="sg-section-title">Events</h2>
+          <p class="sg-section-desc">
+            All custom events bubble out of shadow DOM (<code
+              >composed: true</code
+            >). Listen on the component element or any ancestor.
+          </p>
 
-      <table class="sg-rule-table">
-        <thead><tr><th>Event</th><th>Fired by</th><th>Detail shape</th><th>When</th></tr></thead>
-        <tbody>
-          <tr><td>vault-input</td><td>vault-input, vault-textarea</td><td><code>{ value: string }</code></td><td>Every keystroke</td></tr>
-          <tr><td>vault-change</td><td>vault-input, vault-textarea, vault-select</td><td><code>{ value: string }</code></td><td>On blur / commit</td></tr>
-          <tr><td>vault-change</td><td>vault-toggle</td><td><code>{ checked: boolean }</code></td><td>On toggle</td></tr>
-          <tr><td>vault-dismiss</td><td>vault-alert</td><td><code>undefined</code></td><td>Dismiss button clicked</td></tr>
-        </tbody>
-      </table>
+          <table class="sg-rule-table">
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Fired by</th>
+                <th>Detail shape</th>
+                <th>When</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>vault-input</td>
+                <td>vault-input, vault-textarea</td>
+                <td><code>{ value: string }</code></td>
+                <td>Every keystroke</td>
+              </tr>
+              <tr>
+                <td>vault-change</td>
+                <td>vault-input, vault-textarea, vault-select</td>
+                <td><code>{ value: string }</code></td>
+                <td>On blur / commit</td>
+              </tr>
+              <tr>
+                <td>vault-change</td>
+                <td>vault-toggle</td>
+                <td><code>{ checked: boolean }</code></td>
+                <td>On toggle</td>
+              </tr>
+              <tr>
+                <td>vault-dismiss</td>
+                <td>vault-alert</td>
+                <td><code>undefined</code></td>
+                <td>Dismiss button clicked</td>
+              </tr>
+            </tbody>
+          </table>
 
-      <pre class="sg-code">// Input — every keystroke
+          <pre class="sg-code">
+// Input — every keystroke
 document.querySelector('vault-input').addEventListener('vault-input', e =&gt; {
   console.log(e.detail.value);
 });
@@ -1274,55 +2406,62 @@ document.querySelector('vault-select').addEventListener('vault-change', e =&gt; 
 // Alert dismiss
 document.querySelector('vault-alert').addEventListener('vault-dismiss', () =&gt; {
   // alert has set its own [hidden] attribute
-});</pre>
-    </section>
+});</pre
+          >
+        </section>
 
-    <!-- ════════════════════════════════════════════════════════════════
+        <!-- ════════════════════════════════════════════════════════════════
          THEMING
     ════════════════════════════════════════════════════════════════ -->
-    <section class="sg-section" id="theme">
-      <h2 class="sg-section-title">Theming</h2>
-      <p class="sg-section-desc">
-        Theme is controlled by <code>data-theme="light"</code> on <code>&lt;html&gt;</code>.
-        Default is dark. The <code>VaultTheme</code> helper persists the preference to
-        <code>localStorage</code> and can follow OS preference.
-      </p>
+        <section class="sg-section" id="theme">
+          <h2 class="sg-section-title">Theming</h2>
+          <p class="sg-section-desc">
+            Theme is controlled by <code>data-theme="light"</code> on
+            <code>&lt;html&gt;</code>. Default is dark. The
+            <code>VaultTheme</code> helper persists the preference to
+            <code>localStorage</code> and can follow OS preference.
+          </p>
 
-      <pre class="sg-code">import { VaultTheme } from '../src/components/vault.js';
+          <pre class="sg-code">
+import { VaultTheme } from '../src/components/vault.js';
 
 VaultTheme.init();        // call once on boot — restores saved preference
 VaultTheme.set('dark');   // force dark
 VaultTheme.set('light');  // force light
 VaultTheme.set(null);     // follow OS preference (removes localStorage entry)
-VaultTheme.get();         // returns 'dark' | 'light'</pre>
+VaultTheme.get();         // returns 'dark' | 'light'</pre
+          >
 
-      <div class="sg-decision">
-        <div class="sg-decision-title">Why data-theme on &lt;html&gt; and not :root</div>
-        <p>
-          <code>[data-theme="light"]</code> on the root <code>&lt;html&gt;</code> element keeps the
-          toggle selector simple and lets any part of the page (including shadow roots) inherit the
-          correct semantic token values, since CSS custom properties cascade down the full document
-          tree. It is also easy to override for sub-sections: put <code>data-theme="dark"</code>
-          on any ancestor element to force dark mode in just that region.
-        </p>
-      </div>
-    </section>
+          <div class="sg-decision">
+            <div class="sg-decision-title">
+              Why data-theme on &lt;html&gt; and not :root
+            </div>
+            <p>
+              <code>[data-theme="light"]</code> on the root
+              <code>&lt;html&gt;</code> element keeps the toggle selector simple
+              and lets any part of the page (including shadow roots) inherit the
+              correct semantic token values, since CSS custom properties cascade
+              down the full document tree. It is also easy to override for
+              sub-sections: put <code>data-theme="dark"</code>
+              on any ancestor element to force dark mode in just that region.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
 
-  </main>
-</div>
+    <script type="module" src="../src/components/vault.js"></script>
+    <script type="module">
+      import { VaultTheme } from "../src/components/vault.js";
+      VaultTheme.init();
 
-<script type="module" src="../src/components/vault.js"></script>
-<script type="module">
-  import { VaultTheme } from '../src/components/vault.js';
-  VaultTheme.init();
+      const toggle = document.getElementById("theme-toggle");
+      // Sync toggle to current theme on load
+      if (VaultTheme.get() === "light") toggle.setAttribute("checked", "");
 
-  const toggle = document.getElementById('theme-toggle');
-  // Sync toggle to current theme on load
-  if (VaultTheme.get() === 'light') toggle.setAttribute('checked', '');
-
-  toggle.addEventListener('vault-change', e => {
-    VaultTheme.set(e.detail.checked ? 'light' : 'dark');
-  });
-</script>
-</body>
+      toggle.addEventListener("vault-change", (e) => {
+        VaultTheme.set(e.detail.checked ? "light" : "dark");
+      });
+    </script>
+  </body>
 </html>

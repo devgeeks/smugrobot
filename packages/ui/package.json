@@ -10,6 +10,7 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
+    "./tokens/fonts.css": "./src/tokens/fonts.css",
     "./tokens/tokens.css": "./src/tokens/tokens.css",
     "./tokens/base.css": "./src/tokens/base.css",
     "./components/vault.js": "./src/components/vault.js",

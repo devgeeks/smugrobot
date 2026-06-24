@@ -53,8 +53,7 @@ Load these four resources in order — sequence matters:
 <html lang="en">
 <head>
   <!-- 1. Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="node_modules/@smugrobot/ui/src/tokens/fonts.css">
   <!-- 2. Design tokens -->
   <link rel="stylesheet" href="node_modules/@smugrobot/ui/src/tokens/tokens.css">
   <!-- 3. Base reset + utilities -->
@@ -378,8 +377,8 @@ var(--text-inverse)     /* text on --cipher backgrounds */
 ### Typography
 
 ```css
-var(--font-mono)   /* IBM Plex Mono — headings, labels, code, badges, buttons */
-var(--font-body)   /* Inter          — prose, input values, descriptions       */
+var(--font-mono)   /* Geist Mono — headings, labels, code, badges, buttons */
+var(--font-body)   /* Geist Sans — prose, input values, descriptions        */
 ```
 
 ### Other
