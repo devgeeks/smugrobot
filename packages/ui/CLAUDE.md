@@ -70,8 +70,9 @@ All tokens are CSS custom properties. Shadow DOM inherits them automatically —
 --cipher-dim: #1E9966   pressed state
 --warn:       #E8A838   caution (dark bg use)
 --warn-dim:   #C08020
---danger:     #D95F5F   error/risk (dark bg use)
---danger-dim: #B03E3E
+--danger:      #D95F5F   error/risk (dark bg use: borders, tints, icons)
+--danger-fill: #C44040   error/risk for solid button fills (white text: 4.81:1 AA)
+--danger-dim:  #B03E3E   pressed/hover state
 --info:       #569CD6   informational (dark bg use)
 ```
 
@@ -83,7 +84,7 @@ The vivid accent colors above fail WCAG AA on light backgrounds. Always use the 
 |---|---|---|---|
 | `--cipher-text` | `#2ECC8F` | `#0F5735` | 8.62:1 AAA |
 | `--warn-text` | `#E8A838` | `#5C3E0A` | 9.77:1 AAA |
-| `--danger-text` | `#D95F5F` | `#C0392B` | 5.44:1 AA |
+| `--danger-text` | `#EE6666` | `#C0392B` | 5.15:1 AA / 5.44:1 AA |
 | `--info-text` | `#569CD6` | `#1A5FA8` | 6.47:1 AA |
 
 Rule: use `--cipher` for backgrounds/borders/glows. Use `--cipher-text` for any readable text.

@@ -24,10 +24,10 @@ class VaultButton extends HTMLElement {
     };
 
     const variantStyles = {
-      primary:   `background: var(--cipher); color: var(--text-inverse); border-color: var(--cipher);`,
+      primary:   `background: var(--cipher); color: var(--ink-950); border-color: var(--cipher);`,
       secondary: `background: transparent; color: var(--text-primary); border-color: var(--surface-border);`,
       ghost:     `background: transparent; color: var(--text-primary); border-color: transparent;`,
-      danger:    `background: var(--danger); color: #fff; border-color: var(--danger);`,
+      danger:    `background: var(--danger-fill); color: #fff; border-color: var(--danger-fill);`,
     };
 
     const hoverStyles = {

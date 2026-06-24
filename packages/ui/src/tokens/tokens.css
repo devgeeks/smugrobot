@@ -15,14 +15,15 @@
   --cipher-dim: #1E9966;
   --warn:       #E8A838;
   --warn-dim:   #C08020;
-  --danger:     #D95F5F;
-  --danger-dim: #B03E3E;
+  --danger:      #D95F5F;
+  --danger-dim:  #B03E3E;
+  --danger-fill: #C44040;
   --info:       #569CD6;
 
   /* WCAG-compliant text tokens — dark default */
   --cipher-text: #2ECC8F;
   --warn-text:   #E8A838;
-  --danger-text: #D95F5F;
+  --danger-text: #EE6666;
   --info-text:   #569CD6;
 
   /* ── Semantic surface tokens ── */
