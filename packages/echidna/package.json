@@ -4,6 +4,13 @@
   "description": "Encrypted document store with adapters for multiple environments",
   "author": "tommy-carlos williams",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devgeeks/smugrobot.git",
+    "directory": "packages/echidna"
+  },
+  "bugs": "https://github.com/devgeeks/smugrobot/issues",
+  "homepage": "https://github.com/devgeeks/smugrobot/tree/main/packages/echidna#readme",
   "type": "module",
   "sideEffects": false,
   "files": [

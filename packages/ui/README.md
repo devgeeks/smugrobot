@@ -4,6 +4,8 @@ Privacy-focused component library. Zero dependencies. Pure Web Components + CSS 
 
 Dark by default. Fully accessible. Every component works in any framework or plain HTML.
 
+**Repository:** [github.com/devgeeks/smugrobot](https://github.com/devgeeks/smugrobot/tree/main/packages/ui) · [Issues](https://github.com/devgeeks/smugrobot/issues)
+
 ---
 
 ## Contents

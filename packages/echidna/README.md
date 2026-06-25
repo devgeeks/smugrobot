@@ -4,6 +4,8 @@ Encrypted document store for TypeScript. Documents are encrypted end-to-end usin
 
 Works in Node.js, browsers, and React Native via swappable storage adapters.
 
+**Repository:** [github.com/devgeeks/smugrobot](https://github.com/devgeeks/smugrobot/tree/main/packages/echidna) · [Issues](https://github.com/devgeeks/smugrobot/issues)
+
 ---
 
 ## Install
