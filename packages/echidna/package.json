@@ -82,6 +82,16 @@
         "types": "./dist/adapters/expo-file-system.d.cts",
         "default": "./dist/adapters/expo-file-system.cjs"
       }
+    },
+    "./adapters/dropbox": {
+      "import": {
+        "types": "./dist/adapters/dropbox.d.ts",
+        "default": "./dist/adapters/dropbox.js"
+      },
+      "require": {
+        "types": "./dist/adapters/dropbox.d.cts",
+        "default": "./dist/adapters/dropbox.cjs"
+      }
     }
   },
   "scripts": {

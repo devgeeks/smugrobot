@@ -97,6 +97,67 @@ import * as FileSystem from 'expo-file-system'
 const adapter = expoFileSystemAdapter(FileSystem.documentDirectory + 'vault/')
 ```
 
+### Dropbox (PWA / cross-device sync)
+
+Stores the encrypted vault as files in a Dropbox app folder, enabling multi-device access without exposing plaintext to Dropbox. The vault is encrypted before it leaves the device — Dropbox only ever sees opaque blobs.
+
+Requires a [Dropbox app](https://www.dropbox.com/developers/apps) configured with the `files.content.write` and `files.content.read` permissions and a redirect URI for your app.
+
+> **Note:** Dropbox is case-insensitive. Document IDs that differ only by case will collide.
+
+```ts
+import {
+  dropboxAdapter,
+  generatePkce,
+  getDropboxAuthUrl,
+  exchangeDropboxCode,
+  refreshDropboxToken,
+} from 'echidna.js/adapters/dropbox'
+import { createEncryptedStore } from 'echidna.js'
+
+// Step 1 — redirect the user to Dropbox for authorization (run once)
+const { verifier, challenge } = await generatePkce()
+sessionStorage.setItem('pkce_verifier', verifier)
+
+const authUrl = getDropboxAuthUrl({
+  clientId: 'YOUR_APP_KEY',
+  redirectUri: 'https://yourapp.example.com/callback',
+  codeChallenge: challenge,
+  state: crypto.randomUUID(), // optional CSRF token
+})
+window.location.href = authUrl
+
+// Step 2 — handle the redirect callback
+const params = new URLSearchParams(window.location.search)
+const tokens = await exchangeDropboxCode({
+  clientId: 'YOUR_APP_KEY',
+  redirectUri: 'https://yourapp.example.com/callback',
+  code: params.get('code')!,
+  codeVerifier: sessionStorage.getItem('pkce_verifier')!,
+})
+// Persist tokens.accessToken and tokens.refreshToken in your app
+
+// Step 3 — open the vault
+const store = await createEncryptedStore({
+  adapter: dropboxAdapter({
+    accessToken: tokens.accessToken,
+    rootPath: '/MyApp',        // created inside the Dropbox app folder
+  }),
+  keySource: { type: 'passphrase', passphrase: userPassphrase },
+})
+```
+
+To refresh an expired access token:
+
+```ts
+const fresh = await refreshDropboxToken({
+  clientId: 'YOUR_APP_KEY',
+  refreshToken: tokens.refreshToken!,
+})
+```
+
+No SDK dependency — the adapter uses `fetch` and `crypto.subtle` directly.
+
 ### React Native (`@react-native-async-storage/async-storage`)
 
 `@react-native-async-storage/async-storage` is a **peer dependency** — install it separately in your app.
