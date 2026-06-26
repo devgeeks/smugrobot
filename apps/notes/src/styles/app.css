@@ -127,7 +127,7 @@ body {
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--surface-border);
-  overflow-y: auto;
+  overflow: hidden;
   background: var(--surface-base);
 }
 
@@ -177,6 +177,7 @@ body {
 .folder-tree {
   padding: var(--sp-2) 0;
   flex: 1;
+  overflow-y: auto;
 }
 
 .folder-item {
@@ -241,13 +242,14 @@ body {
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--surface-border);
-  overflow-y: auto;
+  overflow: hidden;
   background: var(--surface-base);
 }
 
 .note-list-inner {
   flex: 1;
   padding: var(--sp-2) 0;
+  overflow-y: auto;
 }
 
 .note-list-empty {
