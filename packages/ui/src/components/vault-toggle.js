@@ -31,7 +31,8 @@ class VaultToggle extends HTMLElement {
 
     this.shadowRoot.innerHTML = TOKEN_BRIDGE + `
       <style>
-        :host { display: block; }
+        :host { display: block; cursor: pointer; }
+        :host([disabled]) { cursor: not-allowed; }
         .toggle-row {
           display: flex;
           align-items: flex-start;

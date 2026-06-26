@@ -5,6 +5,7 @@ import { showToast } from '../utils/toast.js'
 
 export class NoteList {
   el: HTMLElement
+  onNoteSelect?: (noteId: string) => void
   private prevNotes: NoteMeta[] = []
   private prevSelected: string | null = null
 
@@ -52,16 +53,17 @@ export class NoteList {
     row.dataset['id'] = note.id
 
     row.innerHTML = `
-      <div class="note-row-main">
+      <button type="button" class="note-row-main">
         <div class="note-title">${escapeHtml(note.title)}</div>
         <div class="note-meta">
           <span class="note-time" data-ts="${note.updatedAt}">${formatRelativeTime(note.updatedAt)}</span>
         </div>
-      </div>
+      </button>
       <button class="note-menu-btn" aria-label="Note options" title="Options">⋮</button>
     `
 
     row.querySelector('.note-row-main')!.addEventListener('click', () => {
+      this.onNoteSelect?.(note.id)
       dispatch({ type: 'NOTE_SELECTED', noteId: note.id })
     })
 

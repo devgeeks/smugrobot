@@ -41,7 +41,8 @@ class VaultButton extends HTMLElement {
 
     this.shadowRoot.innerHTML = TOKEN_BRIDGE + `
       <style>
-        :host { display: inline-block; }
+        :host { display: inline-block; cursor: pointer; }
+        :host([disabled]) { cursor: not-allowed; }
         button {
           display: inline-flex;
           align-items: center;

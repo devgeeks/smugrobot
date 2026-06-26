@@ -60,7 +60,7 @@ class VaultSelect extends HTMLElement {
 
     this.shadowRoot.innerHTML = TOKEN_BRIDGE + `
       <style>
-        :host { display: block; }
+        :host { display: block; cursor: pointer; }
         .field { display: flex; flex-direction: column; gap: var(--sp-1); }
         label {
           font-family: var(--font-mono);

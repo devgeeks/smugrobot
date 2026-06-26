@@ -315,6 +315,14 @@ body {
 .note-row-main {
   flex: 1;
   min-width: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
 }
 
 .note-title {

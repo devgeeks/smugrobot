@@ -39,7 +39,7 @@ function reducer(state: AppState, action: Action): AppState {
         ...state,
         selectedFolderId: action.folderId,
         selectedNoteId: null,
-        notes: [],
+        notes: action.folderId !== state.selectedFolderId ? [] : state.notes,
       }
     case 'NOTES_LOADED':
       return { ...state, notes: action.notes, noteCounts: action.noteCounts }

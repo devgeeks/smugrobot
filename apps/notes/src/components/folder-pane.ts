@@ -121,7 +121,7 @@ export class FolderPane {
       if (!name) return
       const store = getState().store
       if (!store) return
-      const id = 'folder-' + crypto.randomUUID()
+      const id = 'folder-' + Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('')
       const meta = await store.set(id, '', {
         title: name,
         type: 'folder',

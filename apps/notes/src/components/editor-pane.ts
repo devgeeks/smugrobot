@@ -117,7 +117,7 @@ export class EditorPane {
   async createNote(): Promise<void> {
     const state = getState()
     if (!state.store) return
-    const id = 'note-' + crypto.randomUUID()
+    const id = 'note-' + Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('')
     const defaultContent = '# Untitled\n\n'
     await state.store.set(id, defaultContent, {
       title: 'Untitled',
@@ -132,10 +132,10 @@ export class EditorPane {
     const noteCounts = getState().noteCounts
     const key = (state.selectedFolderId ?? '') as string
     const updatedCounts = { ...noteCounts, [key]: notes.length }
-    dispatch({ type: 'NOTES_LOADED', notes, noteCounts: updatedCounts })
-    dispatch({ type: 'NOTE_SELECTED', noteId: id })
     this.currentNoteId = id
     this.pendingMarkdown = defaultContent
+    dispatch({ type: 'NOTES_LOADED', notes, noteCounts: updatedCounts })
+    dispatch({ type: 'NOTE_SELECTED', noteId: id })
     this.editor?.action(replaceAll(defaultContent))
   }
 
