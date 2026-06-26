@@ -3,6 +3,7 @@ import { dispatch, getState } from '../state/store.js'
 
 export class FolderPane {
   el: HTMLElement
+  onFolderSelect?: () => void
   private prevFolders: FolderMeta[] = []
   private prevSelected: string | null = null
   private prevCounts: Record<string, number> = {}
@@ -42,9 +43,10 @@ export class FolderPane {
     const allNotes = document.createElement('button')
     allNotes.className = 'folder-item' + (selectedId === null ? ' folder-item--active' : '')
     allNotes.textContent = 'All notes'
-    allNotes.addEventListener('click', () =>
+    allNotes.addEventListener('click', () => {
+      this.onFolderSelect?.()
       dispatch({ type: 'FOLDER_SELECTED', folderId: null })
-    )
+    })
     nav.appendChild(allNotes)
 
     for (const folder of folders) {
@@ -53,9 +55,10 @@ export class FolderPane {
       if ((noteCounts[folder.id] ?? 0) === 0) btn.classList.add('folder-item--empty')
       btn.dataset['id'] = folder.id
       btn.textContent = folder.title
-      btn.addEventListener('click', () =>
+      btn.addEventListener('click', () => {
+        this.onFolderSelect?.()
         dispatch({ type: 'FOLDER_SELECTED', folderId: folder.id })
-      )
+      })
       nav.appendChild(btn)
     }
   }
