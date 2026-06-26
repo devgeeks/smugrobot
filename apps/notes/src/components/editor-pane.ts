@@ -25,7 +25,7 @@ export class EditorPane {
     this.el.className = 'editor-pane'
     this.el.innerHTML = `
       <div class="editor-toolbar">
-        <vault-button variant="primary" size="md" class="new-note-btn">New Note</vault-button>
+        <vault-button variant="primary" size="md" class="new-note-btn">New note</vault-button>
         <div class="toolbar-right">
           <vault-spinner size="md" class="save-spinner" label="Saving" style="display:none"></vault-spinner>
           <vault-button variant="secondary" size="md" class="lock-btn">Lock</vault-button>

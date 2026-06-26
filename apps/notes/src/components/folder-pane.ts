@@ -13,7 +13,7 @@ export class FolderPane {
     this.el.innerHTML = `
       <div class="pane-header">
         <span class="pane-title">Folders</span>
-        <vault-button variant="secondary" size="md" class="add-folder-btn">Add Folder</vault-button>
+        <vault-button variant="secondary" size="md" class="add-folder-btn">Add folder</vault-button>
       </div>
       <nav class="folder-tree" aria-label="Folders"></nav>
     `
@@ -41,7 +41,7 @@ export class FolderPane {
 
     const allNotes = document.createElement('button')
     allNotes.className = 'folder-item' + (selectedId === null ? ' folder-item--active' : '')
-    allNotes.textContent = 'All Notes'
+    allNotes.textContent = 'All notes'
     allNotes.addEventListener('click', () =>
       dispatch({ type: 'FOLDER_SELECTED', folderId: null })
     )
