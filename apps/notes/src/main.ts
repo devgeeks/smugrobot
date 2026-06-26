@@ -4,7 +4,12 @@ import '@smugrobot/ui/tokens/base.css'
 import '@smugrobot/ui/components/vault.js'
 import './styles/app.css'
 import { VaultTheme } from '@smugrobot/ui/components/vault-theme.js'
-import { detectVault } from './db/vault.js'
+import {
+  detectVault,
+  openVaultFromKey,
+  loadKeyFromSession,
+  clearSessionKey,
+} from './db/vault.js'
 import { dispatch, getState, subscribe } from './state/store.js'
 import { mountUnlockScreen } from './screens/unlock-screen.js'
 import { mountAppScreen, unmountAppScreen } from './screens/app-screen.js'
@@ -18,6 +23,12 @@ let currentScreen = ''
 subscribe(async () => {
   const state = getState()
   if (state.screen === currentScreen) return
+
+  // Transitioning away from app → clear cached session key
+  if (currentScreen === 'app' && state.screen === 'unlock') {
+    clearSessionKey()
+  }
+
   currentScreen = state.screen
 
   if (state.screen === 'unlock') {
@@ -31,6 +42,22 @@ subscribe(async () => {
 async function boot() {
   try {
     const { adapter, exists } = await detectVault()
+
+    // Fast path: resume from sessionStorage key (no KDF wait)
+    if (exists) {
+      const cachedKey = loadKeyFromSession()
+      if (cachedKey) {
+        try {
+          const store = await openVaultFromKey(adapter, cachedKey)
+          dispatch({ type: 'VAULT_DETECTED', exists, adapter })
+          dispatch({ type: 'UNLOCKED', store })
+          return
+        } catch {
+          // Key invalid or vault changed — fall through to passphrase screen
+        }
+      }
+    }
+
     dispatch({ type: 'VAULT_DETECTED', exists, adapter })
   } catch (err) {
     console.error('Failed to initialise vault adapter:', err)

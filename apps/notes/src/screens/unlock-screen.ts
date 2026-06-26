@@ -1,5 +1,5 @@
 import { dispatch, getState, subscribe } from '../state/store.js'
-import { createVault, openVault } from '../db/vault.js'
+import { createVault, openVault, saveKeyToSession } from '../db/vault.js'
 import { EchidnaJsError } from 'echidna.js'
 
 export function mountUnlockScreen(root: HTMLElement): () => void {
@@ -81,9 +81,14 @@ export function mountUnlockScreen(root: HTMLElement): () => void {
     try {
       const currentState = getState()
       if (!currentState.adapter) throw new Error('No adapter')
-      const store = creating
-        ? await createVault(currentState.adapter, passphrase)
-        : await openVault(currentState.adapter, passphrase)
+      let store
+      if (creating) {
+        store = await createVault(currentState.adapter, passphrase)
+      } else {
+        const result = await openVault(currentState.adapter, passphrase)
+        store = result.store
+        saveKeyToSession(result.key)
+      }
       dispatch({ type: 'UNLOCKED', store })
     } catch (err) {
       if (err instanceof EchidnaJsError && err.code === 'WRONG_KEY') {

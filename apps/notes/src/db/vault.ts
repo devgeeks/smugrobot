@@ -1,9 +1,64 @@
 import { indexedDbAdapter } from 'echidna.js/adapters/indexeddb'
-import { createEncryptedStore } from 'echidna.js'
+import { createEncryptedStore, EchidnaJsError } from 'echidna.js'
 import type { StorageAdapter } from 'echidna.js'
+import { scrypt } from 'scrypt-js'
 
-// Sentinel doc written on vault creation; reading it verifies the key on unlock
 const SENTINEL_ID = '__vault_sentinel__'
+const SESSION_KEY = 'notes-vault-key'
+
+// ── Session key helpers ──────────────────────────────────────────────────────
+
+export function saveKeyToSession(key: Uint8Array): void {
+  sessionStorage.setItem(SESSION_KEY, btoa(String.fromCharCode(...key)))
+}
+
+export function loadKeyFromSession(): Uint8Array | null {
+  const stored = sessionStorage.getItem(SESSION_KEY)
+  if (!stored) return null
+  try {
+    return new Uint8Array(atob(stored).split('').map((c) => c.charCodeAt(0)))
+  } catch {
+    return null
+  }
+}
+
+export function clearSessionKey(): void {
+  sessionStorage.removeItem(SESSION_KEY)
+}
+
+// ── Key derivation ───────────────────────────────────────────────────────────
+
+interface ScryptParams { algo: 'scrypt'; N: number; r: number; p: number }
+interface Pbkdf2Params { algo: 'pbkdf2'; iterations: number; hash: string }
+type KdfParams = ScryptParams | Pbkdf2Params
+
+async function readVaultKdf(
+  adapter: StorageAdapter,
+): Promise<{ salt: Uint8Array; params: KdfParams } | null> {
+  const salt = await adapter.get('vault/salt')
+  if (!salt) return null
+  const kdfBytes = await adapter.get('vault/kdf')
+  if (!kdfBytes) return null
+  const params = JSON.parse(new TextDecoder().decode(kdfBytes)) as KdfParams
+  return { salt, params }
+}
+
+async function deriveKey(passphrase: string, salt: Uint8Array, params: KdfParams): Promise<Uint8Array> {
+  const passBytes = new TextEncoder().encode(passphrase)
+  if (params.algo === 'scrypt') {
+    return scrypt(passBytes, salt, params.N, params.r, params.p, 32)
+  }
+  const cryptoKey = await crypto.subtle.importKey('raw', passBytes, 'PBKDF2', false, ['deriveBits'])
+  // PBKDF2 requires a plain ArrayBuffer-backed Uint8Array; slice() ensures that
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt: salt.slice(), iterations: params.iterations, hash: params.hash },
+    cryptoKey,
+    256,
+  )
+  return new Uint8Array(bits)
+}
+
+// ── Public API ───────────────────────────────────────────────────────────────
 
 export async function detectVault(): Promise<{ adapter: StorageAdapter; exists: boolean }> {
   const adapter = await indexedDbAdapter('smugrobot-notes', 'vault')
@@ -20,13 +75,42 @@ export async function createVault(adapter: StorageAdapter, passphrase: string) {
   return store
 }
 
-export async function openVault(adapter: StorageAdapter, passphrase: string) {
+/** Derive the key, open the vault, verify sentinel. Returns key bytes for sessionStorage. */
+export async function openVault(
+  adapter: StorageAdapter,
+  passphrase: string,
+): Promise<{ store: Awaited<ReturnType<typeof createEncryptedStore>>; key: Uint8Array }> {
+  const kdf = await readVaultKdf(adapter)
+  if (!kdf) throw new Error('Vault not found')
+
+  const key = await deriveKey(passphrase, kdf.salt, kdf.params)
+
   const store = await createEncryptedStore({
     adapter,
-    keySource: { type: 'passphrase', passphrase },
+    keySource: { type: 'raw', key },
   })
-  // Attempt decryption of sentinel to verify the key.
-  // Returns null if sentinel not present (old vault); throws WRONG_KEY if bad passphrase.
+
+  // Verify the key — throws EchidnaJsError('WRONG_KEY') if bad passphrase
   await store.get(SENTINEL_ID)
+
+  return { store, key }
+}
+
+/** Resume a session from a cached key — no KDF, instant. */
+export async function openVaultFromKey(adapter: StorageAdapter, key: Uint8Array) {
+  const store = await createEncryptedStore({
+    adapter,
+    keySource: { type: 'raw', key },
+  })
+  // Verify the key is still valid (vault may have been recreated)
+  try {
+    await store.get(SENTINEL_ID)
+  } catch (err) {
+    if (err instanceof EchidnaJsError && err.code === 'WRONG_KEY') {
+      clearSessionKey()
+      throw err
+    }
+    // SENTINEL_ID not found (null return) — old vault, proceed anyway
+  }
   return store
 }
