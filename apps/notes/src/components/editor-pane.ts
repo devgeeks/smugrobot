@@ -1,6 +1,7 @@
 import { Editor, rootCtx, defaultValueCtx } from '@milkdown/core'
 import { commonmark } from '@milkdown/preset-commonmark'
 import { listener, listenerCtx } from '@milkdown/plugin-listener'
+import { clipboard } from '@milkdown/plugin-clipboard'
 import { getMarkdown, replaceAll } from '@milkdown/utils'
 import type { AppState } from '../state/types.js'
 import { dispatch, getState } from '../state/store.js'
@@ -54,6 +55,7 @@ export class EditorPane {
       })
       .use(commonmark)
       .use(listener)
+      .use(clipboard)
       .create()
   }
 
