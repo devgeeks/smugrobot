@@ -5,6 +5,7 @@ import { getMarkdown, replaceAll } from '@milkdown/utils'
 import type { AppState } from '../state/types.js'
 import { dispatch, getState } from '../state/store.js'
 import { deriveTitleFromMarkdown } from '../utils/markdown.js'
+import { showToast } from '../utils/toast.js'
 import type { NoteMeta } from '../state/types.js'
 
 export class EditorPane {
@@ -40,6 +41,7 @@ export class EditorPane {
     this.newNoteBtn.addEventListener('click', () => this.createNote())
     this.lockBtn.addEventListener('click', async () => {
       await this.flushPendingSave()
+      showToast('Vault locked.', 'success')
       dispatch({ type: 'LOCKED' })
     })
   }

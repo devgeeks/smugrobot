@@ -1,6 +1,7 @@
 import type { AppState, NoteMeta } from '../state/types.js'
 import { dispatch, getState } from '../state/store.js'
 import { formatRelativeTime } from '../utils/time.js'
+import { showToast } from '../utils/toast.js'
 
 export class NoteList {
   el: HTMLElement
@@ -135,6 +136,7 @@ function confirmDeleteNote(note: NoteMeta): void {
     if (!store) return
     await store.delete(note.id)
     dispatch({ type: 'NOTE_DELETED', noteId: note.id })
+    showToast(`"${note.title}" was deleted.`, 'info')
   })
 
   overlay.addEventListener('click', (e) => {
@@ -146,6 +148,7 @@ function confirmDeleteNote(note: NoteMeta): void {
   }
   document.addEventListener('keydown', onKey)
 }
+
 
 function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')

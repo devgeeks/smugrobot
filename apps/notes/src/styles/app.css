@@ -60,13 +60,6 @@ body {
   margin-bottom: var(--sp-5);
 }
 
-#unlock-alert-slot {
-  margin-bottom: var(--sp-3);
-}
-
-#unlock-alert-slot:empty {
-  display: none;
-}
 
 .unlock-submit {
   width: 100%;
@@ -416,6 +409,24 @@ body {
 
 .menu-item--danger {
   color: var(--danger-text);
+}
+
+.toast-container {
+  position: fixed;
+  bottom: var(--sp-6);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 600;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 280px;
+  max-width: 480px;
+  pointer-events: none;
+}
+
+.toast-container vault-alert {
+  pointer-events: all;
 }
 
 .dialog-overlay {

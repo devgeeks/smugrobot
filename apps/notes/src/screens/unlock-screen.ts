@@ -1,6 +1,7 @@
 import { dispatch, getState, subscribe } from '../state/store.js'
 import { createVault, openVault, saveKeyToSession } from '../db/vault.js'
 import { EchidnaJsError } from 'echidna.js'
+import { showToast } from '../utils/toast.js'
 
 export function mountUnlockScreen(root: HTMLElement): () => void {
   const state = getState()
@@ -19,7 +20,6 @@ export function mountUnlockScreen(root: HTMLElement): () => void {
           ? 'Your notes will be encrypted with this passphrase. Don\'t lose it — it cannot be recovered.'
           : 'Enter your passphrase to unlock your notes.'
         }</p>
-        <div id="unlock-alert-slot"></div>
         <div class="unlock-fields">
           <vault-input
             id="passphrase-input"
@@ -54,40 +54,37 @@ export function mountUnlockScreen(root: HTMLElement): () => void {
   const btn = wrap.querySelector('#unlock-btn') as HTMLElement
   const passphraseInput = wrap.querySelector('#passphrase-input') as HTMLElement & { value: string }
   const confirmInput = wrap.querySelector('#confirm-input') as (HTMLElement & { value: string }) | null
-  const alertSlot = wrap.querySelector('#unlock-alert-slot')!
   const progressWrap = wrap.querySelector('#kdf-progress') as HTMLElement
   const progressBar = wrap.querySelector('.kdf-progress-bar') as HTMLElement
   const progressLabel = wrap.querySelector('.kdf-progress-label') as HTMLElement
 
-  const showError = (msg: string) => {
-    alertSlot.innerHTML = `<vault-alert variant="danger">${escapeHtml(msg)}</vault-alert>`
+  // vault-input re-renders on any attribute change, resetting the native input value
+  // to the 'value' attribute. Sync 'value' first so the typed text is preserved.
+  const setInputError = (el: HTMLElement & { value: string }, msg: string) => {
+    el.setAttribute('value', el.value)
+    el.setAttribute('error', msg)
   }
 
-  const clearError = () => {
-    alertSlot.innerHTML = ''
-  }
-
-  passphraseInput.addEventListener('vault-input', clearError)
-  confirmInput?.addEventListener('vault-input', clearError)
+  passphraseInput.addEventListener('vault-input', () => passphraseInput.removeAttribute('error'))
+  confirmInput?.addEventListener('vault-input', () => confirmInput.removeAttribute('error'))
 
   const doUnlock = async () => {
     const passphrase: string = (passphraseInput as unknown as { value: string }).value ?? ''
     if (!passphrase) {
-      showError('Please enter your passphrase.')
+      setInputError(passphraseInput, 'Please enter your passphrase.')
       return
     }
 
     if (creating) {
       const confirm: string = (confirmInput as unknown as { value: string } | null)?.value ?? ''
       if (passphrase !== confirm) {
-        showError('Passphrases do not match.')
+        if (confirmInput) setInputError(confirmInput, 'Passphrases do not match.')
         return
       }
     }
 
     btn.setAttribute('loading', '')
     btn.setAttribute('disabled', '')
-    clearError()
     progressBar.style.width = '0%'
     progressLabel.textContent = 'Unlocking private notes…'
     progressWrap.classList.add('visible')
@@ -110,9 +107,10 @@ export function mountUnlockScreen(root: HTMLElement): () => void {
       dispatch({ type: 'UNLOCKED', store })
     } catch (err) {
       if (err instanceof EchidnaJsError && err.code === 'WRONG_KEY') {
-        dispatch({ type: 'UNLOCK_ERROR', message: 'Wrong passphrase. Please try again.' })
+        setInputError(passphraseInput, 'Wrong passphrase.')
+        showToast('Wrong passphrase. Please try again.', 'danger')
       } else {
-        dispatch({ type: 'UNLOCK_ERROR', message: 'Failed to open vault. Please try again.' })
+        showToast('Failed to open vault. Please try again.', 'danger')
       }
     } finally {
       btn.removeAttribute('loading')
@@ -128,15 +126,6 @@ export function mountUnlockScreen(root: HTMLElement): () => void {
     if ((e as KeyboardEvent).key === 'Enter') doUnlock()
   })
 
-  // Re-render error from state
-  const unsub = subscribe(() => {
-    const s = getState()
-    if (s.unlockError) showError(s.unlockError)
-  })
-
-  return unsub
+  return subscribe(() => { /* keep subscription alive for screen transitions */ })
 }
 
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
