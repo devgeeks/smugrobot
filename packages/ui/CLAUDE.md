@@ -189,6 +189,11 @@ Max `--radius-lg` for non-circular shapes. Pillls and avatars use `--radius-full
 - All UI components and graphical objects must meet 3:1 (e.g. borders, icons).
 - Never use colour alone to convey meaning — pair with an icon or label.
 
+**Grammar**
+- All labels, button text, headings, and UI copy must use sentence case (e.g. "Add folder", "New note", "Delete note?").
+- Never use title case or ALL CAPS in UI text.
+- Never apply `text-transform: uppercase` in CSS — not in components, not in page-level styles.
+
 **New components**
 - Extend `HTMLElement`. Use Shadow DOM (`attachShadow({ mode: 'open' })`).
 - Inject `TOKEN_BRIDGE` (copy the pattern from `vault.js`) so all `--*` tokens work inside shadow DOM.

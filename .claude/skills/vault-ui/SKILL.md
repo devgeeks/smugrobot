@@ -241,6 +241,21 @@ color:          var(--text-secondary);
 | Motion | Every transition must use `var(--ease-out)` and a `--duration-*` token. |
 | Motion | Only animate properties that communicate state change. No decorative animation. |
 | WCAG | All text ≥ 4.5:1. All UI components / graphical objects ≥ 3:1. |
+| Grammar | All UI copy (labels, buttons, headings, toasts) must use sentence case. Never title case or ALL CAPS. |
+| Grammar | Never apply `text-transform: uppercase` in CSS — not in components, not in page-level styles. |
+
+---
+
+## Grammar
+
+All UI text must be sentence case:
+
+- **Correct:** "Add folder", "New note", "Delete note?", "Vault locked."
+- **Wrong:** "Add Folder", "New Note", "DELETE NOTE", "VAULT LOCKED"
+
+This applies to button labels, pane titles, dialog and toast messages, field labels, and placeholder text.
+
+**Never** use `text-transform: uppercase` in CSS to enforce casing — write the correct case in the source. CSS transforms hide bugs (a label stored as "ADD FOLDER" looks fine visually but is wrong in accessibility trees and clipboard text).
 
 ---
 
