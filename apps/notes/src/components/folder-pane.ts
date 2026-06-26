@@ -16,6 +16,7 @@ export class FolderPane {
   el: HTMLElement
   private prevFolders: FolderMeta[] = []
   private prevSelected: string | null = null
+  private prevCounts: Record<string, number> = {}
 
   constructor() {
     this.el = document.createElement('div')
@@ -35,15 +36,17 @@ export class FolderPane {
   render(state: AppState): void {
     if (
       state.folders === this.prevFolders &&
-      state.selectedFolderId === this.prevSelected
+      state.selectedFolderId === this.prevSelected &&
+      state.noteCounts === this.prevCounts
     )
       return
     this.prevFolders = state.folders
     this.prevSelected = state.selectedFolderId
-    this.renderTree(state.folders, state.selectedFolderId)
+    this.prevCounts = state.noteCounts
+    this.renderTree(state.folders, state.selectedFolderId, state.noteCounts)
   }
 
-  private renderTree(folders: FolderMeta[], selectedId: string | null): void {
+  private renderTree(folders: FolderMeta[], selectedId: string | null, noteCounts: Record<string, number>): void {
     const nav = this.el.querySelector('.folder-tree')!
     nav.innerHTML = ''
 
@@ -57,11 +60,11 @@ export class FolderPane {
 
     const tree = buildTree(folders, null)
     for (const node of tree) {
-      nav.appendChild(this.renderNode(node, selectedId))
+      nav.appendChild(this.renderNode(node, selectedId, noteCounts))
     }
   }
 
-  private renderNode(node: FolderNode, selectedId: string | null): HTMLElement {
+  private renderNode(node: FolderNode, selectedId: string | null, noteCounts: Record<string, number>): HTMLElement {
     const wrap = document.createElement('div')
     wrap.className = 'folder-node'
 
@@ -71,6 +74,8 @@ export class FolderPane {
     btn.dataset['id'] = node.meta.id
 
     const hasChildren = node.children.length > 0
+    const hasNotes = (noteCounts[node.meta.id] ?? 0) > 0
+    if (!hasNotes) btn.classList.add('folder-item--empty')
     btn.innerHTML = `
       <span class="folder-arrow">${hasChildren ? '▾' : ' '}</span>
       <span class="folder-name">${escapeHtml(node.meta.title)}</span>
@@ -95,7 +100,7 @@ export class FolderPane {
       const childList = document.createElement('div')
       childList.className = 'folder-children'
       for (const child of node.children) {
-        childList.appendChild(this.renderNode(child, selectedId))
+        childList.appendChild(this.renderNode(child, selectedId, noteCounts))
       }
       wrap.appendChild(childList)
     }

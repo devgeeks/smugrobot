@@ -11,6 +11,7 @@ const initial: AppState = {
   notes: [],
   selectedNoteId: null,
   isSaving: false,
+  noteCounts: {},
 }
 
 function reducer(state: AppState, action: Action): AppState {
@@ -41,7 +42,7 @@ function reducer(state: AppState, action: Action): AppState {
         notes: [],
       }
     case 'NOTES_LOADED':
-      return { ...state, notes: action.notes }
+      return { ...state, notes: action.notes, noteCounts: action.noteCounts }
     case 'NOTE_SELECTED':
       return { ...state, selectedNoteId: action.noteId }
     case 'NOTE_SAVE_START':

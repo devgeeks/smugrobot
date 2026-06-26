@@ -24,8 +24,10 @@ export class EditorPane {
     this.el.innerHTML = `
       <div class="editor-toolbar">
         <vault-button variant="primary" size="sm" class="new-note-btn">New Note</vault-button>
-        <vault-button variant="secondary" size="sm" class="lock-btn">Lock</vault-button>
-        <vault-spinner size="sm" class="save-spinner" label="Saving" style="display:none"></vault-spinner>
+        <div class="toolbar-right">
+          <vault-spinner size="sm" class="save-spinner" label="Saving" style="display:none"></vault-spinner>
+          <vault-button variant="secondary" size="sm" class="lock-btn">Lock</vault-button>
+        </div>
       </div>
       <div class="milkdown-host"></div>
     `
@@ -121,7 +123,10 @@ export class EditorPane {
     const notes = (all.filter(
       (m) => m['type'] === 'note' && ((m['folderId'] ?? null) === state.selectedFolderId)
     ) as NoteMeta[]).sort((a, b) => b.updatedAt - a.updatedAt)
-    dispatch({ type: 'NOTES_LOADED', notes })
+    const noteCounts = getState().noteCounts
+    const key = (state.selectedFolderId ?? '') as string
+    const updatedCounts = { ...noteCounts, [key]: notes.length }
+    dispatch({ type: 'NOTES_LOADED', notes, noteCounts: updatedCounts })
     dispatch({ type: 'NOTE_SELECTED', noteId: id })
     this.currentNoteId = id
     this.pendingMarkdown = defaultContent

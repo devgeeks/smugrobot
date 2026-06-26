@@ -23,6 +23,7 @@ export interface AppState {
   notes: NoteMeta[]
   selectedNoteId: string | null
   isSaving: boolean
+  noteCounts: Record<string, number>
 }
 
 export type Action =
@@ -31,7 +32,7 @@ export type Action =
   | { type: 'UNLOCKED'; store: DocStore }
   | { type: 'FOLDERS_LOADED'; folders: FolderMeta[] }
   | { type: 'FOLDER_SELECTED'; folderId: string | null }
-  | { type: 'NOTES_LOADED'; notes: NoteMeta[] }
+  | { type: 'NOTES_LOADED'; notes: NoteMeta[]; noteCounts: Record<string, number> }
   | { type: 'NOTE_SELECTED'; noteId: string }
   | { type: 'NOTE_SAVE_START' }
   | { type: 'NOTE_SAVE_DONE'; meta: NoteMeta }

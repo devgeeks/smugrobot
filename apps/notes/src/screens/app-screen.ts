@@ -93,5 +93,12 @@ async function loadNotes(folderId: string | null): Promise<void> {
       (m) => m['type'] === 'note' && (folderId === null || (m['folderId'] ?? null) === folderId)
     ) as NoteMeta[]
   ).sort((a, b) => b.updatedAt - a.updatedAt)
-  dispatch({ type: 'NOTES_LOADED', notes })
+  const noteCounts: Record<string, number> = {}
+  for (const m of all) {
+    if (m['type'] === 'note') {
+      const key = (m['folderId'] as string | null) ?? ''
+      noteCounts[key] = (noteCounts[key] ?? 0) + 1
+    }
+  }
+  dispatch({ type: 'NOTES_LOADED', notes, noteCounts })
 }
