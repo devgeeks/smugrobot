@@ -10,18 +10,20 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "echidna.js": "*",
-    "scrypt-js": "^3.0.1",
-    "@smugrobot/ui": "*",
     "@milkdown/core": "^7.6.0",
     "@milkdown/ctx": "^7.6.0",
-    "@milkdown/preset-commonmark": "^7.6.0",
     "@milkdown/plugin-listener": "^7.6.0",
+    "@milkdown/preset-commonmark": "^7.6.0",
+    "@milkdown/transformer": "^7.6.0",
     "@milkdown/utils": "^7.6.0",
-    "@milkdown/transformer": "^7.6.0"
+    "@smugrobot/ui": "*",
+    "echidna.js": "*",
+    "scrypt-js": "^3.0.1"
   },
   "devDependencies": {
+    "@vite-pwa/assets-generator": "^1.0.2",
+    "typescript": "*",
     "vite": "^5.4.0",
-    "typescript": "*"
+    "vite-plugin-pwa": "^1.3.0"
   }
 }
