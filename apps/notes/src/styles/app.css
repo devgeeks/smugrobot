@@ -618,7 +618,7 @@ body {
 
 /* ── Mobile single-pane layout (≤ 767px) ────────────────── */
 
-@media (max-width: 767px) {
+@media (max-width: 1024px) {
   .app-layout .folder-pane,
   .app-layout .note-list,
   .app-layout .editor-pane {

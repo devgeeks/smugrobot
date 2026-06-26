@@ -63,6 +63,15 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   const toolbar = editorPane.el.querySelector('.editor-toolbar')!
   toolbar.insertBefore(backToNotesBtn, toolbar.firstChild)
   backToNotesBtn.addEventListener('click', () => setMobilePane('list'))
+
+  // On mobile, tapping an already-selected item doesn't change state so the
+  // subscribe auto-navigation never fires. Force-navigate on every row tap.
+  noteList.el.addEventListener('click', (e) => {
+    if ((e.target as Element).closest('.note-row')) setMobilePane('editor')
+  })
+  folderPane.el.addEventListener('click', (e) => {
+    if ((e.target as Element).closest('.folder-item')) setMobilePane('list')
+  })
   // ──────────────────────────────────────────────────────────
 
   await editorPane.mount()

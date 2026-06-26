@@ -76,6 +76,10 @@ export function mountUnlockScreen(root: HTMLElement): () => void {
     }
 
     if (creating) {
+      if (passphrase.length < 8) {
+        setInputError(passphraseInput, 'Passphrase must be at least 8 characters.')
+        return
+      }
       const confirm: string = (confirmInput as unknown as { value: string } | null)?.value ?? ''
       if (passphrase !== confirm) {
         if (confirmInput) setInputError(confirmInput, 'Passphrases do not match.')
@@ -87,7 +91,7 @@ export function mountUnlockScreen(root: HTMLElement): () => void {
     btn.setAttribute('disabled', '')
     progressBar.style.width = '0%'
     progressLabel.textContent = 'Unlocking private notes…'
-    progressWrap.classList.add('visible')
+    if (!creating) progressWrap.classList.add('visible')
 
     try {
       const currentState = getState()
