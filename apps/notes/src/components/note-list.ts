@@ -77,10 +77,15 @@ export class NoteList {
   }
 
   private openMenu(note: NoteMeta, anchor: HTMLElement): void {
-    document.querySelector('.note-menu-popover')?.remove()
+    const existing = document.querySelector<HTMLElement>('.note-menu-popover')
+    if (existing) {
+      existing.remove()
+      if (existing.dataset['noteId'] === note.id) return
+    }
 
     const popover = document.createElement('div')
     popover.className = 'note-menu-popover'
+    popover.dataset['noteId'] = note.id
     popover.innerHTML = `
       <button class="menu-item" data-action="copy">Copy text</button>
       <button class="menu-item menu-item--danger" data-action="delete">Delete</button>

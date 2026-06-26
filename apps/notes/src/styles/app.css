@@ -650,4 +650,8 @@ body {
     gap: var(--sp-2);
     align-items: center;
   }
+
+  .note-menu-btn {
+    opacity: 1;
+  }
 }
