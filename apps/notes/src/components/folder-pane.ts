@@ -13,7 +13,7 @@ export class FolderPane {
     this.el.innerHTML = `
       <div class="pane-header">
         <span class="pane-title">Folders</span>
-        <vault-button variant="secondary" size="sm" class="add-folder-btn">Add Folder</vault-button>
+        <vault-button variant="secondary" size="md" class="add-folder-btn">Add Folder</vault-button>
       </div>
       <nav class="folder-tree" aria-label="Folders"></nav>
     `

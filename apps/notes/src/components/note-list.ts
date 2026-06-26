@@ -122,8 +122,8 @@ function confirmDeleteNote(note: NoteMeta): void {
       <p class="dialog-title">Delete note?</p>
       <p class="dialog-body">"${escapeHtml(note.title)}" will be permanently deleted.</p>
       <div class="dialog-actions">
-        <vault-button variant="secondary" size="sm" class="dialog-cancel">Cancel</vault-button>
-        <vault-button variant="danger" size="sm" class="dialog-confirm">Delete</vault-button>
+        <vault-button variant="secondary" size="md" class="dialog-cancel">Cancel</vault-button>
+        <vault-button variant="danger" size="md" class="dialog-confirm">Delete</vault-button>
       </div>
     </vault-card>
   `

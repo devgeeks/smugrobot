@@ -25,10 +25,10 @@ export class EditorPane {
     this.el.className = 'editor-pane'
     this.el.innerHTML = `
       <div class="editor-toolbar">
-        <vault-button variant="primary" size="sm" class="new-note-btn">New Note</vault-button>
+        <vault-button variant="primary" size="md" class="new-note-btn">New Note</vault-button>
         <div class="toolbar-right">
-          <vault-spinner size="sm" class="save-spinner" label="Saving" style="display:none"></vault-spinner>
-          <vault-button variant="secondary" size="sm" class="lock-btn">Lock</vault-button>
+          <vault-spinner size="md" class="save-spinner" label="Saving" style="display:none"></vault-spinner>
+          <vault-button variant="secondary" size="md" class="lock-btn">Lock</vault-button>
         </div>
       </div>
       <div class="milkdown-host"></div>

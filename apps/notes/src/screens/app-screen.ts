@@ -43,8 +43,8 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
     <button class="icon-btn mobile-nav-btn" aria-label="Back to folders">← Folders</button>
     <span class="pane-title">Notes</span>
     <div class="mobile-nav-btn mobile-note-list-actions">
-      <vault-button variant="primary" size="sm" class="mobile-new-note-btn">New Note</vault-button>
-      <vault-button variant="secondary" size="sm" class="mobile-lock-btn">Lock</vault-button>
+      <vault-button variant="primary" size="md" class="mobile-new-note-btn">New Note</vault-button>
+      <vault-button variant="secondary" size="md" class="mobile-lock-btn">Lock</vault-button>
     </div>
   `
   noteList.el.insertBefore(noteListHeader, noteList.el.firstChild)
