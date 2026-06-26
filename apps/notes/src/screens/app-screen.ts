@@ -90,7 +90,7 @@ async function loadNotes(folderId: string | null): Promise<void> {
   const all = await store.list()
   const notes = (
     all.filter(
-      (m) => m['type'] === 'note' && ((m['folderId'] ?? null) === folderId)
+      (m) => m['type'] === 'note' && (folderId === null || (m['folderId'] ?? null) === folderId)
     ) as NoteMeta[]
   ).sort((a, b) => b.updatedAt - a.updatedAt)
   dispatch({ type: 'NOTES_LOADED', notes })
