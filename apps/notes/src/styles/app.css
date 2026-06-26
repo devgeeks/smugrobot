@@ -26,7 +26,6 @@ body {
 
 .unlock-card {
   width: 100%;
-  max-width: 400px;
 }
 
 .unlock-logo {
@@ -71,6 +70,53 @@ body {
 
 .unlock-submit {
   width: 100%;
+}
+
+.unlock-card-wrap {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.unlock-card-wrap .unlock-card {
+  width: 100%;
+}
+
+.kdf-progress {
+  display: none;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface-raised);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+}
+
+.kdf-progress.visible {
+  display: flex;
+}
+
+.kdf-progress-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.kdf-progress-track {
+  height: 6px;
+  background: var(--surface-overlay);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.kdf-progress-bar {
+  height: 100%;
+  background: var(--cipher);
+  width: 0%;
+  transition: width 0.15s var(--ease-out);
+  border-radius: var(--radius-full);
 }
 
 /* ── Three-pane app layout ──────────────────────────────── */

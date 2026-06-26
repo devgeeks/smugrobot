@@ -43,10 +43,19 @@ async function readVaultKdf(
   return { salt, params }
 }
 
-async function deriveKey(passphrase: string, salt: Uint8Array, params: KdfParams): Promise<Uint8Array> {
+async function deriveKey(
+  passphrase: string,
+  salt: Uint8Array,
+  params: KdfParams,
+  onProgress?: (p: number) => void,
+): Promise<Uint8Array> {
   const passBytes = new TextEncoder().encode(passphrase)
   if (params.algo === 'scrypt') {
-    return scrypt(passBytes, salt, params.N, params.r, params.p, 32)
+    // scrypt-js public API calls progressCallback(progress) with one arg
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return scrypt(passBytes, salt, params.N, params.r, params.p, 32, ((progress: number) => {
+      onProgress?.(progress)
+    }) as any)
   }
   const cryptoKey = await crypto.subtle.importKey('raw', passBytes, 'PBKDF2', false, ['deriveBits'])
   // PBKDF2 requires a plain ArrayBuffer-backed Uint8Array; slice() ensures that
@@ -79,11 +88,12 @@ export async function createVault(adapter: StorageAdapter, passphrase: string) {
 export async function openVault(
   adapter: StorageAdapter,
   passphrase: string,
+  onProgress?: (p: number) => void,
 ): Promise<{ store: Awaited<ReturnType<typeof createEncryptedStore>>; key: Uint8Array }> {
   const kdf = await readVaultKdf(adapter)
   if (!kdf) throw new Error('Vault not found')
 
-  const key = await deriveKey(passphrase, kdf.salt, kdf.params)
+  const key = await deriveKey(passphrase, kdf.salt, kdf.params, onProgress)
 
   const store = await createEncryptedStore({
     adapter,
