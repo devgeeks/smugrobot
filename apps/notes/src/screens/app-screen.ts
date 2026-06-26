@@ -64,11 +64,8 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   toolbar.insertBefore(backToNotesBtn, toolbar.firstChild)
   backToNotesBtn.addEventListener('click', () => setMobilePane('list'))
 
-  // Navigate on every note/folder tap, including re-taps of already-selected items.
+  // Navigate on every note tap, including re-taps of the already-selected note.
   noteList.onNoteSelect = () => setMobilePane('editor')
-  folderPane.el.addEventListener('click', (e) => {
-    if ((e.target as Element).closest('.folder-item')) setMobilePane('list')
-  }, true)
   // ──────────────────────────────────────────────────────────
 
   await editorPane.mount()
