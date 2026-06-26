@@ -96,12 +96,9 @@ export class NoteList {
       if (content) navigator.clipboard.writeText(content)
     })
 
-    popover.querySelector('[data-action="delete"]')!.addEventListener('click', async () => {
+    popover.querySelector('[data-action="delete"]')!.addEventListener('click', () => {
       popover.remove()
-      const store = getState().store
-      if (!store) return
-      await store.delete(note.id)
-      dispatch({ type: 'NOTE_DELETED', noteId: note.id })
+      confirmDeleteNote(note)
     })
 
     const close = (e: Event) => {
@@ -112,6 +109,42 @@ export class NoteList {
     }
     setTimeout(() => document.addEventListener('click', close), 0)
   }
+}
+
+function confirmDeleteNote(note: NoteMeta): void {
+  const overlay = document.createElement('div')
+  overlay.className = 'dialog-overlay'
+  overlay.innerHTML = `
+    <vault-card border elevated class="dialog-card">
+      <p class="dialog-title">Delete note?</p>
+      <p class="dialog-body">"${escapeHtml(note.title)}" will be permanently deleted.</p>
+      <div class="dialog-actions">
+        <vault-button variant="secondary" size="sm" class="dialog-cancel">Cancel</vault-button>
+        <vault-button variant="danger" size="sm" class="dialog-confirm">Delete</vault-button>
+      </div>
+    </vault-card>
+  `
+  document.body.appendChild(overlay)
+
+  const close = () => overlay.remove()
+
+  overlay.querySelector('.dialog-cancel')!.addEventListener('click', close)
+  overlay.querySelector('.dialog-confirm')!.addEventListener('click', async () => {
+    close()
+    const store = getState().store
+    if (!store) return
+    await store.delete(note.id)
+    dispatch({ type: 'NOTE_DELETED', noteId: note.id })
+  })
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) close()
+  })
+
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey) }
+  }
+  document.addEventListener('keydown', onKey)
 }
 
 function escapeHtml(s: string): string {
