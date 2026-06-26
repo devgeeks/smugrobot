@@ -25,11 +25,56 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   layout.appendChild(noteList.el)
   layout.appendChild(editorPane.el)
 
+  // ── Mobile single-pane navigation ─────────────────────────
+  const PANE_ORDER = ['folders', 'list', 'editor'] as const
+  let mobilePaneVisible: 'folders' | 'list' | 'editor' = 'list'
+  function setMobilePane(pane: typeof mobilePaneVisible): void {
+    const direction = PANE_ORDER.indexOf(pane) >= PANE_ORDER.indexOf(mobilePaneVisible) ? 1 : -1
+    layout.style.setProperty('--pane-slide-direction', String(direction))
+    mobilePaneVisible = pane
+    layout.dataset['mobilePane'] = pane
+  }
+  setMobilePane('list')
+
+  // Inject "← Folders" header into note list (NoteList has no header of its own)
+  const noteListHeader = document.createElement('div')
+  noteListHeader.className = 'pane-header'
+  noteListHeader.innerHTML = `
+    <button class="icon-btn mobile-nav-btn" aria-label="Back to folders">← Folders</button>
+    <span class="pane-title">Notes</span>
+    <div class="mobile-nav-btn mobile-note-list-actions">
+      <vault-button variant="primary" size="sm" class="mobile-new-note-btn">New Note</vault-button>
+      <vault-button variant="secondary" size="sm" class="mobile-lock-btn">Lock</vault-button>
+    </div>
+  `
+  noteList.el.insertBefore(noteListHeader, noteList.el.firstChild)
+  noteListHeader.querySelector('.mobile-nav-btn[aria-label]')!
+    .addEventListener('click', () => setMobilePane('folders'))
+  noteListHeader.querySelector('.mobile-new-note-btn')!
+    .addEventListener('click', () => editorPane.createNote())
+  noteListHeader.querySelector('.mobile-lock-btn')!
+    .addEventListener('click', () => editorPane.lock())
+
+  // Inject "← Notes" button at start of editor toolbar
+  const backToNotesBtn = document.createElement('button')
+  backToNotesBtn.className = 'icon-btn mobile-nav-btn'
+  backToNotesBtn.setAttribute('aria-label', 'Back to notes')
+  backToNotesBtn.textContent = '← Notes'
+  const toolbar = editorPane.el.querySelector('.editor-toolbar')!
+  toolbar.insertBefore(backToNotesBtn, toolbar.firstChild)
+  backToNotesBtn.addEventListener('click', () => setMobilePane('list'))
+  // ──────────────────────────────────────────────────────────
+
   await editorPane.mount()
 
   // Load initial data
   await loadFolders()
   await loadNotes(getState().selectedFolderId)
+
+  const prevMobileState = {
+    folderId: getState().selectedFolderId,
+    noteId: getState().selectedNoteId,
+  }
 
   unsub = subscribe(async () => {
     const state = getState()
@@ -44,6 +89,19 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
       await editorPane.loadNote(state.selectedNoteId)
     } else if (state.selectedNoteId === null && editorPane.currentNoteId !== null) {
       editorPane.clearNote()
+    }
+
+    // Auto-navigate on mobile when folder or note selection changes
+    if (state.selectedFolderId !== prevMobileState.folderId) {
+      prevMobileState.folderId = state.selectedFolderId
+      setMobilePane('list')
+    }
+    if (state.selectedNoteId !== null && state.selectedNoteId !== prevMobileState.noteId) {
+      prevMobileState.noteId = state.selectedNoteId
+      setMobilePane('editor')
+    }
+    if (state.selectedNoteId === null) {
+      prevMobileState.noteId = null
     }
   })
 

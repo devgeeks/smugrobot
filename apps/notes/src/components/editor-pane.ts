@@ -39,11 +39,7 @@ export class EditorPane {
     this.milkdownHost = this.el.querySelector('.milkdown-host')!
 
     this.newNoteBtn.addEventListener('click', () => this.createNote())
-    this.lockBtn.addEventListener('click', async () => {
-      await this.flushPendingSave()
-      showToast('Vault locked.', 'success')
-      dispatch({ type: 'LOCKED' })
-    })
+    this.lockBtn.addEventListener('click', () => this.lock())
   }
 
   async mount(): Promise<void> {
@@ -110,7 +106,13 @@ export class EditorPane {
     }
   }
 
-  private async createNote(): Promise<void> {
+  async lock(): Promise<void> {
+    await this.flushPendingSave()
+    showToast('Vault locked.', 'success')
+    dispatch({ type: 'LOCKED' })
+  }
+
+  async createNote(): Promise<void> {
     const state = getState()
     if (!state.store) return
     const id = 'note-' + crypto.randomUUID()
