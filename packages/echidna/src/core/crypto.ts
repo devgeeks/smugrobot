@@ -10,7 +10,7 @@ export function generateSalt(): Uint8Array {
 }
 
 /** Generates a random 24-byte nonce for use with a single `nacl.secretbox` call. */
-export function generateNonce(): Uint8Array {
+function generateNonce(): Uint8Array {
   return nacl.randomBytes(nacl.secretbox.nonceLength)
 }
 

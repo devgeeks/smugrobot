@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
 import nacl from "tweetnacl"
-import { encrypt, decrypt, generateSalt, generateNonce } from "../src/core/crypto"
+import { encrypt, decrypt, generateSalt } from "../src/core/crypto"
 import { EchidnaJsError } from "../src/types"
 
 describe("crypto", () => {
@@ -42,11 +42,7 @@ describe("crypto", () => {
     expect(generateSalt()).toHaveLength(16)
   })
 
-  it("generateNonce returns 24 bytes", () => {
-    expect(generateNonce()).toHaveLength(24)
-  })
-
-  it("throws EchidnaJsError (not generic Error) on wrong key", () => {
+it("throws EchidnaJsError (not generic Error) on wrong key", () => {
     const blob = encrypt("secret", key)
     expect(() => decrypt(blob, nacl.randomBytes(32))).toThrow(EchidnaJsError)
   })
