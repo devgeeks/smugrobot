@@ -1,22 +1,16 @@
 import type { AppState, NoteMeta } from '../state/types.js'
 import { dispatch, getState } from '../state/store.js'
 import { formatRelativeTime } from '../utils/time.js'
-import { previewFromMarkdown } from '../utils/markdown.js'
 
 export class NoteList {
   el: HTMLElement
   private prevNotes: NoteMeta[] = []
   private prevSelected: string | null = null
-  private previewCache = new Map<string, string>()
 
   constructor() {
     this.el = document.createElement('div')
     this.el.className = 'note-list'
     this.el.innerHTML = `<div class="note-list-inner"></div>`
-  }
-
-  cachePreview(noteId: string, content: string): void {
-    this.previewCache.set(noteId, previewFromMarkdown(content))
   }
 
   render(state: AppState): void {
@@ -56,12 +50,9 @@ export class NoteList {
     row.className = 'note-row' + (selectedId === note.id ? ' note-row--active' : '')
     row.dataset['id'] = note.id
 
-    const preview = this.previewCache.get(note.id) ?? ''
-
     row.innerHTML = `
       <div class="note-row-main">
         <div class="note-title">${escapeHtml(note.title)}</div>
-        <div class="note-preview">${escapeHtml(preview)}</div>
         <div class="note-meta">
           <span class="note-time" data-ts="${note.updatedAt}">${formatRelativeTime(note.updatedAt)}</span>
         </div>
@@ -110,7 +101,6 @@ export class NoteList {
       const store = getState().store
       if (!store) return
       await store.delete(note.id)
-      this.previewCache.delete(note.id)
       dispatch({ type: 'NOTE_DELETED', noteId: note.id })
     })
 

@@ -25,11 +25,6 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   layout.appendChild(noteList.el)
   layout.appendChild(editorPane.el)
 
-  editorPane.onPreviewReady = (noteId, content) => {
-    noteList.cachePreview(noteId, content)
-    noteList.render(getState())
-  }
-
   await editorPane.mount()
 
   // Load initial data

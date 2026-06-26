@@ -13,8 +13,6 @@ export class EditorPane {
   private saveTimer: ReturnType<typeof setTimeout> | null = null
   private pendingMarkdown = ''
   currentNoteId: string | null = null
-  onPreviewReady: ((noteId: string, content: string) => void) | null = null
-
   private newNoteBtn!: HTMLElement
   private lockBtn!: HTMLElement
   private spinner!: HTMLElement
@@ -70,7 +68,6 @@ export class EditorPane {
     const content = await store.get(noteId)
     const md = content ?? ''
     this.pendingMarkdown = md
-    if (this.onPreviewReady) this.onPreviewReady(noteId, md)
     this.editor?.action(replaceAll(md))
   }
 
