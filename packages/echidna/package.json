@@ -80,16 +80,6 @@
         "default": "./dist/adapters/indexeddb.cjs"
       }
     },
-    "./adapters/expo-file-system": {
-      "import": {
-        "types": "./dist/adapters/expo-file-system.d.ts",
-        "default": "./dist/adapters/expo-file-system.js"
-      },
-      "require": {
-        "types": "./dist/adapters/expo-file-system.d.cts",
-        "default": "./dist/adapters/expo-file-system.cjs"
-      }
-    },
     "./adapters/dropbox": {
       "import": {
         "types": "./dist/adapters/dropbox.d.ts",
@@ -114,14 +104,10 @@
     "tweetnacl": "^1.0.3"
   },
   "peerDependencies": {
-    "@react-native-async-storage/async-storage": ">=1.0.0",
-    "expo-file-system": ">=17.0.0"
+    "@react-native-async-storage/async-storage": ">=1.0.0"
   },
   "peerDependenciesMeta": {
     "@react-native-async-storage/async-storage": {
-      "optional": true
-    },
-    "expo-file-system": {
       "optional": true
     }
   },
