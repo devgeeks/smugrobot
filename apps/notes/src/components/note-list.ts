@@ -9,6 +9,7 @@ export class NoteList {
   onNewNote?: () => void
   private prevNotes: NoteMeta[] = []
   private prevSelected: string | null = null
+  private closeMenuListener: ((e: Event) => void) | null = null
 
   constructor() {
     this.el = document.createElement('div')
@@ -88,6 +89,10 @@ export class NoteList {
     const existing = document.querySelector<HTMLElement>('.note-menu-popover')
     if (existing) {
       existing.remove()
+      if (this.closeMenuListener) {
+        document.removeEventListener('click', this.closeMenuListener)
+        this.closeMenuListener = null
+      }
       if (existing.dataset['noteId'] === note.id) return
     }
 
@@ -121,8 +126,10 @@ export class NoteList {
       if (!popover.contains(e.target as Node)) {
         popover.remove()
         document.removeEventListener('click', close)
+        this.closeMenuListener = null
       }
     }
+    this.closeMenuListener = close
     setTimeout(() => document.addEventListener('click', close), 0)
   }
 }
