@@ -647,12 +647,6 @@ body {
     display: none;
   }
 
-  .mobile-note-list-actions {
-    display: flex;
-    gap: var(--sp-2);
-    align-items: center;
-  }
-
   .note-menu-btn {
     opacity: 1;
   }

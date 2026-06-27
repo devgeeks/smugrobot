@@ -6,13 +6,21 @@ import { showToast } from '../utils/toast.js'
 export class NoteList {
   el: HTMLElement
   onNoteSelect?: (noteId: string) => void
+  onNewNote?: () => void
   private prevNotes: NoteMeta[] = []
   private prevSelected: string | null = null
 
   constructor() {
     this.el = document.createElement('div')
     this.el.className = 'note-list'
-    this.el.innerHTML = `<div class="note-list-inner"></div>`
+    this.el.innerHTML = `
+      <div class="pane-header">
+        <span class="pane-title">Notes</span>
+        <vault-button variant="primary" size="md" class="new-note-btn">New note</vault-button>
+      </div>
+      <div class="note-list-inner"></div>
+    `
+    this.el.querySelector('.new-note-btn')!.addEventListener('click', () => this.onNewNote?.())
   }
 
   render(state: AppState): void {

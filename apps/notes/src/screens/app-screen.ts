@@ -36,24 +36,25 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   }
   setMobilePane('list')
 
-  // Inject "← Folders" header into note list (NoteList has no header of its own)
-  const noteListHeader = document.createElement('div')
-  noteListHeader.className = 'pane-header'
-  noteListHeader.innerHTML = `
-    <button class="icon-btn mobile-nav-btn" aria-label="Back to folders">← Folders</button>
-    <span class="pane-title">Notes</span>
-    <div class="mobile-nav-btn mobile-note-list-actions">
-      <vault-button variant="primary" size="md" class="mobile-new-note-btn">New note</vault-button>
-      <vault-button variant="secondary" size="md" class="mobile-lock-btn">Lock</vault-button>
-    </div>
-  `
-  noteList.el.insertBefore(noteListHeader, noteList.el.firstChild)
-  noteListHeader.querySelector('.mobile-nav-btn[aria-label]')!
-    .addEventListener('click', () => setMobilePane('folders'))
-  noteListHeader.querySelector('.mobile-new-note-btn')!
-    .addEventListener('click', () => editorPane.createNote())
-  noteListHeader.querySelector('.mobile-lock-btn')!
-    .addEventListener('click', () => editorPane.lock())
+  // Inject mobile-only nav buttons into the NoteList's existing pane-header
+  const noteListHeader = noteList.el.querySelector('.pane-header')!
+
+  const backToFoldersBtn = document.createElement('button')
+  backToFoldersBtn.className = 'icon-btn mobile-nav-btn'
+  backToFoldersBtn.setAttribute('aria-label', 'Back to folders')
+  backToFoldersBtn.textContent = '← Folders'
+  noteListHeader.insertBefore(backToFoldersBtn, noteListHeader.firstChild)
+  backToFoldersBtn.addEventListener('click', () => setMobilePane('folders'))
+
+  const noteListLockBtn = document.createElement('vault-button')
+  noteListLockBtn.setAttribute('variant', 'secondary')
+  noteListLockBtn.setAttribute('size', 'md')
+  noteListLockBtn.className = 'mobile-nav-btn'
+  noteListLockBtn.textContent = 'Lock'
+  noteListHeader.appendChild(noteListLockBtn)
+  noteListLockBtn.addEventListener('click', () => editorPane.lock())
+
+  noteList.onNewNote = () => editorPane.createNote()
 
   // Inject "← Notes" button at start of editor toolbar
   const backToNotesBtn = document.createElement('button')

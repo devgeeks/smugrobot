@@ -15,7 +15,6 @@ export class EditorPane {
   private saveTimer: ReturnType<typeof setTimeout> | null = null
   private pendingMarkdown = ''
   currentNoteId: string | null = null
-  private newNoteBtn!: HTMLElement
   private lockBtn!: HTMLElement
   private spinner!: HTMLElement
   private milkdownHost!: HTMLElement
@@ -25,7 +24,6 @@ export class EditorPane {
     this.el.className = 'editor-pane'
     this.el.innerHTML = `
       <div class="editor-toolbar">
-        <vault-button variant="primary" size="md" class="new-note-btn">New note</vault-button>
         <div class="toolbar-right">
           <vault-spinner size="md" class="save-spinner" label="Saving" style="display:none"></vault-spinner>
           <vault-button variant="secondary" size="md" class="lock-btn">Lock</vault-button>
@@ -34,12 +32,10 @@ export class EditorPane {
       <div class="milkdown-host"></div>
     `
 
-    this.newNoteBtn = this.el.querySelector('.new-note-btn')!
     this.lockBtn = this.el.querySelector('.lock-btn')!
     this.spinner = this.el.querySelector('.save-spinner')!
     this.milkdownHost = this.el.querySelector('.milkdown-host')!
 
-    this.newNoteBtn.addEventListener('click', () => this.createNote())
     this.lockBtn.addEventListener('click', () => this.lock())
   }
 
