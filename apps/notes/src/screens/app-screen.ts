@@ -5,10 +5,12 @@ import { EditorPane } from '../components/editor-pane.js'
 import type { NoteMeta } from '../state/types.js'
 
 let unsub: (() => void) | null = null
+let unsubFolderLoad: (() => void) | null = null
 let timestampInterval: ReturnType<typeof setInterval> | null = null
 
 export async function mountAppScreen(root: HTMLElement): Promise<void> {
   unsub?.()
+  unsubFolderLoad?.()
   if (timestampInterval) clearInterval(timestampInterval)
 
   root.innerHTML = ''
@@ -76,11 +78,6 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   await loadFolders()
   await loadNotes(getState().selectedFolderId)
 
-  const prevMobileState = {
-    folderId: getState().selectedFolderId,
-    noteId: getState().selectedNoteId,
-  }
-
   unsub = subscribe(async () => {
     const state = getState()
     folderPane.render(state)
@@ -95,27 +92,14 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
     } else if (state.selectedNoteId === null && editorPane.currentNoteId !== null) {
       editorPane.clearNote()
     }
-
-    // Auto-navigate on mobile when folder or note selection changes
-    if (state.selectedFolderId !== prevMobileState.folderId) {
-      prevMobileState.folderId = state.selectedFolderId
-      setMobilePane('list')
-    }
-    if (state.selectedNoteId !== null && state.selectedNoteId !== prevMobileState.noteId) {
-      prevMobileState.noteId = state.selectedNoteId
-      setMobilePane('editor')
-    }
-    if (state.selectedNoteId === null) {
-      prevMobileState.noteId = null
-    }
   })
 
   // Reload notes when folder selection changes
-  const prevState = { folderId: getState().selectedFolderId }
-  subscribe(async () => {
+  const prevFolderId = { value: getState().selectedFolderId }
+  unsubFolderLoad = subscribe(async () => {
     const state = getState()
-    if (state.selectedFolderId !== prevState.folderId) {
-      prevState.folderId = state.selectedFolderId
+    if (state.selectedFolderId !== prevFolderId.value) {
+      prevFolderId.value = state.selectedFolderId
       await loadNotes(state.selectedFolderId)
     }
   })
@@ -133,6 +117,8 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
 export function unmountAppScreen(): void {
   unsub?.()
   unsub = null
+  unsubFolderLoad?.()
+  unsubFolderLoad = null
   if (timestampInterval) {
     clearInterval(timestampInterval)
     timestampInterval = null
