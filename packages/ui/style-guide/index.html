@@ -415,6 +415,7 @@
         <a href="#alert">Alert</a>
         <a href="#spinner">Spinner</a>
         <a href="#avatar">Avatar</a>
+        <a href="#popover">Popover</a>
 
         <span class="sg-nav-section">Reference</span>
         <a href="#decisions">Design decisions</a>
@@ -2060,6 +2061,105 @@ alert.addEventListener('vault-dismiss', () =&gt; { /* alert is now hidden */ });
         </section>
 
         <!-- ════════════════════════════════════════════════════════════════
+         POPOVER
+    ════════════════════════════════════════════════════════════════ -->
+        <section class="sg-section" id="popover">
+          <h2 class="sg-section-title">vault-popover</h2>
+          <p class="sg-section-desc">
+            Generic popover container. Handles trigger wiring, fixed
+            positioning relative to the trigger, open/close lifecycle
+            (click-outside, Escape), and entrance animation. The content
+            inside is entirely up to the consumer — nothing is prescribed
+            by the component.
+          </p>
+
+          <div class="sg-sub">
+            <div class="sg-sub-title">Placement variants</div>
+            <div class="sg-preview">
+              <div class="sg-row" style="flex-wrap: wrap; gap: var(--sp-3);">
+                <vault-popover placement="bottom-start">
+                  <vault-button slot="trigger" variant="secondary" size="sm">Bottom start</vault-button>
+                  <div style="padding: var(--sp-2) var(--sp-3); font-family: var(--font-body); font-size: var(--text-sm); color: var(--text-primary);">
+                    Popover content
+                  </div>
+                </vault-popover>
+                <vault-popover placement="bottom-end">
+                  <vault-button slot="trigger" variant="secondary" size="sm">Bottom end</vault-button>
+                  <div style="padding: var(--sp-2) var(--sp-3); font-family: var(--font-body); font-size: var(--text-sm); color: var(--text-primary);">
+                    Popover content
+                  </div>
+                </vault-popover>
+                <vault-popover placement="bottom">
+                  <vault-button slot="trigger" variant="secondary" size="sm">Bottom center</vault-button>
+                  <div style="padding: var(--sp-2) var(--sp-3); font-family: var(--font-body); font-size: var(--text-sm); color: var(--text-primary);">
+                    Popover content
+                  </div>
+                </vault-popover>
+                <vault-popover placement="top-start">
+                  <vault-button slot="trigger" variant="secondary" size="sm">Top start</vault-button>
+                  <div style="padding: var(--sp-2) var(--sp-3); font-family: var(--font-body); font-size: var(--text-sm); color: var(--text-primary);">
+                    Popover content
+                  </div>
+                </vault-popover>
+              </div>
+            </div>
+          </div>
+
+          <div class="sg-sub">
+            <div class="sg-sub-title">With slotted content (action menu example)</div>
+            <div class="sg-preview">
+              <vault-popover placement="bottom-start">
+                <vault-button slot="trigger" variant="ghost" size="sm">Options ▾</vault-button>
+                <div style="padding: var(--sp-1) 0;">
+                  <button style="display:block;width:100%;padding:var(--sp-2) var(--sp-3);background:none;border:none;text-align:left;font-family:var(--font-body);font-size:var(--text-sm);color:var(--text-primary);cursor:pointer;" onmouseover="this.style.background='var(--surface-hover)'" onmouseout="this.style.background='none'">Copy text</button>
+                  <button style="display:block;width:100%;padding:var(--sp-2) var(--sp-3);background:none;border:none;text-align:left;font-family:var(--font-body);font-size:var(--text-sm);color:var(--danger-text);cursor:pointer;" onmouseover="this.style.background='var(--surface-hover)'" onmouseout="this.style.background='none'">Delete</button>
+                </div>
+              </vault-popover>
+            </div>
+          </div>
+
+          <pre class="sg-code">
+&lt;vault-popover placement="bottom-end"&gt;
+  &lt;vault-button slot="trigger"&gt;Options&lt;/vault-button&gt;
+  &lt;!-- any content goes here --&gt;
+  &lt;div class="my-menu"&gt;
+    &lt;button&gt;Copy text&lt;/button&gt;
+    &lt;button&gt;Delete&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/vault-popover&gt;
+
+// Programmatic close (e.g. after item selection)
+document.querySelector('vault-popover').close();</pre>
+
+          <table class="sg-rule-table">
+            <thead>
+              <tr>
+                <th>Attribute / slot</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>placement</td>
+                <td>bottom-start · bottom-end · bottom · top-start · top-end · top. Default: bottom-start. Flips axis automatically when near viewport edge.</td>
+              </tr>
+              <tr>
+                <td>open</td>
+                <td>Boolean. Reflects open state. Set/remove to control programmatically.</td>
+              </tr>
+              <tr>
+                <td>slot="trigger"</td>
+                <td>Any interactive element. Click toggles the popover open/closed.</td>
+              </tr>
+              <tr>
+                <td>(default slot)</td>
+                <td>Popover panel content — not prescribed by the component.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════════════
          DESIGN DECISIONS
     ════════════════════════════════════════════════════════════════ -->
         <section class="sg-section" id="decisions">
@@ -2386,6 +2486,18 @@ alert.addEventListener('vault-dismiss', () =&gt; { /* alert is now hidden */ });
                 <td>vault-alert</td>
                 <td><code>undefined</code></td>
                 <td>Dismiss button clicked</td>
+              </tr>
+              <tr>
+                <td>vault-open</td>
+                <td>vault-popover</td>
+                <td><code>undefined</code></td>
+                <td>Popover becomes visible</td>
+              </tr>
+              <tr>
+                <td>vault-close</td>
+                <td>vault-popover</td>
+                <td><code>undefined</code></td>
+                <td>Popover is dismissed (outside click, Escape, or .close())</td>
               </tr>
             </tbody>
           </table>

@@ -384,15 +384,8 @@ body {
   border-color: var(--cipher);
 }
 
-.note-menu-popover {
-  position: fixed;
-  z-index: 200;
-  background: var(--surface-overlay);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-md);
+.note-menu-panel {
   padding: var(--sp-1) 0;
-  min-width: 140px;
 }
 
 .menu-item {

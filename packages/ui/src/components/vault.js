@@ -24,3 +24,4 @@ export { VaultSelect }   from './vault-select.js';
 export { VaultAlert }    from './vault-alert.js';
 export { VaultSpinner }  from './vault-spinner.js';
 export { VaultAvatar }   from './vault-avatar.js';
+export { VaultPopover }  from './vault-popover.js';

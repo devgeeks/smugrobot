@@ -120,6 +120,17 @@ interface VaultAvatarElement extends HTMLElement {
   status: string;
 }
 
+interface VaultPopoverElement extends HTMLElement {
+  /** bottom-start | bottom-end | bottom | top-start | top-end | top. Default: bottom-start */
+  placement: string;
+  open: boolean;
+  /** Programmatically close the popover and return focus to the trigger */
+  close(): void;
+  addEventListener(type: 'vault-open',  listener: (e: CustomEvent<void>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'vault-close', listener: (e: CustomEvent<void>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+}
+
 // ── HTMLElementTagNameMap augmentation ────────────────────────────────────
 
 declare global {
@@ -134,5 +145,6 @@ declare global {
     'vault-alert':    VaultAlertElement;
     'vault-spinner':  VaultSpinnerElement;
     'vault-avatar':   VaultAvatarElement;
+    'vault-popover':  VaultPopoverElement;
   }
 }

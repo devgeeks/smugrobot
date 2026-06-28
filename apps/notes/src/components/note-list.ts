@@ -9,7 +9,6 @@ export class NoteList {
   onNewNote?: () => void
   private prevNotes: NoteMeta[] = []
   private prevSelected: string | null = null
-  private closeMenuListener: ((e: Event) => void) | null = null
 
   constructor() {
     this.el = document.createElement('div')
@@ -68,7 +67,13 @@ export class NoteList {
           <span class="note-time" data-ts="${note.updatedAt}">${formatRelativeTime(note.updatedAt)}</span>
         </div>
       </button>
-      <vault-button variant="ghost" size="md" class="note-menu-btn" aria-label="Note options">⋮</vault-button>
+      <vault-popover placement="bottom-end">
+        <vault-button slot="trigger" variant="ghost" size="md" class="note-menu-btn" aria-label="Note options">⋮</vault-button>
+        <div class="note-menu-panel">
+          <button class="menu-item" data-action="copy">Copy text</button>
+          <button class="menu-item menu-item--danger" data-action="delete">Delete</button>
+        </div>
+      </vault-popover>
     `
 
     row.querySelector('.note-row-main')!.addEventListener('click', () => {
@@ -76,62 +81,23 @@ export class NoteList {
       dispatch({ type: 'NOTE_SELECTED', noteId: note.id })
     })
 
-    const menuBtn = row.querySelector('.note-menu-btn')!
-    menuBtn.addEventListener('click', (e) => {
-      e.stopPropagation()
-      this.openMenu(note, menuBtn as HTMLElement)
-    })
+    const popover = row.querySelector('vault-popover') as HTMLElement & { close(): void }
+    popover.addEventListener('click', (e) => e.stopPropagation())
 
-    return row
-  }
-
-  private openMenu(note: NoteMeta, anchor: HTMLElement): void {
-    const existing = document.querySelector<HTMLElement>('.note-menu-popover')
-    if (existing) {
-      existing.remove()
-      if (this.closeMenuListener) {
-        document.removeEventListener('click', this.closeMenuListener)
-        this.closeMenuListener = null
-      }
-      if (existing.dataset['noteId'] === note.id) return
-    }
-
-    const popover = document.createElement('div')
-    popover.className = 'note-menu-popover'
-    popover.dataset['noteId'] = note.id
-    popover.innerHTML = `
-      <button class="menu-item" data-action="copy">Copy text</button>
-      <button class="menu-item menu-item--danger" data-action="delete">Delete</button>
-    `
-
-    const rect = anchor.getBoundingClientRect()
-    popover.style.top = `calc(${rect.bottom}px + var(--sp-1))`
-    popover.style.left = `${rect.right}px`
-    popover.style.transform = 'translateX(-100%)'
-    document.body.appendChild(popover)
-
-    popover.querySelector('[data-action="copy"]')!.addEventListener('click', async () => {
-      popover.remove()
+    row.querySelector('[data-action="copy"]')!.addEventListener('click', async () => {
+      popover.close()
       const store = getState().store
       if (!store) return
       const content = await store.get(note.id)
       if (content) navigator.clipboard.writeText(content)
     })
 
-    popover.querySelector('[data-action="delete"]')!.addEventListener('click', () => {
-      popover.remove()
+    row.querySelector('[data-action="delete"]')!.addEventListener('click', () => {
+      popover.close()
       confirmDeleteNote(note)
     })
 
-    const close = (e: Event) => {
-      if (!popover.contains(e.target as Node)) {
-        popover.remove()
-        document.removeEventListener('click', close)
-        this.closeMenuListener = null
-      }
-    }
-    this.closeMenuListener = close
-    setTimeout(() => document.addEventListener('click', close), 0)
+    return row
   }
 }
 
