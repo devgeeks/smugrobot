@@ -15,6 +15,7 @@ export class EditorPane {
   private editor: Editor | null = null
   private saveTimer: ReturnType<typeof setTimeout> | null = null
   private pendingMarkdown = ''
+  private lastSavedMarkdown = ''
   currentNoteId: string | null = null
   private lockBtn!: HTMLElement
   private spinner!: HTMLElement
@@ -68,6 +69,7 @@ export class EditorPane {
     const content = await store.get(noteId)
     const md = content ?? ''
     this.pendingMarkdown = md
+    this.lastSavedMarkdown = md
     this.editor?.action(replaceAll(md))
   }
 
@@ -78,7 +80,7 @@ export class EditorPane {
   }
 
   private scheduleAutoSave(markdown: string): void {
-    if (!this.currentNoteId) return
+    if (!this.currentNoteId || markdown === this.lastSavedMarkdown) return
     if (this.saveTimer) clearTimeout(this.saveTimer)
     dispatch({ type: 'NOTE_SAVE_START' })
     this.saveTimer = setTimeout(() => this.doSave(markdown), 800)
@@ -95,6 +97,7 @@ export class EditorPane {
       type: 'note',
       folderId: state.selectedFolderId,
     })
+    this.lastSavedMarkdown = markdown
     dispatch({ type: 'NOTE_SAVE_DONE', meta: meta as NoteMeta })
   }
 

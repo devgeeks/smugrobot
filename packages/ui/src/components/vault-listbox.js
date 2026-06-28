@@ -204,16 +204,19 @@ class VaultListbox extends HTMLElement {
 
   #syncValue() {
     const value = this.getAttribute('value') ?? '';
+    let matched = null;
     for (const opt of this.#allOptions()) {
       const match = opt.getAttribute('value') === value && value !== '';
       if (match) {
         opt.setAttribute('selected', '');
         opt.setAttribute('aria-selected', 'true');
+        matched = opt;
       } else {
         opt.removeAttribute('selected');
         opt.setAttribute('aria-selected', 'false');
       }
     }
+    if (this.hasAttribute('selectable')) this.#setActive(matched);
   }
 
   #syncLabel() {
