@@ -3,6 +3,7 @@ import { commonmark } from '@milkdown/preset-commonmark'
 import { listener, listenerCtx } from '@milkdown/plugin-listener'
 import { clipboard } from '@milkdown/plugin-clipboard'
 import { getMarkdown, replaceAll } from '@milkdown/utils'
+import { linkTooltip } from '../utils/link-tooltip.js'
 import type { AppState } from '../state/types.js'
 import { dispatch, getState } from '../state/store.js'
 import { deriveTitleFromMarkdown } from '../utils/markdown.js'
@@ -52,6 +53,7 @@ export class EditorPane {
       .use(commonmark)
       .use(listener)
       .use(clipboard)
+      .use(linkTooltip)
       .create()
   }
 
