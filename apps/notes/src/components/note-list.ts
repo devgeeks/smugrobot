@@ -18,20 +18,31 @@ export class NoteList {
         <span class="pane-title">Notes</span>
         <vault-button variant="primary" size="md" class="new-note-btn">New note</vault-button>
       </div>
-      <div class="note-list-inner"></div>
+      <div class="note-list-inner">
+        <vault-listbox selectable ghost></vault-listbox>
+      </div>
     `
     this.el.querySelector('.new-note-btn')!.addEventListener('click', () => this.onNewNote?.())
+    this.el.querySelector('vault-listbox')!.addEventListener('vault-change', (e: Event) => {
+      const { value } = (e as CustomEvent<{ value: string }>).detail
+      this.onNoteSelect?.(value)
+      dispatch({ type: 'NOTE_SELECTED', noteId: value })
+    })
   }
 
   render(state: AppState): void {
-    if (
-      state.notes === this.prevNotes &&
-      state.selectedNoteId === this.prevSelected
-    )
+    if (state.notes === this.prevNotes && state.selectedNoteId === this.prevSelected)
       return
-    this.prevNotes = state.notes
+
+    const listbox = this.el.querySelector('vault-listbox')! as HTMLElement
+
+    if (state.notes !== this.prevNotes) {
+      this.prevNotes = state.notes
+      this.renderList(state.notes, listbox)
+    }
+
     this.prevSelected = state.selectedNoteId
-    this.renderList(state.notes, state.selectedNoteId)
+    listbox.setAttribute('value', state.selectedNoteId ?? '')
   }
 
   refreshTimestamps(): void {
@@ -41,50 +52,45 @@ export class NoteList {
     })
   }
 
-  private renderList(notes: NoteMeta[], selectedId: string | null): void {
-    const inner = this.el.querySelector('.note-list-inner')!
-    inner.innerHTML = ''
+  private renderList(notes: NoteMeta[], listbox: Element): void {
+    listbox.innerHTML = ''
 
     if (notes.length === 0) {
-      inner.innerHTML = `<p class="note-list-empty">No notes yet</p>`
+      listbox.innerHTML = `<p class="note-list-empty">No notes yet</p>`
       return
     }
 
     for (const note of notes) {
-      inner.appendChild(this.renderRow(note, selectedId))
+      listbox.appendChild(this.renderRow(note))
     }
   }
 
-  private renderRow(note: NoteMeta, selectedId: string | null): HTMLElement {
-    const row = document.createElement('div')
-    row.className = 'note-row' + (selectedId === note.id ? ' note-row--active' : '')
-    row.dataset['id'] = note.id
+  private renderRow(note: NoteMeta): HTMLElement {
+    const option = document.createElement('vault-listbox-option')
+    option.setAttribute('value', note.id)
 
-    row.innerHTML = `
-      <button type="button" class="note-row-main">
-        <div class="note-title">${escapeHtml(note.title)}</div>
-        <div class="note-meta">
-          <span class="note-time" data-ts="${note.updatedAt}">${formatRelativeTime(note.updatedAt)}</span>
+    option.innerHTML = `
+      <div class="note-row-content">
+        <div class="note-row-main">
+          <div class="note-title">${escapeHtml(note.title)}</div>
+          <div class="note-meta">
+            <span class="note-time" data-ts="${note.updatedAt}">${formatRelativeTime(note.updatedAt)}</span>
+          </div>
         </div>
-      </button>
-      <vault-popover placement="bottom-end">
-        <vault-button slot="trigger" variant="ghost" size="md" class="note-menu-btn" aria-label="Note options">⋮</vault-button>
-        <div class="note-menu-panel">
-          <button class="menu-item" data-action="copy">Copy text</button>
-          <button class="menu-item menu-item--danger" data-action="delete">Delete</button>
-        </div>
-      </vault-popover>
+        <vault-popover placement="bottom-end">
+          <vault-button slot="trigger" variant="ghost" size="md" class="note-menu-btn" aria-label="Note options">⋮</vault-button>
+          <div class="note-menu-panel">
+            <button class="menu-item" data-action="copy">Copy text</button>
+            <button class="menu-item menu-item--danger" data-action="delete">Delete</button>
+          </div>
+        </vault-popover>
+      </div>
     `
 
-    row.querySelector('.note-row-main')!.addEventListener('click', () => {
-      this.onNoteSelect?.(note.id)
-      dispatch({ type: 'NOTE_SELECTED', noteId: note.id })
-    })
-
-    const popover = row.querySelector('vault-popover') as HTMLElement & { close(): void }
+    const popover = option.querySelector('vault-popover') as HTMLElement & { close(): void }
     popover.addEventListener('click', (e) => e.stopPropagation())
 
-    row.querySelector('[data-action="copy"]')!.addEventListener('click', async () => {
+    option.querySelector('[data-action="copy"]')!.addEventListener('click', async () => {
       popover.close()
       const store = getState().store
       if (!store) return
@@ -92,12 +98,12 @@ export class NoteList {
       if (content) navigator.clipboard.writeText(content)
     })
 
-    row.querySelector('[data-action="delete"]')!.addEventListener('click', () => {
+    option.querySelector('[data-action="delete"]')!.addEventListener('click', () => {
       popover.close()
       confirmDeleteNote(note)
     })
 
-    return row
+    return option as HTMLElement
   }
 }
 

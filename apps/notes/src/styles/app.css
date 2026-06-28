@@ -224,40 +224,19 @@ body {
   margin: 0;
 }
 
-.note-row {
+.note-list-inner vault-listbox-option {
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.note-row-content {
   display: flex;
   align-items: flex-start;
   gap: var(--sp-2);
-  padding: var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-4);
-  cursor: pointer;
-  border-left: 3px solid transparent;
-  border-bottom: 1px solid var(--surface-border);
-  transition:
-    background var(--duration-fast) var(--ease-out),
-    border-color var(--duration-fast) var(--ease-out);
-  position: relative;
-}
-
-.note-row:hover {
-  background: var(--surface-hover);
-}
-
-.note-row--active {
-  background: var(--surface-hover);
-  border-left-color: var(--cipher);
 }
 
 .note-row-main {
   flex: 1;
   min-width: 0;
-  cursor: pointer;
-  touch-action: manipulation;
-  background: none;
-  border: none;
-  padding: 0;
-  text-align: left;
-  font: inherit;
-  color: inherit;
 }
 
 .note-title {
@@ -299,8 +278,9 @@ body {
     opacity var(--duration-fast) var(--ease-out);
 }
 
-.note-row:hover .note-menu-btn,
-.note-row--active .note-menu-btn {
+.note-list-inner vault-listbox-option:hover .note-menu-btn,
+.note-list-inner vault-listbox-option[active] .note-menu-btn,
+.note-list-inner vault-listbox-option[selected] .note-menu-btn {
   opacity: 1;
 }
 
