@@ -30,6 +30,7 @@ export const linkTooltip = $prose(() => {
   let input: HTMLInputElement | null = null
   let currentHref = ''
   let linkRange: { from: number; to: number } | null = null
+  let autoShowFrame: number | null = null
 
   function getPopover(): HTMLElement & { close(): void } {
     if (popover) return popover
@@ -169,13 +170,23 @@ export const linkTooltip = $prose(() => {
           const link = findLinkMark(view)
           if (link) {
             if (link.href !== currentHref || !p.hasAttribute('open')) {
-              show(view, link.href, link.from, link.to)
+              // Defer via rAF so the triggering click event (mousedown → mouseup →
+              // click) finishes propagating before vault-popover's outside-click
+              // listener is registered. Arrow-key navigation is unaffected.
+              if (autoShowFrame) cancelAnimationFrame(autoShowFrame)
+              const { href, from, to } = link
+              autoShowFrame = requestAnimationFrame(() => {
+                autoShowFrame = null
+                show(view, href, from, to)
+              })
             }
           } else {
+            if (autoShowFrame) { cancelAnimationFrame(autoShowFrame); autoShowFrame = null }
             hide()
           }
         },
         destroy() {
+          if (autoShowFrame) cancelAnimationFrame(autoShowFrame)
           p.removeEventListener('keydown', handleKeydown)
           p.removeEventListener('vault-close', handleVaultClose)
           popover?.remove()
