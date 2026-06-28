@@ -45,8 +45,11 @@ export class FolderPane {
     listbox.setAttribute('ghost', '')
     listbox.setAttribute('value', selectedId ?? '__all__')
 
+    const activeValue = selectedId ?? '__all__'
+
     const allOpt = document.createElement('vault-listbox-option')
     allOpt.setAttribute('value', '__all__')
+    if (activeValue === '__all__') allOpt.setAttribute('active', '')
     const allLabel = document.createElement('span')
     allLabel.className = 'folder-label'
     allLabel.textContent = 'All notes'
@@ -56,6 +59,7 @@ export class FolderPane {
     for (const folder of folders) {
       const opt = document.createElement('vault-listbox-option')
       opt.setAttribute('value', folder.id)
+      if (activeValue === folder.id) opt.setAttribute('active', '')
       if ((noteCounts[folder.id] ?? 0) === 0) opt.setAttribute('data-empty', '')
       const label = document.createElement('span')
       label.className = 'folder-label'
