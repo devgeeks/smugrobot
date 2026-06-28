@@ -175,7 +175,6 @@ body {
 }
 
 .folder-tree {
-  padding: var(--sp-2) 0;
   flex: 1;
   overflow-y: auto;
 }
@@ -211,7 +210,6 @@ body {
 
 .note-list-inner {
   flex: 1;
-  padding: var(--sp-2) 0;
   overflow-y: auto;
 }
 
