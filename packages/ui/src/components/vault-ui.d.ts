@@ -15,7 +15,8 @@ export declare const VaultTheme: {
 
 // ── Custom event detail types ──────────────────────────────────────────────
 
-interface VaultInputDetail   { value: string }
+interface VaultInputDetail          { value: string }
+interface VaultListboxChangeDetail  { value: string }
 interface VaultChangeValueDetail  { value: string }
 interface VaultChangeCheckedDetail { checked: boolean }
 
@@ -120,6 +121,22 @@ interface VaultAvatarElement extends HTMLElement {
   status: string;
 }
 
+interface VaultListboxOptionElement extends HTMLElement {
+  value: string;
+  selected: boolean;
+  disabled: boolean;
+}
+
+interface VaultListboxElement extends HTMLElement {
+  label: string;
+  value: string;
+  disabled: boolean;
+  /** When present, clicking or keyboard-selecting an option updates value and sets [selected] on that option. */
+  selectable: boolean;
+  addEventListener(type: 'vault-change', listener: (e: CustomEvent<VaultListboxChangeDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+}
+
 interface VaultPopoverElement extends HTMLElement {
   /** bottom-start | bottom-end | bottom | top-start | top-end | top. Default: bottom-start */
   placement: string;
@@ -145,6 +162,8 @@ declare global {
     'vault-alert':    VaultAlertElement;
     'vault-spinner':  VaultSpinnerElement;
     'vault-avatar':   VaultAvatarElement;
-    'vault-popover':  VaultPopoverElement;
+    'vault-popover':         VaultPopoverElement;
+    'vault-listbox':         VaultListboxElement;
+    'vault-listbox-option':  VaultListboxOptionElement;
   }
 }

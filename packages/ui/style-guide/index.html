@@ -416,6 +416,7 @@
         <a href="#spinner">Spinner</a>
         <a href="#avatar">Avatar</a>
         <a href="#popover">Popover</a>
+        <a href="#listbox">Listbox</a>
 
         <span class="sg-nav-section">Reference</span>
         <a href="#decisions">Design decisions</a>
@@ -2155,6 +2156,140 @@ document.querySelector('vault-popover').close();</pre>
                 <td>(default slot)</td>
                 <td>Popover panel content — not prescribed by the component.</td>
               </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════════════
+         LISTBOX
+    ════════════════════════════════════════════════════════════════ -->
+        <section class="sg-section" id="listbox">
+          <h2 class="sg-section-title">vault-listbox</h2>
+          <p class="sg-section-desc">
+            A permanently-visible list of selectable items. Use this instead of
+            <code>vault-select</code> when the list should always be open — sidebar
+            navigation, filter panels, or any multi-item chooser. Fully keyboard
+            accessible (WCAG AA, WAI-ARIA Listbox Pattern).
+          </p>
+
+          <div class="sg-sub">
+            <div class="sg-sub-title">Default</div>
+            <div class="sg-preview">
+              <vault-listbox style="max-width: 240px;">
+                <vault-listbox-option value="notes">Notes</vault-listbox-option>
+                <vault-listbox-option value="folders">Folders</vault-listbox-option>
+                <vault-listbox-option value="tags">Tags</vault-listbox-option>
+                <vault-listbox-option value="trash">Trash</vault-listbox-option>
+              </vault-listbox>
+            </div>
+          </div>
+
+          <div class="sg-sub">
+            <div class="sg-sub-title">With label and pre-selected item</div>
+            <div class="sg-preview">
+              <vault-listbox label="Section" value="folders" selectable style="max-width: 240px;">
+                <vault-listbox-option value="notes">Notes</vault-listbox-option>
+                <vault-listbox-option value="folders">Folders</vault-listbox-option>
+                <vault-listbox-option value="tags">Tags</vault-listbox-option>
+                <vault-listbox-option value="trash">Trash</vault-listbox-option>
+              </vault-listbox>
+            </div>
+          </div>
+
+          <div class="sg-sub">
+            <div class="sg-sub-title">With disabled option</div>
+            <div class="sg-preview">
+              <vault-listbox label="Section" value="notes" selectable style="max-width: 240px;">
+                <vault-listbox-option value="notes">Notes</vault-listbox-option>
+                <vault-listbox-option value="folders">Folders</vault-listbox-option>
+                <vault-listbox-option value="tags" disabled>Tags (unavailable)</vault-listbox-option>
+                <vault-listbox-option value="trash">Trash</vault-listbox-option>
+              </vault-listbox>
+            </div>
+          </div>
+
+          <div class="sg-sub">
+            <div class="sg-sub-title">Flexible slot content</div>
+            <div class="sg-preview">
+              <vault-listbox label="Encryption" value="scrypt" selectable style="max-width: 280px;">
+                <vault-listbox-option value="scrypt">
+                  <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <span>scrypt</span>
+                    <span style="font-size: var(--text-xs); color: var(--text-muted);">Recommended — memory-hard</span>
+                  </div>
+                </vault-listbox-option>
+                <vault-listbox-option value="argon2">
+                  <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <span>argon2id</span>
+                    <span style="font-size: var(--text-xs); color: var(--text-muted);">Winner of PHC — very strong</span>
+                  </div>
+                </vault-listbox-option>
+                <vault-listbox-option value="pbkdf2">
+                  <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <span>PBKDF2</span>
+                    <span style="font-size: var(--text-xs); color: var(--text-muted);">Legacy — broad compatibility</span>
+                  </div>
+                </vault-listbox-option>
+              </vault-listbox>
+            </div>
+          </div>
+
+          <div class="sg-sub">
+            <div class="sg-sub-title">Disabled listbox</div>
+            <div class="sg-preview">
+              <vault-listbox label="Section" value="notes" disabled style="max-width: 240px;">
+                <vault-listbox-option value="notes">Notes</vault-listbox-option>
+                <vault-listbox-option value="folders">Folders</vault-listbox-option>
+                <vault-listbox-option value="tags">Tags</vault-listbox-option>
+              </vault-listbox>
+            </div>
+          </div>
+
+          <div class="sg-sub">
+            <div class="sg-sub-title">Keyboard interaction demo</div>
+            <div class="sg-preview sg-col" style="gap: var(--sp-3);">
+              <vault-listbox id="kb-listbox" label="Keyboard demo" selectable style="max-width: 240px;">
+                <vault-listbox-option value="alpha">Alpha</vault-listbox-option>
+                <vault-listbox-option value="beta">Beta</vault-listbox-option>
+                <vault-listbox-option value="gamma" disabled>Gamma (disabled)</vault-listbox-option>
+                <vault-listbox-option value="delta">Delta</vault-listbox-option>
+                <vault-listbox-option value="epsilon">Epsilon</vault-listbox-option>
+              </vault-listbox>
+              <p id="kb-output" style="font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-muted);">
+                Tab into the listbox, use ↑↓ to navigate, Enter or Space to select.
+              </p>
+            </div>
+            <script type="module">
+              document.getElementById('kb-listbox').addEventListener('vault-change', e => {
+                document.getElementById('kb-output').textContent = `Selected: ${e.detail.value}`;
+              });
+            </script>
+          </div>
+
+          <pre class="sg-code">&lt;vault-listbox label="Section" value="notes" selectable&gt;
+  &lt;vault-listbox-option value="notes"&gt;Notes&lt;/vault-listbox-option&gt;
+  &lt;vault-listbox-option value="folders"&gt;Folders&lt;/vault-listbox-option&gt;
+  &lt;vault-listbox-option value="tags" disabled&gt;Tags&lt;/vault-listbox-option&gt;
+&lt;/vault-listbox&gt;
+
+&lt;script type="module"&gt;
+  document.querySelector('vault-listbox').addEventListener('vault-change', e =&gt; {
+    console.log(e.detail.value); // selected option value
+  });
+&lt;/script&gt;</pre>
+
+          <table class="sg-rule-table">
+            <thead>
+              <tr><th>Tag</th><th>Attribute</th><th>Values</th><th>Default</th></tr>
+            </thead>
+            <tbody>
+              <tr><td rowspan="4">vault-listbox</td><td>label</td><td>string</td><td>—</td></tr>
+              <tr><td>value</td><td>string — matches a vault-listbox-option value</td><td>—</td></tr>
+              <tr><td>selectable</td><td>boolean — clicking/keyboard updates value and marks option selected</td><td>false</td></tr>
+              <tr><td>disabled</td><td>boolean</td><td>false</td></tr>
+              <tr><td rowspan="3">vault-listbox-option</td><td>value</td><td>string</td><td>—</td></tr>
+              <tr><td>selected</td><td>boolean — set by parent automatically</td><td>false</td></tr>
+              <tr><td>disabled</td><td>boolean — skipped by keyboard navigation</td><td>false</td></tr>
             </tbody>
           </table>
         </section>
