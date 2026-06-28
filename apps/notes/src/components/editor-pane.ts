@@ -26,7 +26,7 @@ export class EditorPane {
     this.el.innerHTML = `
       <div class="editor-toolbar">
         <div class="toolbar-right">
-          <vault-spinner size="md" class="save-spinner" label="Saving" style="display:none"></vault-spinner>
+          <vault-spinner size="md" class="save-spinner" label="Saving…" hidden></vault-spinner>
           <vault-button variant="secondary" size="md" class="lock-btn">Lock</vault-button>
         </div>
       </div>
@@ -58,7 +58,7 @@ export class EditorPane {
   }
 
   render(state: AppState): void {
-    this.spinner.style.display = state.isSaving ? 'inline-flex' : 'none'
+    this.spinner.style.display = state.isSaving ? '' : 'none'
   }
 
   async loadNote(noteId: string): Promise<void> {
@@ -107,7 +107,9 @@ export class EditorPane {
   }
 
   async lock(): Promise<void> {
+    this.lockBtn.setAttribute('loading', '')
     await this.flushPendingSave()
+    this.lockBtn.removeAttribute('loading')
     showToast('Vault locked.', 'success')
     dispatch({ type: 'LOCKED' })
   }

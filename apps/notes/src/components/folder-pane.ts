@@ -65,13 +65,17 @@ export class FolderPane {
 
   private promptNewFolder(): void {
     const nav = this.el.querySelector('.folder-tree')!
-    const input = document.createElement('input')
-    input.className = 'folder-inline-input'
-    input.placeholder = 'Folder name'
+    const vaultInput = document.createElement('vault-input')
+    vaultInput.setAttribute('label', 'Folder name')
+
+    let currentValue = ''
+    let committed = false
 
     const commit = async () => {
-      const name = input.value.trim()
-      input.remove()
+      if (committed) return
+      committed = true
+      const name = currentValue.trim()
+      vaultInput.remove()
       if (!name) return
       const store = getState().store
       if (!store) return
@@ -87,13 +91,19 @@ export class FolderPane {
       })
     }
 
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') commit()
-      if (e.key === 'Escape') input.remove()
+    vaultInput.addEventListener('vault-input', (e) => {
+      currentValue = (e as CustomEvent<{ value: string }>).detail.value
     })
-    input.addEventListener('blur', commit)
+    vaultInput.addEventListener('vault-change', (e) => {
+      currentValue = (e as CustomEvent<{ value: string }>).detail.value
+      commit()
+    })
+    vaultInput.addEventListener('keydown', (e) => {
+      if ((e as KeyboardEvent).key === 'Enter') commit()
+      if ((e as KeyboardEvent).key === 'Escape') vaultInput.remove()
+    })
 
-    nav.appendChild(input)
-    input.focus()
+    nav.appendChild(vaultInput)
+    vaultInput.focus()
   }
 }
