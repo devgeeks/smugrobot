@@ -68,7 +68,7 @@ export class NoteList {
           <span class="note-time" data-ts="${note.updatedAt}">${formatRelativeTime(note.updatedAt)}</span>
         </div>
       </button>
-      <button class="note-menu-btn" aria-label="Note options" title="Options">⋮</button>
+      <vault-button variant="ghost" size="md" class="note-menu-btn" aria-label="Note options">⋮</vault-button>
     `
 
     row.querySelector('.note-row-main')!.addEventListener('click', () => {
@@ -105,8 +105,9 @@ export class NoteList {
     `
 
     const rect = anchor.getBoundingClientRect()
-    popover.style.top = `${rect.bottom + 4}px`
-    popover.style.left = `${rect.left - 120}px`
+    popover.style.top = `calc(${rect.bottom}px + var(--sp-1))`
+    popover.style.left = `${rect.right}px`
+    popover.style.transform = 'translateX(-100%)'
     document.body.appendChild(popover)
 
     popover.querySelector('[data-action="copy"]')!.addEventListener('click', async () => {
@@ -139,7 +140,7 @@ function confirmDeleteNote(note: NoteMeta): void {
   overlay.className = 'dialog-overlay'
   overlay.innerHTML = `
     <vault-card border elevated class="dialog-card">
-      <p class="dialog-title">Delete note?</p>
+      <h2 class="dialog-title">Delete note?</h2>
       <p class="dialog-body">"${escapeHtml(note.title)}" will be permanently deleted.</p>
       <div class="dialog-actions">
         <vault-button variant="secondary" size="md" class="dialog-cancel">Cancel</vault-button>
