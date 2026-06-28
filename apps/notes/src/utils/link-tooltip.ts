@@ -25,59 +25,53 @@ function findLinkMark(
 }
 
 export const linkTooltip = $prose(() => {
-  let popover: (HTMLElement & { close(): void }) | null = null
-  let anchor: HTMLSpanElement | null = null
+  let tooltip: HTMLDivElement | null = null
   let input: HTMLInputElement | null = null
   let currentHref = ''
   let linkRange: { from: number; to: number } | null = null
-  let autoShowFrame: number | null = null
+  let closeMenuListener: ((e: Event) => void) | null = null
 
-  function getPopover(): HTMLElement & { close(): void } {
-    if (popover) return popover
-
-    popover = document.createElement('vault-popover') as HTMLElement & { close(): void }
-    popover.setAttribute('placement', 'bottom-start')
-
-    anchor = document.createElement('span')
-    anchor.setAttribute('slot', 'trigger')
-    anchor.style.cssText = 'position:fixed;width:0;height:0;overflow:hidden;pointer-events:none;'
-
-    const panel = document.createElement('div')
-    panel.className = 'link-tooltip'
+  function getTooltip(): HTMLDivElement {
+    if (tooltip) return tooltip
+    tooltip = document.createElement('div')
+    tooltip.className = 'link-tooltip'
+    tooltip.style.display = 'none'
 
     input = document.createElement('input')
     input.type = 'url'
     input.className = 'link-tooltip-input'
     input.placeholder = 'https://'
-    panel.appendChild(input)
 
-    popover.appendChild(anchor)
-    popover.appendChild(panel)
-    document.body.appendChild(popover)
-    return popover
+    tooltip.appendChild(input)
+    document.body.appendChild(tooltip)
+    return tooltip
   }
 
   function show(view: EditorView, href: string, from: number, to: number, selectAll = false): void {
-    const p = getPopover()
+    const t = getTooltip()
     currentHref = href
     linkRange = { from, to }
     input!.value = href
 
     const coords = view.coordsAtPos(from)
-    anchor!.style.top = `${coords.bottom}px`
-    anchor!.style.left = `${coords.left}px`
-    p.setAttribute('open', '')
+    t.style.display = 'flex'
+    t.style.top = `${coords.bottom + 6}px`
+    t.style.left = `${coords.left}px`
 
     if (selectAll) {
       input!.focus()
       input!.select()
+    } else {
+      input!.focus()
     }
-    // Auto-show (selectAll=false) leaves focus in the editor so keyboard
-    // navigation continues to work. Cmd+K explicitly requests focus.
   }
 
   function hide(): void {
-    popover?.removeAttribute('open')
+    if (tooltip) tooltip.style.display = 'none'
+    if (closeMenuListener) {
+      document.removeEventListener('click', closeMenuListener)
+      closeMenuListener = null
+    }
     linkRange = null
     currentHref = ''
   }
@@ -137,7 +131,7 @@ export const linkTooltip = $prose(() => {
     },
 
     view(editorView) {
-      const p = getPopover()
+      const t = getTooltip()
 
       const handleKeydown = (e: KeyboardEvent) => {
         if (e.key === 'Enter') {
@@ -150,48 +144,34 @@ export const linkTooltip = $prose(() => {
         }
       }
 
-      // vault-close fires whenever the popover closes (Escape, outside click, or programmatic hide).
-      // Don't call editorView.focus() here — that would re-trigger update() → show() → input.focus()
-      // → blur → hide() → vault-close → editorView.focus() in a loop. Each close site handles
-      // focus explicitly: commit() calls view.focus(), Escape is handled in handleKeydown above.
-      const handleVaultClose = () => {
-        linkRange = null
-        currentHref = ''
+      const handleFocusout = () => {
+        setTimeout(() => {
+          if (!t.contains(document.activeElement)) hide()
+        }, 150)
       }
 
-      p.addEventListener('keydown', handleKeydown)
-      p.addEventListener('vault-close', handleVaultClose)
+      t.addEventListener('keydown', handleKeydown)
+      t.addEventListener('focusout', handleFocusout)
 
       return {
         update(view) {
-          // Don't override an actively-focused input
-          if (document.activeElement === input) return
+          // Don't override an actively-focused tooltip
+          if (t.contains(document.activeElement)) return
 
           const link = findLinkMark(view)
           if (link) {
-            if (link.href !== currentHref || !p.hasAttribute('open')) {
-              // Defer via rAF so the triggering click event (mousedown → mouseup →
-              // click) finishes propagating before vault-popover's outside-click
-              // listener is registered. Arrow-key navigation is unaffected.
-              if (autoShowFrame) cancelAnimationFrame(autoShowFrame)
-              const { href, from, to } = link
-              autoShowFrame = requestAnimationFrame(() => {
-                autoShowFrame = null
-                show(view, href, from, to)
-              })
+            if (link.href !== currentHref || t.style.display === 'none') {
+              show(view, link.href, link.from, link.to)
             }
           } else {
-            if (autoShowFrame) { cancelAnimationFrame(autoShowFrame); autoShowFrame = null }
             hide()
           }
         },
         destroy() {
-          if (autoShowFrame) cancelAnimationFrame(autoShowFrame)
-          p.removeEventListener('keydown', handleKeydown)
-          p.removeEventListener('vault-close', handleVaultClose)
-          popover?.remove()
-          popover = null
-          anchor = null
+          t.removeEventListener('keydown', handleKeydown)
+          t.removeEventListener('focusout', handleFocusout)
+          tooltip?.remove()
+          tooltip = null
           input = null
         },
       }

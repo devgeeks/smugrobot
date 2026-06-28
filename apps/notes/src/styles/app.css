@@ -355,8 +355,14 @@ body {
 /* ── Note popover menu ──────────────────────────────────── */
 
 .link-tooltip {
+  position: fixed;
+  z-index: 200;
   display: flex;
   align-items: center;
+  background: var(--surface-overlay);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
   padding: var(--sp-2) var(--sp-3);
   gap: var(--sp-2);
 }
