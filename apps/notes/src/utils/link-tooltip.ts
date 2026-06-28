@@ -25,53 +25,58 @@ function findLinkMark(
 }
 
 export const linkTooltip = $prose(() => {
-  let tooltip: HTMLDivElement | null = null
+  let popover: (HTMLElement & { close(): void }) | null = null
+  let anchor: HTMLSpanElement | null = null
   let input: HTMLInputElement | null = null
   let currentHref = ''
   let linkRange: { from: number; to: number } | null = null
-  let closeMenuListener: ((e: Event) => void) | null = null
 
-  function getTooltip(): HTMLDivElement {
-    if (tooltip) return tooltip
-    tooltip = document.createElement('div')
-    tooltip.className = 'link-tooltip'
-    tooltip.style.display = 'none'
+  function getPopover(): HTMLElement & { close(): void } {
+    if (popover) return popover
+
+    popover = document.createElement('vault-popover') as HTMLElement & { close(): void }
+    popover.setAttribute('placement', 'bottom-start')
+
+    anchor = document.createElement('span')
+    anchor.setAttribute('slot', 'trigger')
+    anchor.style.cssText = 'position:fixed;width:0;height:0;overflow:hidden;pointer-events:none;'
+
+    const panel = document.createElement('div')
+    panel.className = 'link-tooltip'
 
     input = document.createElement('input')
     input.type = 'url'
     input.className = 'link-tooltip-input'
     input.placeholder = 'https://'
+    panel.appendChild(input)
 
-    tooltip.appendChild(input)
-    document.body.appendChild(tooltip)
-    return tooltip
+    popover.appendChild(anchor)
+    popover.appendChild(panel)
+    document.body.appendChild(popover)
+    return popover
   }
 
   function show(view: EditorView, href: string, from: number, to: number, selectAll = false): void {
-    const t = getTooltip()
+    const p = getPopover()
     currentHref = href
     linkRange = { from, to }
     input!.value = href
 
     const coords = view.coordsAtPos(from)
-    t.style.display = 'flex'
-    t.style.top = `${coords.bottom + 6}px`
-    t.style.left = `${coords.left}px`
+    anchor!.style.top = `${coords.bottom}px`
+    anchor!.style.left = `${coords.left}px`
+    p.setAttribute('open', '')
 
     if (selectAll) {
       input!.focus()
       input!.select()
-    } else {
-      input!.focus()
     }
+    // Auto-show (selectAll=false) leaves focus in the editor so keyboard
+    // navigation continues to work. Cmd+K explicitly requests focus.
   }
 
   function hide(): void {
-    if (tooltip) tooltip.style.display = 'none'
-    if (closeMenuListener) {
-      document.removeEventListener('click', closeMenuListener)
-      closeMenuListener = null
-    }
+    popover?.removeAttribute('open')
     linkRange = null
     currentHref = ''
   }
@@ -131,7 +136,7 @@ export const linkTooltip = $prose(() => {
     },
 
     view(editorView) {
-      const t = getTooltip()
+      const p = getPopover()
 
       const handleKeydown = (e: KeyboardEvent) => {
         if (e.key === 'Enter') {
@@ -144,23 +149,26 @@ export const linkTooltip = $prose(() => {
         }
       }
 
-      const handleFocusout = () => {
-        setTimeout(() => {
-          if (!t.contains(document.activeElement)) hide()
-        }, 150)
+      // vault-close fires whenever the popover closes (Escape, outside click, or programmatic hide).
+      // Don't call editorView.focus() here — that would re-trigger update() → show() → input.focus()
+      // → blur → hide() → vault-close → editorView.focus() in a loop. Each close site handles
+      // focus explicitly: commit() calls view.focus(), Escape is handled in handleKeydown above.
+      const handleVaultClose = () => {
+        linkRange = null
+        currentHref = ''
       }
 
-      t.addEventListener('keydown', handleKeydown)
-      t.addEventListener('focusout', handleFocusout)
+      p.addEventListener('keydown', handleKeydown)
+      p.addEventListener('vault-close', handleVaultClose)
 
       return {
         update(view) {
-          // Don't override an actively-focused tooltip
-          if (t.contains(document.activeElement)) return
+          // Don't override an actively-focused input
+          if (document.activeElement === input) return
 
           const link = findLinkMark(view)
           if (link) {
-            if (link.href !== currentHref || t.style.display === 'none') {
+            if (link.href !== currentHref || !p.hasAttribute('open')) {
               show(view, link.href, link.from, link.to)
             }
           } else {
@@ -168,10 +176,11 @@ export const linkTooltip = $prose(() => {
           }
         },
         destroy() {
-          t.removeEventListener('keydown', handleKeydown)
-          t.removeEventListener('focusout', handleFocusout)
-          tooltip?.remove()
-          tooltip = null
+          p.removeEventListener('keydown', handleKeydown)
+          p.removeEventListener('vault-close', handleVaultClose)
+          popover?.remove()
+          popover = null
+          anchor = null
           input = null
         },
       }
