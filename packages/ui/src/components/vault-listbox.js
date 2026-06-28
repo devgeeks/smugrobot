@@ -82,7 +82,7 @@ class VaultListboxOption extends HTMLElement {
 }
 
 class VaultListbox extends HTMLElement {
-  static observedAttributes = ['label', 'value', 'disabled', 'selectable'];
+  static observedAttributes = ['label', 'value', 'disabled', 'selectable', 'ghost'];
 
   #observer = null;
 
@@ -257,6 +257,11 @@ class VaultListbox extends HTMLElement {
         :host(:focus-visible) {
           outline: none;
           box-shadow: var(--focus-ring);
+        }
+        :host([ghost]) {
+          border: none;
+          background: transparent;
+          border-radius: 0;
         }
         :host([disabled]) {
           opacity: 0.5;

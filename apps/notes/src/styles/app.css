@@ -180,44 +180,7 @@ body {
   overflow-y: auto;
 }
 
-.folder-item {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-1);
-  width: 100%;
-  background: none;
-  border: none;
-  cursor: pointer;
-  touch-action: manipulation;
-  padding: var(--sp-2) var(--sp-3) var(--sp-2) var(--sp-4);
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  text-align: left;
-  border-left: 3px solid transparent;
-  transition:
-    background var(--duration-fast) var(--ease-out),
-    color var(--duration-fast) var(--ease-out),
-    border-color var(--duration-fast) var(--ease-out);
-}
-
-.folder-item:hover {
-  background: var(--surface-hover);
-  color: var(--text-primary);
-}
-
-.folder-item:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
-.folder-item--active {
-  border-left-color: var(--cipher);
-  background: var(--surface-hover);
-  color: var(--text-primary);
-}
-
-.folder-item:not(.folder-item--empty) {
+.folder-tree vault-listbox-option:not([data-empty]) .folder-label {
   font-weight: 600;
 }
 

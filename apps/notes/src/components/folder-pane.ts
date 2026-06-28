@@ -40,27 +40,38 @@ export class FolderPane {
     const nav = this.el.querySelector('.folder-tree')!
     nav.innerHTML = ''
 
-    const allNotes = document.createElement('button')
-    allNotes.className = 'folder-item' + (selectedId === null ? ' folder-item--active' : '')
-    allNotes.textContent = 'All notes'
-    allNotes.addEventListener('click', () => {
-      this.onFolderSelect?.()
-      dispatch({ type: 'FOLDER_SELECTED', folderId: null })
-    })
-    nav.appendChild(allNotes)
+    const listbox = document.createElement('vault-listbox')
+    listbox.setAttribute('selectable', '')
+    listbox.setAttribute('ghost', '')
+    listbox.setAttribute('value', selectedId ?? '__all__')
+
+    const allOpt = document.createElement('vault-listbox-option')
+    allOpt.setAttribute('value', '__all__')
+    const allLabel = document.createElement('span')
+    allLabel.className = 'folder-label'
+    allLabel.textContent = 'All notes'
+    allOpt.appendChild(allLabel)
+    listbox.appendChild(allOpt)
 
     for (const folder of folders) {
-      const btn = document.createElement('button')
-      btn.className = 'folder-item' + (selectedId === folder.id ? ' folder-item--active' : '')
-      if ((noteCounts[folder.id] ?? 0) === 0) btn.classList.add('folder-item--empty')
-      btn.dataset['id'] = folder.id
-      btn.textContent = folder.title
-      btn.addEventListener('click', () => {
-        this.onFolderSelect?.()
-        dispatch({ type: 'FOLDER_SELECTED', folderId: folder.id })
-      })
-      nav.appendChild(btn)
+      const opt = document.createElement('vault-listbox-option')
+      opt.setAttribute('value', folder.id)
+      if ((noteCounts[folder.id] ?? 0) === 0) opt.setAttribute('data-empty', '')
+      const label = document.createElement('span')
+      label.className = 'folder-label'
+      label.textContent = folder.title
+      opt.appendChild(label)
+      listbox.appendChild(opt)
     }
+
+    listbox.addEventListener('vault-change', (e) => {
+      const value = (e as CustomEvent<{ value: string }>).detail.value
+      const folderId = value === '__all__' ? null : value
+      this.onFolderSelect?.()
+      dispatch({ type: 'FOLDER_SELECTED', folderId })
+    })
+
+    nav.appendChild(listbox)
   }
 
   private promptNewFolder(): void {

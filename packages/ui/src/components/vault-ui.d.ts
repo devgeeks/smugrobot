@@ -133,6 +133,8 @@ interface VaultListboxElement extends HTMLElement {
   disabled: boolean;
   /** When present, clicking or keyboard-selecting an option updates value and sets [selected] on that option. */
   selectable: boolean;
+  /** When present, removes the border, background, and border-radius so the listbox sits flush in a pane or container. */
+  ghost: boolean;
   addEventListener(type: 'vault-change', listener: (e: CustomEvent<VaultListboxChangeDetail>) => void, options?: boolean | AddEventListenerOptions): void;
   addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
 }
