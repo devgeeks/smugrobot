@@ -525,6 +525,43 @@ body {
   margin-bottom: 0.25em;
 }
 
+.milkdown-host .ProseMirror li[data-item-type="task"] {
+  list-style: none;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  margin-left: calc(-1 * var(--sp-6));
+}
+
+.milkdown-host .ProseMirror li[data-item-type="task"]::before {
+  content: '';
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 4px;
+  border: 1.5px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.milkdown-host .ProseMirror li[data-item-type="task"][data-checked="true"]::before {
+  background: var(--cipher);
+  border-color: var(--cipher);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2 6l3 3 5-5' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px 10px;
+}
+
+.milkdown-host .ProseMirror li[data-item-type="task"][data-checked="true"] > p {
+  color: var(--text-muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--text-muted);
+}
+
 .milkdown-host .ProseMirror a {
   color: var(--cipher-text);
   text-decoration: underline;

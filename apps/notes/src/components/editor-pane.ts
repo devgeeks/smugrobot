@@ -1,5 +1,6 @@
-import { Editor, rootCtx, defaultValueCtx } from '@milkdown/core'
+import { Editor, rootCtx, defaultValueCtx, editorViewCtx } from '@milkdown/core'
 import { commonmark } from '@milkdown/preset-commonmark'
+import { gfm } from '@milkdown/preset-gfm'
 import { listener, listenerCtx } from '@milkdown/plugin-listener'
 import { clipboard } from '@milkdown/plugin-clipboard'
 import { getMarkdown, replaceAll } from '@milkdown/utils'
@@ -52,10 +53,33 @@ export class EditorPane {
         })
       })
       .use(commonmark)
+      .use(gfm)
       .use(listener)
       .use(clipboard)
       .use(linkTooltip)
       .create()
+
+    this.milkdownHost.addEventListener('click', (e) => {
+      const li = (e.target as Element).closest('li[data-item-type="task"]')
+      if (!li) return
+      const liRect = li.getBoundingClientRect()
+      // Only toggle when click lands in the ::before checkbox area (16px + 8px gap)
+      if (e.clientX - liRect.left > 24) return
+      this.editor?.action((ctx) => {
+        const view = ctx.get(editorViewCtx)
+        const pos = view.posAtDOM(li, 0)
+        const $pos = view.state.doc.resolve(pos)
+        let depth = $pos.depth
+        while (depth > 0 && $pos.node(depth).type.name !== 'list_item') depth--
+        const listItemNode = $pos.node(depth)
+        const listItemPos = $pos.before(depth)
+        const tr = view.state.tr.setNodeMarkup(listItemPos, undefined, {
+          ...listItemNode.attrs,
+          checked: !listItemNode.attrs.checked,
+        })
+        view.dispatch(tr)
+      })
+    })
   }
 
   render(state: AppState): void {
