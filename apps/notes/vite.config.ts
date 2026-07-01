@@ -6,6 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
+  base: '/notes/',
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   plugins: [
     VitePWA({
@@ -22,8 +23,8 @@ export default defineConfig({
         display: 'standalone',
         background_color: '#0D0F0E',
         theme_color: '#0D0F0E',
-        start_url: '/',
-        scope: '/',
+        start_url: '/notes/',
+        scope: '/notes/',
         icons: [
           { src: 'pwa-64x64.png',            sizes: '64x64',   type: 'image/png' },
           { src: 'pwa-192x192.png',           sizes: '192x192', type: 'image/png' },
