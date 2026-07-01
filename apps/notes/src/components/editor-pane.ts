@@ -116,10 +116,11 @@ export class EditorPane {
     const state = getState()
     if (!state.store) return
     const title = deriveTitleFromMarkdown(markdown)
+    const existingMeta = await state.store.getMeta(noteId)
     const meta = await state.store.set(noteId, markdown, {
       title,
       type: 'note',
-      folderId: state.selectedFolderId,
+      folderId: existingMeta ? (existingMeta['folderId'] ?? null) : state.selectedFolderId,
     })
     this.lastSavedMarkdown = markdown
     dispatch({ type: 'NOTE_SAVE_DONE', meta: meta as NoteMeta })
