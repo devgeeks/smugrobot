@@ -1,4 +1,4 @@
-import { Editor, rootCtx, defaultValueCtx, editorViewCtx } from '@milkdown/core'
+import { Editor, rootCtx, editorViewOptionsCtx, defaultValueCtx, editorViewCtx } from '@milkdown/core'
 import { commonmark } from '@milkdown/preset-commonmark'
 import { gfm } from '@milkdown/preset-gfm'
 import { listener, listenerCtx } from '@milkdown/plugin-listener'
@@ -46,6 +46,7 @@ export class EditorPane {
     this.editor = await Editor.make()
       .config((ctx) => {
         ctx.set(rootCtx, this.milkdownHost)
+        ctx.set(editorViewOptionsCtx, { attributes: { 'aria-label': 'Note content' } })
         ctx.set(defaultValueCtx, '')
         ctx.get(listenerCtx).markdownUpdated((_ctx, markdown) => {
           this.pendingMarkdown = markdown
