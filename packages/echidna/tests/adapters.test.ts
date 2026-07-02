@@ -3,9 +3,11 @@ import { mkdtemp, rm } from "node:fs/promises"
 import { join } from "node:path"
 import { tmpdir } from "node:os"
 import { IDBFactory } from "fake-indexeddb"
+import PouchDB from "pouchdb"
 import { memoryAdapter } from "../src/adapters/memory"
 import { nodeFsAdapter } from "../src/adapters/node-fs"
 import { indexedDbAdapter } from "../src/adapters/indexeddb"
+import { pouchDbAdapter } from "../src/adapters/pouchdb"
 import type { StorageAdapter } from "../src/types"
 
 type AdapterFactory = () => Promise<{ adapter: StorageAdapter; cleanup?: () => Promise<void> }>
@@ -83,4 +85,16 @@ adapterSuite("indexeddb adapter", async () => {
   globalThis.indexedDB = idb
   const dbName = `echidna-test-${Math.random().toString(36).slice(2)}`
   return { adapter: await indexedDbAdapter(dbName) }
+})
+
+adapterSuite("pouchdb adapter", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "echidna-pouchdb-test-"))
+  const db = new PouchDB(join(dir, "db"))
+  return {
+    adapter: pouchDbAdapter(db),
+    cleanup: async () => {
+      await db.destroy()
+      await rm(dir, { recursive: true })
+    },
+  }
 })

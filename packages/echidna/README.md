@@ -160,6 +160,35 @@ const fresh = await refreshDropboxToken({
 
 No SDK dependency — the adapter uses `fetch` and `crypto.subtle` directly.
 
+### CouchDB / PouchDB (self-hosted or cloud sync)
+
+Wraps a PouchDB instance you construct and own, so it can double as the local half of a `.sync()` against a remote CouchDB server. Values are stored as real CouchDB attachments (not inline base64 fields), so they replicate efficiently and stay interoperable with other CouchDB tooling inspecting the database.
+
+`pouchdb` is a **peer dependency** — install it separately (`pouchdb`, `pouchdb-browser`, `pouchdb-node`, or a React Native build, whichever matches your environment).
+
+> **Note:** echidna.js only implements local storage through this adapter. Remote sync — the CouchDB URL, auth, live replication, retry policy — is your app's responsibility, driven directly against the same PouchDB instance you pass in.
+
+> **Privacy warning:** syncing does not make document metadata private. `docs/{id}/meta` (title, tags, timestamps, size, and any custom fields) is always stored as plaintext JSON — by design, so lists can be filtered without decrypting bodies — and it is unauthenticated, so a malicious or compromised CouchDB server can read *and silently rewrite* it. Only `docs/{id}/body` is encrypted and MAC-protected; decryption fails loudly (`WRONG_KEY`) if a server tampers with it. A hostile server operator can also see attachment sizes and write timing, and can withhold or roll back revisions without detection, since there's no vault-level integrity check across the whole sync. Don't put anything sensitive in `title`, `tags`, or custom metadata fields if you don't trust the CouchDB server operator.
+
+```ts
+import PouchDB from 'pouchdb'
+import { pouchDbAdapter } from 'echidna.js/adapters/pouchdb'
+import { createEncryptedStore } from 'echidna.js'
+
+const db = new PouchDB('my-vault')
+
+const store = await createEncryptedStore({
+  adapter: pouchDbAdapter(db),
+  keySource: { type: 'passphrase', passphrase: userPassphrase },
+})
+
+// Not part of echidna.js — wire up sync yourself against the same `db`.
+const remote = new PouchDB('https://couchdb.example.com/my-vault', {
+  auth: { username: 'user', password: 'pass' },
+})
+db.sync(remote, { live: true, retry: true })
+```
+
 ### React Native (`@react-native-async-storage/async-storage`)
 
 `@react-native-async-storage/async-storage` is a **peer dependency** — install it separately in your app.

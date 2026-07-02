@@ -203,6 +203,12 @@ Each adapter is a separate file and a separate package.json `exports` entry so c
 - That package is a **peer dependency** — not installed by echidna
 - Encodes `Uint8Array` as base64 strings
 
+### `src/adapters/pouchdb.ts`
+- Wraps a caller-supplied PouchDB instance (`pouchDbAdapter(db)`) — does not construct its own, so the same `db` can be used for `.sync()` against a remote CouchDB by the consumer
+- Stores each value as a CouchDB attachment (base64-transported, binary at rest) rather than an inline JSON field
+- `set`/`delete` read the current `_rev` before writing and retry on 409 conflicts; `delete` on a missing key is a no-op
+- `pouchdb` is a **peer dependency** — not installed by echidna; only its structural shape is relied on (no `@types/pouchdb-core` needed)
+
 ---
 
 ## Project Structure

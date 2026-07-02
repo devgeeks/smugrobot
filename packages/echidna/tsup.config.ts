@@ -9,6 +9,7 @@ export default defineConfig({
     "adapters/async-storage": "src/adapters/async-storage.ts",
     "adapters/indexeddb": "src/adapters/indexeddb.ts",
     "adapters/dropbox": "src/adapters/dropbox.ts",
+    "adapters/pouchdb": "src/adapters/pouchdb.ts",
   },
   format: ["esm", "cjs"],
   dts: true,
