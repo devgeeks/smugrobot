@@ -1,7 +1,7 @@
 import { TOKEN_BRIDGE } from './token-bridge.js';
 
 class VaultSelect extends HTMLElement {
-  static observedAttributes = ['label', 'value', 'error', 'hint', 'required'];
+  static observedAttributes = ['label', 'aria-label', 'value', 'error', 'hint', 'required'];
 
   #select = null;
   #observer = null;
@@ -50,6 +50,7 @@ class VaultSelect extends HTMLElement {
 
   #render() {
     const label    = this.getAttribute('label')    || '';
+    const ariaLabel = this.getAttribute('aria-label') || '';
     const error    = this.getAttribute('error')    || '';
     const hint     = this.getAttribute('hint')     || '';
     const required = this.hasAttribute('required');
@@ -111,13 +112,17 @@ class VaultSelect extends HTMLElement {
       <div class="field">
         ${label ? `<label for="${uid}">${label}${required ? '<span class="required" aria-hidden="true">*</span>' : ''}</label>` : ''}
         <div class="wrap">
-          <select id="${uid}" ${required ? 'required' : ''} ${error ? `aria-invalid="true"` : ''}>
+          <select id="${uid}" ${required ? 'required' : ''} ${error ? `aria-invalid="true"` : ''} ${!label && ariaLabel ? `aria-label="${ariaLabel.replace(/"/g, '&quot;')}"` : ''}>
           </select>
           <span class="chevron" aria-hidden="true">▼</span>
         </div>
         ${error || hint ? `<span class="hint-text">${error || hint}</span>` : ''}
       </div>
     `;
+
+    if (!label && !ariaLabel) {
+      console.warn('[vault-select] Missing accessible name — set a `label` or `aria-label` attribute.');
+    }
 
     this.#select = this.shadowRoot.querySelector('select');
     this.#select.addEventListener('change', () => {

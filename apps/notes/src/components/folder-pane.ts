@@ -43,6 +43,7 @@ export class FolderPane {
     const listbox = document.createElement('vault-listbox')
     listbox.setAttribute('selectable', '')
     listbox.setAttribute('ghost', '')
+    listbox.setAttribute('aria-label', 'Folders')
     listbox.setAttribute('value', selectedId ?? '__all__')
 
     const activeValue = selectedId ?? '__all__'

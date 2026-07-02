@@ -1,7 +1,7 @@
 import { TOKEN_BRIDGE } from './token-bridge.js';
 
 class VaultTextarea extends HTMLElement {
-  static observedAttributes = ['label', 'value', 'rows', 'maxlength', 'resize', 'error', 'hint'];
+  static observedAttributes = ['label', 'aria-label', 'value', 'rows', 'maxlength', 'resize', 'error', 'hint'];
 
   connectedCallback() {
     if (!this.shadowRoot) this.#render();
@@ -34,6 +34,7 @@ class VaultTextarea extends HTMLElement {
 
   #render() {
     const label     = this.getAttribute('label')     || '';
+    const ariaLabel = this.getAttribute('aria-label') || '';
     const value     = this.getAttribute('value')     || '';
     const rows      = this.getAttribute('rows')      || '4';
     const maxlength = this.getAttribute('maxlength') || '';
@@ -93,6 +94,7 @@ class VaultTextarea extends HTMLElement {
           rows="${rows}"
           ${maxlength ? `maxlength="${maxlength}"` : ''}
           ${error ? `aria-invalid="true" aria-describedby="${uid}-hint"` : ''}
+          ${!label && ariaLabel ? `aria-label="${ariaLabel.replace(/"/g, '&quot;')}"` : ''}
         >${value.replace(/</g, '&lt;')}</textarea>
         <div class="footer">
           ${error || hint ? `<span class="hint-text" id="${uid}-hint">${error || hint}</span>` : '<span></span>'}
@@ -100,6 +102,10 @@ class VaultTextarea extends HTMLElement {
         </div>
       </div>
     `;
+
+    if (!label && !ariaLabel) {
+      console.warn('[vault-textarea] Missing accessible name — set a `label` or `aria-label` attribute.');
+    }
 
     const ta      = this.shadowRoot.querySelector('textarea');
     const counter = this.shadowRoot.querySelector('.counter');

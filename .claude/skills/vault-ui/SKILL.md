@@ -59,6 +59,7 @@ VaultTheme.init(); // restores saved preference; defaults to dark
 - `error` takes priority over `hint`. Sets `aria-invalid` automatically.
 - `prefix-icon` is inline text/character before the cursor — good for `$`, `@`, `https://`.
 - Events: `vault-input` `{ value }` every keystroke; `vault-change` `{ value }` on blur/commit.
+- Requires an accessible name: use `label` for a visible label, or `aria-label` when no visible label fits (e.g. an icon-only search field). If neither is set, the component logs a console warning — treat that as a bug to fix, not noise to ignore.
 
 ### `<vault-textarea>`
 ```html
@@ -68,6 +69,7 @@ VaultTheme.init(); // restores saved preference; defaults to dark
 - `resize="auto"` grows the element as the user types — never shows a scrollbar.
 - `maxlength` shows a live `n / max` counter bottom-right.
 - Same events as `vault-input`.
+- Same accessible-name requirement as `vault-input`: set `label` or `aria-label`.
 
 ### `<vault-badge>`
 ```html
@@ -91,6 +93,7 @@ VaultTheme.init(); // restores saved preference; defaults to dark
 ```
 - Uses `role="switch"` + `aria-checked`. Fully keyboard accessible.
 - Event: `vault-change` `{ checked: boolean }`.
+- Same accessible-name requirement as `vault-input`: set `label` or `aria-label`.
 
 ### `<vault-select>`
 ```html
@@ -101,6 +104,19 @@ VaultTheme.init(); // restores saved preference; defaults to dark
 ```
 - `<option>` children live in the light DOM — add/remove them any time.
 - Event: `vault-change` `{ value: string }`.
+- Same accessible-name requirement as `vault-input`: set `label` or `aria-label`.
+
+### `<vault-listbox>`
+```html
+<vault-listbox label="…" value="…" selectable ghost disabled>
+  <vault-listbox-option value="a">Option A</vault-listbox-option>
+  <vault-listbox-option value="b">Option B</vault-listbox-option>
+</vault-listbox>
+```
+- `role="listbox"` lives on the host element itself; full WAI-ARIA Listbox keyboard pattern (arrows, Home/End, Enter/Space).
+- `selectable` persists a selection to `value` and highlights it; without it, the listbox is a pure command menu (click/Enter just fires `vault-change`).
+- `ghost` strips the border/background — use for sidebar navigation embedded in another surface.
+- Same accessible-name requirement as `vault-input`: set `label` or `aria-label`. Note `label` also renders a visible heading inside the listbox — if a heading already exists elsewhere on the page (e.g. a pane title), use `aria-label` instead to avoid a duplicate heading.
 
 ### `<vault-alert>`
 ```html
@@ -241,6 +257,7 @@ color:          var(--text-secondary);
 | Motion | Every transition must use `var(--ease-out)` and a `--duration-*` token. |
 | Motion | Only animate properties that communicate state change. No decorative animation. |
 | WCAG | All text ≥ 4.5:1. All UI components / graphical objects ≥ 3:1. |
+| WCAG | Every input, textarea, select, and toggle must have an accessible name — set `label` (preferred, visible) or `aria-label` (visually hidden) on every `<vault-input>`, `<vault-textarea>`, `<vault-select>`, and `<vault-toggle>`. Never leave both unset. |
 | Grammar | All UI copy (labels, buttons, headings, toasts) must use sentence case. Never title case or ALL CAPS. |
 | Grammar | Never apply `text-transform: uppercase` in CSS — not in components, not in page-level styles. |
 

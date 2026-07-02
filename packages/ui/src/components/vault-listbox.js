@@ -137,6 +137,7 @@ class VaultListbox extends HTMLElement {
   connectedCallback() {
     this.setAttribute('role', 'listbox');
     if (!this.hasAttribute('tabindex')) this.setAttribute('tabindex', '0');
+    this.#syncAccessibleName();
     if (!this.shadowRoot) this.#render();
     this.#watchOptions();
     this.#syncValue();
@@ -158,6 +159,7 @@ class VaultListbox extends HTMLElement {
       this.#syncValue();
     } else if (name === 'label') {
       this.#syncLabel();
+      this.#syncAccessibleName();
     } else if (name === 'disabled') {
       this.#syncDisabled();
     }
@@ -217,6 +219,16 @@ class VaultListbox extends HTMLElement {
       }
     }
     if (this.hasAttribute('selectable')) this.#setActive(matched);
+  }
+
+  #syncAccessibleName() {
+    const label = this.getAttribute('label') || '';
+    const ariaLabel = this.getAttribute('aria-label') || '';
+    if (label) {
+      this.setAttribute('aria-label', label);
+    } else if (!ariaLabel) {
+      console.warn('[vault-listbox] Missing accessible name — set a `label` or `aria-label` attribute.');
+    }
   }
 
   #syncLabel() {

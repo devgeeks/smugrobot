@@ -1,7 +1,7 @@
 import { TOKEN_BRIDGE } from './token-bridge.js';
 
 class VaultToggle extends HTMLElement {
-  static observedAttributes = ['checked', 'label', 'hint', 'size', 'disabled'];
+  static observedAttributes = ['checked', 'label', 'aria-label', 'hint', 'size', 'disabled'];
 
   connectedCallback() {
     if (!this.shadowRoot) this.#render();
@@ -17,6 +17,7 @@ class VaultToggle extends HTMLElement {
   #render() {
     const checked  = this.hasAttribute('checked');
     const label    = this.getAttribute('label')   || '';
+    const ariaLabel = this.getAttribute('aria-label') || '';
     const hint     = this.getAttribute('hint')    || '';
     const size     = this.getAttribute('size')    || 'md';
     const disabled = this.hasAttribute('disabled');
@@ -86,7 +87,7 @@ class VaultToggle extends HTMLElement {
         }
       </style>
       <label class="toggle-row">
-        <input type="checkbox" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''} role="switch" aria-checked="${checked}" />
+        <input type="checkbox" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''} role="switch" aria-checked="${checked}" ${!label && ariaLabel ? `aria-label="${ariaLabel.replace(/"/g, '&quot;')}"` : ''} />
         <span class="track-wrap">
           <span class="track"><span class="thumb"></span></span>
         </span>
@@ -97,6 +98,10 @@ class VaultToggle extends HTMLElement {
           </span>` : ''}
       </label>
     `;
+
+    if (!label && !ariaLabel) {
+      console.warn('[vault-toggle] Missing accessible name — set a `label` or `aria-label` attribute.');
+    }
 
     const input = this.shadowRoot.querySelector('input');
     input.addEventListener('change', () => {

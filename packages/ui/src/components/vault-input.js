@@ -1,7 +1,7 @@
 import { TOKEN_BRIDGE } from './token-bridge.js';
 
 class VaultInput extends HTMLElement {
-  static observedAttributes = ['label', 'type', 'value', 'error', 'hint', 'prefix-icon', 'required', 'disabled', 'readonly'];
+  static observedAttributes = ['label', 'aria-label', 'type', 'value', 'error', 'hint', 'prefix-icon', 'required', 'disabled', 'readonly'];
 
   connectedCallback() {
     if (!this.shadowRoot) this.#render();
@@ -29,6 +29,7 @@ class VaultInput extends HTMLElement {
 
   #render() {
     const label      = this.getAttribute('label')       || '';
+    const ariaLabel  = this.getAttribute('aria-label')  || '';
     const type       = this.getAttribute('type')        || 'text';
     const value      = this.getAttribute('value')       || '';
     const error      = this.getAttribute('error')       || '';
@@ -107,11 +108,16 @@ class VaultInput extends HTMLElement {
             ${disabled  ? 'disabled'  : ''}
             ${readonly  ? 'readonly'  : ''}
             ${error     ? `aria-invalid="true" aria-describedby="${uid}-hint"` : ''}
+            ${!label && ariaLabel ? `aria-label="${ariaLabel.replace(/"/g, '&quot;')}"` : ''}
           />
         </div>
         ${error || hint ? `<span class="hint-text" id="${uid}-hint">${error || hint}</span>` : ''}
       </div>
     `;
+
+    if (!label && !ariaLabel) {
+      console.warn('[vault-input] Missing accessible name — set a `label` or `aria-label` attribute.');
+    }
 
     const input = this.shadowRoot.querySelector('input');
     input.addEventListener('input', () => {

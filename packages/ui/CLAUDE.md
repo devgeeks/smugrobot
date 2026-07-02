@@ -32,15 +32,16 @@ All components are native custom elements. Zero framework required.
 | Tag | Key attributes |
 |---|---|
 | `<vault-button>` | `variant` (primary\|secondary\|ghost\|danger), `size` (sm\|md\|lg), `disabled`, `loading` |
-| `<vault-input>` | `label`, `type`, `value`, `error`, `hint`, `prefix-icon`, `required`, `disabled`, `readonly` |
-| `<vault-textarea>` | `label`, `value`, `rows`, `maxlength`, `resize` (none\|vertical\|auto), `error`, `hint` |
+| `<vault-input>` | `label`, `aria-label`, `type`, `value`, `error`, `hint`, `prefix-icon`, `required`, `disabled`, `readonly` |
+| `<vault-textarea>` | `label`, `aria-label`, `value`, `rows`, `maxlength`, `resize` (none\|vertical\|auto), `error`, `hint` |
 | `<vault-badge>` | `variant` (default\|success\|warn\|danger\|info), `dot` |
 | `<vault-card>` | `padding` (sm\|md\|lg), `border`, `elevated` |
-| `<vault-toggle>` | `checked`, `label`, `hint`, `size` (sm\|md), `disabled` |
-| `<vault-select>` | `label`, `value`, `error`, `hint`, `required` — children are native `<option>` tags |
+| `<vault-toggle>` | `checked`, `label`, `aria-label`, `hint`, `size` (sm\|md), `disabled` |
+| `<vault-select>` | `label`, `aria-label`, `value`, `error`, `hint`, `required` — children are native `<option>` tags |
 | `<vault-alert>` | `variant` (info\|success\|warn\|danger), `title`, `dismissible` |
 | `<vault-spinner>` | `size` (sm\|md\|lg), `label` (sr-only text) |
 | `<vault-avatar>` | `name`, `src`, `size` (sm\|md\|lg), `status` (online\|offline\|away\|busy) |
+| `<vault-listbox>` | `label`, `aria-label`, `value`, `disabled`, `selectable`, `ghost` — children are `<vault-listbox-option value="…">` |
 
 All components emit custom events that bubble through shadow DOM (`composed: true`):
 - `vault-input` — `{ value: string }` — fires on every keystroke
@@ -188,6 +189,7 @@ Max `--radius-lg` for non-circular shapes. Pillls and avatars use `--radius-full
 - All text must meet WCAG AA minimum 4.5:1 contrast ratio.
 - All UI components and graphical objects must meet 3:1 (e.g. borders, icons).
 - Never use colour alone to convey meaning — pair with an icon or label.
+- Every `<vault-input>`, `<vault-textarea>`, `<vault-select>`, `<vault-toggle>`, and `<vault-listbox>` must have an accessible name — set `label` (preferred, visible) or `aria-label` (visually hidden, e.g. an icon-only field, or a listbox already paired with a visible heading elsewhere on the page). Never ship one with neither. Each component logs a `console.warn` in dev when both are missing; treat that warning as a build-blocking bug, not noise.
 
 **Grammar**
 - All labels, button text, headings, and UI copy must use sentence case (e.g. "Add folder", "New note", "Delete note?").

@@ -19,7 +19,7 @@ export class NoteList {
         <vault-button variant="primary" size="md" class="new-note-btn">New note</vault-button>
       </div>
       <div class="note-list-inner">
-        <vault-listbox selectable ghost></vault-listbox>
+        <vault-listbox selectable ghost aria-label="Notes"></vault-listbox>
       </div>
     `
     this.el.querySelector('.new-note-btn')!.addEventListener('click', () => this.onNewNote?.())
