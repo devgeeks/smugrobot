@@ -14,6 +14,15 @@ import { dispatch, getState, subscribe } from './state/store.js'
 import { mountUnlockScreen } from './screens/unlock-screen.js'
 import { mountAppScreen, unmountAppScreen } from './screens/app-screen.js'
 
+if (import.meta.env.DEV && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then((regs) => {
+    for (const reg of regs) reg.unregister()
+  })
+  if ('caches' in window) {
+    caches.keys().then((keys) => keys.forEach((key) => caches.delete(key)))
+  }
+}
+
 VaultTheme.init()
 
 const root = document.getElementById('app')!
