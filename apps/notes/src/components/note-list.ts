@@ -1,7 +1,6 @@
 import type { AppState, NoteMeta } from '../state/types.js'
-import { dispatch, getState } from '../state/store.js'
+import { dispatch } from '../state/store.js'
 import { formatRelativeTime } from '../utils/time.js'
-import { showToast } from '../utils/toast.js'
 
 export class NoteList {
   el: HTMLElement
@@ -78,73 +77,12 @@ export class NoteList {
             <span class="note-time" data-ts="${note.updatedAt}">${formatRelativeTime(note.updatedAt)}</span>
           </div>
         </div>
-        <vault-popover placement="bottom-end">
-          <vault-button slot="trigger" variant="ghost" size="md" class="note-menu-btn" aria-label="Note options">⋮</vault-button>
-          <div class="note-menu-panel">
-            <button class="menu-item" data-action="copy">Copy text</button>
-            <button class="menu-item menu-item--danger" data-action="delete">Delete</button>
-          </div>
-        </vault-popover>
       </div>
     `
-
-    const popover = option.querySelector('vault-popover') as HTMLElement & { close(): void }
-    popover.addEventListener('click', (e) => e.stopPropagation())
-
-    option.querySelector('[data-action="copy"]')!.addEventListener('click', async () => {
-      popover.close()
-      const store = getState().store
-      if (!store) return
-      const content = await store.get(note.id)
-      if (content) navigator.clipboard.writeText(content)
-    })
-
-    option.querySelector('[data-action="delete"]')!.addEventListener('click', () => {
-      popover.close()
-      confirmDeleteNote(note)
-    })
 
     return option as HTMLElement
   }
 }
-
-function confirmDeleteNote(note: NoteMeta): void {
-  const overlay = document.createElement('div')
-  overlay.className = 'dialog-overlay'
-  overlay.innerHTML = `
-    <vault-card border elevated class="dialog-card">
-      <h2 class="dialog-title">Delete note?</h2>
-      <p class="dialog-body">"${escapeHtml(note.title)}" will be permanently deleted.</p>
-      <div class="dialog-actions">
-        <vault-button variant="secondary" size="md" class="dialog-cancel">Cancel</vault-button>
-        <vault-button variant="danger" size="md" class="dialog-confirm">Delete</vault-button>
-      </div>
-    </vault-card>
-  `
-  document.body.appendChild(overlay)
-
-  const close = () => overlay.remove()
-
-  overlay.querySelector('.dialog-cancel')!.addEventListener('click', close)
-  overlay.querySelector('.dialog-confirm')!.addEventListener('click', async () => {
-    close()
-    const store = getState().store
-    if (!store) return
-    await store.delete(note.id)
-    dispatch({ type: 'NOTE_DELETED', noteId: note.id })
-    showToast(`"${note.title}" was deleted.`, 'info')
-  })
-
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) close()
-  })
-
-  const onKey = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey) }
-  }
-  document.addEventListener('keydown', onKey)
-}
-
 
 function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')

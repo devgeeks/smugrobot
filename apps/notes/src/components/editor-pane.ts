@@ -21,6 +21,7 @@ export class EditorPane {
   private lockBtn!: HTMLElement
   private spinner!: HTMLElement
   private milkdownHost!: HTMLElement
+  private noteMenu!: HTMLElement & { close(): void }
 
   constructor() {
     this.el = document.createElement('div')
@@ -29,6 +30,13 @@ export class EditorPane {
       <div class="editor-toolbar">
         <div class="toolbar-right">
           <vault-spinner size="md" class="save-spinner" label="Saving…" hidden></vault-spinner>
+          <vault-popover placement="bottom-end" class="note-menu" style="display: none">
+            <vault-button slot="trigger" variant="ghost" size="md" class="note-menu-btn" aria-label="Note options">⋮</vault-button>
+            <div class="note-menu-panel">
+              <button class="menu-item" data-action="copy">Copy text</button>
+              <button class="menu-item menu-item--danger" data-action="delete">Delete</button>
+            </div>
+          </vault-popover>
           <vault-button variant="secondary" size="md" class="lock-btn">Lock</vault-button>
         </div>
       </div>
@@ -38,8 +46,22 @@ export class EditorPane {
     this.lockBtn = this.el.querySelector('.lock-btn')!
     this.spinner = this.el.querySelector('.save-spinner')!
     this.milkdownHost = this.el.querySelector('.milkdown-host')!
+    this.noteMenu = this.el.querySelector('.note-menu')!
 
     this.lockBtn.addEventListener('click', () => this.lock())
+    this.noteMenu.addEventListener('click', (e) => e.stopPropagation())
+
+    this.noteMenu.querySelector('[data-action="copy"]')!.addEventListener('click', () => {
+      this.noteMenu.close()
+      const content = this.getCurrentMarkdown()
+      if (content) navigator.clipboard.writeText(content)
+    })
+
+    this.noteMenu.querySelector('[data-action="delete"]')!.addEventListener('click', () => {
+      this.noteMenu.close()
+      const note = getState().notes.find((n) => n.id === this.currentNoteId)
+      if (note) confirmDeleteNote(note)
+    })
   }
 
   async mount(): Promise<void> {
@@ -85,6 +107,7 @@ export class EditorPane {
 
   render(state: AppState): void {
     this.spinner.style.display = state.isSaving ? '' : 'none'
+    this.noteMenu.style.display = state.selectedNoteId === null ? 'none' : ''
   }
 
   async loadNote(noteId: string): Promise<void> {
@@ -171,4 +194,45 @@ export class EditorPane {
   getCurrentMarkdown(): string {
     return this.editor?.action(getMarkdown()) ?? ''
   }
+}
+
+function confirmDeleteNote(note: NoteMeta): void {
+  const overlay = document.createElement('div')
+  overlay.className = 'dialog-overlay'
+  overlay.innerHTML = `
+    <vault-card border elevated class="dialog-card">
+      <h2 class="dialog-title">Delete note?</h2>
+      <p class="dialog-body">"${escapeHtml(note.title)}" will be permanently deleted.</p>
+      <div class="dialog-actions">
+        <vault-button variant="secondary" size="md" class="dialog-cancel">Cancel</vault-button>
+        <vault-button variant="danger" size="md" class="dialog-confirm">Delete</vault-button>
+      </div>
+    </vault-card>
+  `
+  document.body.appendChild(overlay)
+
+  const close = () => overlay.remove()
+
+  overlay.querySelector('.dialog-cancel')!.addEventListener('click', close)
+  overlay.querySelector('.dialog-confirm')!.addEventListener('click', async () => {
+    close()
+    const store = getState().store
+    if (!store) return
+    await store.delete(note.id)
+    dispatch({ type: 'NOTE_DELETED', noteId: note.id })
+    showToast(`"${note.title}" was deleted.`, 'info')
+  })
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) close()
+  })
+
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey) }
+  }
+  document.addEventListener('keydown', onKey)
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }

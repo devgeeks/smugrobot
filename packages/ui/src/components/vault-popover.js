@@ -63,9 +63,29 @@ class VaultPopover extends HTMLElement {
       </div>
     `;
 
-    const triggerSlot = this.shadowRoot.querySelector('slot[name="trigger"]');
-    triggerSlot.addEventListener('click', () => this.toggleAttribute('open'));
+    // Mouse/touch presses are handled on pointerup rather than click: with
+    // this many layers of slotted shadow DOM (listbox option > popover >
+    // button), Firefox dispatches the click event with the wrong target
+    // (an ancestor of the trigger) even though pointerup targets correctly.
+    // pointerup still fires on release rather than press, so a press that's
+    // dragged off the trigger before release is not treated as an
+    // activation — same cancellable behavior "click" would give.
+    // Keyboard/assistive-tech activation (Enter/Space) only ever dispatches
+    // a click with no preceding pointerup, so it's still handled below —
+    // detail === 0 distinguishes it from a real mouse click, avoiding a
+    // double-toggle when both fire for an ordinary click.
+    this.addEventListener('pointerup', this.#handleTriggerActivate);
+    this.addEventListener('click', this.#handleTriggerActivate);
   }
+
+  #handleTriggerActivate = (e) => {
+    if (e.type === 'pointerup' && e.button !== 0) return;
+    if (e.type === 'click' && e.detail !== 0) return;
+    const triggerSlot = this.shadowRoot.querySelector('slot[name="trigger"]');
+    const assigned = triggerSlot.assignedElements();
+    const path = e.composedPath();
+    if (assigned.some((el) => path.includes(el))) this.toggleAttribute('open');
+  };
 
   #syncOpen() {
     const panel = this.shadowRoot.querySelector('.panel');
@@ -97,7 +117,7 @@ class VaultPopover extends HTMLElement {
       };
 
       setTimeout(() => {
-        document.addEventListener('click', this.#outsideClick);
+        document.addEventListener('pointerdown', this.#outsideClick);
         document.addEventListener('keydown', this.#escapeKey);
       }, 0);
 
@@ -165,7 +185,7 @@ class VaultPopover extends HTMLElement {
 
   #cleanup() {
     if (this.#outsideClick) {
-      document.removeEventListener('click', this.#outsideClick);
+      document.removeEventListener('pointerdown', this.#outsideClick);
       this.#outsideClick = null;
     }
     if (this.#escapeKey) {

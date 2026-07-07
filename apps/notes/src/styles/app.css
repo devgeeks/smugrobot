@@ -267,19 +267,11 @@ body {
   border-radius: var(--radius-sm);
   font-size: var(--text-base);
   color: var(--text-muted);
-  opacity: 0;
   flex-shrink: 0;
   line-height: 1;
   transition:
     color var(--duration-fast) var(--ease-out),
-    background var(--duration-fast) var(--ease-out),
-    opacity var(--duration-fast) var(--ease-out);
-}
-
-.note-list-inner vault-listbox-option:hover .note-menu-btn,
-.note-list-inner vault-listbox-option[active] .note-menu-btn,
-.note-list-inner vault-listbox-option[selected] .note-menu-btn {
-  opacity: 1;
+    background var(--duration-fast) var(--ease-out);
 }
 
 .note-menu-btn:hover {
@@ -290,7 +282,6 @@ body {
 .note-menu-btn:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
-  opacity: 1;
 }
 
 /* ── Note popover menu ──────────────────────────────────── */
@@ -646,9 +637,5 @@ body {
 
   .editor-toolbar .new-note-btn {
     display: none;
-  }
-
-  .note-menu-btn {
-    opacity: 1;
   }
 }
