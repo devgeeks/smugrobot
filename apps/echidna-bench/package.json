@@ -1,0 +1,20 @@
+{
+  "name": "@smugrobot/echidna-bench",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@smugrobot/ui": "*",
+    "echidna.js": "*"
+  },
+  "devDependencies": {
+    "typescript": "*",
+    "vite": "^5.4.0"
+  }
+}

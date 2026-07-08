@@ -1,0 +1,235 @@
+/* ── Layout ─────────────────────────────────────────────── */
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+#app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-base);
+  color: var(--text-primary);
+}
+
+.bench-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--sp-8) var(--sp-6);
+  box-sizing: border-box;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+
+.bench-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--cipher-text);
+  margin: 0 0 var(--sp-2) 0;
+  letter-spacing: -0.02em;
+}
+
+.bench-sub {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Config panel ───────────────────────────────────────── */
+
+.config-panel {
+  display: block;
+  padding: var(--sp-6);
+}
+
+.config-heading {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  margin: 0 0 var(--sp-5) 0;
+}
+
+.config-group {
+  border: none;
+  padding: 0;
+  margin: 0 0 var(--sp-5) 0;
+}
+
+.config-group-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  padding: 0 0 var(--sp-2) 0;
+}
+
+.toggle-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+}
+
+.config-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-5);
+}
+
+.config-row > * {
+  flex: 1 1 180px;
+  min-width: 160px;
+}
+
+/* ── Results table ──────────────────────────────────────── */
+
+.results-panel {
+  background: var(--surface-raised);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+  overflow-x: auto;
+}
+
+.kdf-note {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0 0 var(--sp-4) 0;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+}
+
+.results-table th {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  text-align: left;
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--surface-border);
+  white-space: nowrap;
+}
+
+.results-table td {
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--surface-border);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ── Chart ──────────────────────────────────────────────── */
+
+.results-chart {
+  background: var(--surface-raised);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+}
+
+.chart-legend {
+  display: flex;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.chart-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+}
+
+.chart-facets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+.chart-facet {
+  overflow-x: auto;
+}
+
+.chart-facet svg {
+  display: block;
+}
+
+.chart-facet-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  fill: var(--text-primary);
+}
+
+.chart-axis-label {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  fill: var(--text-muted);
+}
+
+.chart-gridline {
+  stroke: var(--surface-border);
+  stroke-width: 1;
+}
+
+.chart-bar {
+  cursor: pointer;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.chart-bar:hover {
+  opacity: 0.85;
+}
+
+.chart-tooltip {
+  position: fixed;
+  z-index: 100;
+  pointer-events: none;
+  background: var(--surface-overlay);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-1) var(--sp-3);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Toast ──────────────────────────────────────────────── */
+
+.toast-container {
+  position: fixed;
+  bottom: var(--sp-6);
+  right: var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  z-index: 200;
+}
