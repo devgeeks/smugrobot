@@ -77,6 +77,8 @@ const adapter = localStorageAdapter()               // prefix defaults to 'echid
 const adapter = localStorageAdapter('myapp:vault:') // custom prefix
 ```
 
+Like the IndexedDB adapter below, this requests [persistent storage](https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/persist) on init — see that section for details.
+
 ### Browser (IndexedDB)
 
 Async, binary-native storage with much higher quotas than `localStorage` (typically up to ~60% of available disk). Requires no encoding overhead — `Uint8Array` values are stored directly.
@@ -167,6 +169,8 @@ No SDK dependency — the adapter uses `fetch` and `crypto.subtle` directly.
 Wraps a PouchDB instance you construct and own, so it can double as the local half of a `.sync()` against a remote CouchDB server. Values are stored as real CouchDB attachments (not inline base64 fields), so they replicate efficiently and stay interoperable with other CouchDB tooling inspecting the database.
 
 `pouchdb` is a **peer dependency** — install it separately (`pouchdb`, `pouchdb-browser`, `pouchdb-node`, or a React Native build, whichever matches your environment).
+
+In browsers, `pouchdb-browser` is typically backed by IndexedDB, so this adapter also requests [persistent storage](https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/persist) on init — see the IndexedDB section above for what that does and doesn't protect against.
 
 > **Note:** echidna.js only implements local storage through this adapter. Remote sync — the CouchDB URL, auth, live replication, retry policy — is your app's responsibility, driven directly against the same PouchDB instance you pass in.
 

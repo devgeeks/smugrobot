@@ -67,6 +67,10 @@ async function currentRev(db: PouchDbLike, id: string): Promise<string | undefin
 export function pouchDbAdapter(db: PouchDbLike, options: PouchDbAdapterOptions = {}): StorageAdapter {
   const maxRetries = options.maxRetries ?? DEFAULT_MAX_RETRIES
 
+  if (typeof navigator !== "undefined" && navigator.storage?.persist) {
+    navigator.storage.persist().catch(() => {})
+  }
+
   return {
     async get(key: string): Promise<Uint8Array | null> {
       try {

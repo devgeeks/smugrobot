@@ -192,6 +192,7 @@ Each adapter is a separate file and a separate package.json `exports` entry so c
 - Uses `window.localStorage`
 - Encodes `Uint8Array` as base64 strings for storage
 - Guard against `localStorage` being unavailable (SSR)
+- On init, calls `navigator.storage.persist()` (same guarded, fire-and-forget pattern as the IndexedDB adapter — see below) since this origin's storage is otherwise subject to the same best-effort eviction
 
 ### `src/adapters/node-fs.ts`
 - Stores each key as a file under a root directory
@@ -213,6 +214,7 @@ Each adapter is a separate file and a separate package.json `exports` entry so c
 - Stores each value as a CouchDB attachment (base64-transported, binary at rest) rather than an inline JSON field
 - `set`/`delete` read the current `_rev` before writing and retry on 409 conflicts; `delete` on a missing key is a no-op
 - `pouchdb` is a **peer dependency** — not installed by echidna; only its structural shape is relied on (no `@types/pouchdb-core` needed)
+- On init, calls `navigator.storage.persist()` (same guarded, fire-and-forget pattern as the IndexedDB adapter) since browser PouchDB builds are typically IndexedDB-backed
 
 ---
 

@@ -25,6 +25,10 @@ function getStorage(): Storage {
 }
 
 export function localStorageAdapter(keyPrefix = "echidna:"): StorageAdapter {
+  if (typeof navigator !== "undefined" && navigator.storage?.persist) {
+    navigator.storage.persist().catch(() => {})
+  }
+
   return {
     async get(key: string): Promise<Uint8Array | null> {
       const value = getStorage().getItem(keyPrefix + key)

@@ -7,8 +7,50 @@ import PouchDB from "pouchdb"
 import { memoryAdapter } from "../src/adapters/memory"
 import { nodeFsAdapter } from "../src/adapters/node-fs"
 import { indexedDbAdapter } from "../src/adapters/indexeddb"
-import { pouchDbAdapter } from "../src/adapters/pouchdb"
+import { pouchDbAdapter, type PouchDbLike } from "../src/adapters/pouchdb"
+import { localStorageAdapter } from "../src/adapters/localstorage"
 import type { StorageAdapter } from "../src/types"
+
+function mockNavigatorStorage(value: { persist: ReturnType<typeof vi.fn> } | undefined) {
+  Object.defineProperty(globalThis.navigator, "storage", { value, configurable: true })
+}
+
+function restoreNavigatorStorage() {
+  Object.defineProperty(globalThis.navigator, "storage", {
+    value: originalNavigatorStorage,
+    configurable: true,
+  })
+}
+
+const originalNavigatorStorage = globalThis.navigator?.storage
+
+/** Covers adapter constructors that fire-and-forget navigator.storage.persist() on init. */
+function persistenceRequestSuite(name: string, init: () => unknown) {
+  describe(`${name} persistence request`, () => {
+    afterEach(restoreNavigatorStorage)
+
+    it("requests persistent storage on init", async () => {
+      const persist = vi.fn().mockResolvedValue(true)
+      mockNavigatorStorage({ persist })
+
+      await init()
+
+      expect(persist).toHaveBeenCalledOnce()
+    })
+
+    it("does not throw when persist() rejects", async () => {
+      mockNavigatorStorage({ persist: vi.fn().mockRejectedValue(new Error("denied")) })
+
+      await expect(Promise.resolve(init())).resolves.toBeDefined()
+    })
+
+    it("does not throw when navigator.storage is unavailable", async () => {
+      mockNavigatorStorage(undefined)
+
+      await expect(Promise.resolve(init())).resolves.toBeDefined()
+    })
+  })
+}
 
 type AdapterFactory = () => Promise<{ adapter: StorageAdapter; cleanup?: () => Promise<void> }>
 
@@ -87,52 +129,21 @@ adapterSuite("indexeddb adapter", async () => {
   return { adapter: await indexedDbAdapter(dbName) }
 })
 
-describe("indexeddb adapter persistence request", () => {
-  const originalStorage = globalThis.navigator?.storage
+persistenceRequestSuite("indexeddb adapter", () => {
+  globalThis.indexedDB = new IDBFactory()
+  return indexedDbAdapter(`echidna-test-${Math.random().toString(36).slice(2)}`)
+})
 
-  afterEach(() => {
-    Object.defineProperty(globalThis.navigator, "storage", {
-      value: originalStorage,
-      configurable: true,
-    })
-  })
+persistenceRequestSuite("localstorage adapter", () => localStorageAdapter())
 
-  it("requests persistent storage on init", async () => {
-    globalThis.indexedDB = new IDBFactory()
-    const persist = vi.fn().mockResolvedValue(true)
-    Object.defineProperty(globalThis.navigator, "storage", {
-      value: { persist },
-      configurable: true,
-    })
-
-    await indexedDbAdapter(`echidna-test-${Math.random().toString(36).slice(2)}`)
-
-    expect(persist).toHaveBeenCalledOnce()
-  })
-
-  it("does not throw when persist() rejects", async () => {
-    globalThis.indexedDB = new IDBFactory()
-    Object.defineProperty(globalThis.navigator, "storage", {
-      value: { persist: vi.fn().mockRejectedValue(new Error("denied")) },
-      configurable: true,
-    })
-
-    await expect(
-      indexedDbAdapter(`echidna-test-${Math.random().toString(36).slice(2)}`),
-    ).resolves.toBeDefined()
-  })
-
-  it("does not throw when navigator.storage is unavailable", async () => {
-    globalThis.indexedDB = new IDBFactory()
-    Object.defineProperty(globalThis.navigator, "storage", {
-      value: undefined,
-      configurable: true,
-    })
-
-    await expect(
-      indexedDbAdapter(`echidna-test-${Math.random().toString(36).slice(2)}`),
-    ).resolves.toBeDefined()
-  })
+persistenceRequestSuite("pouchdb adapter", () => {
+  const stubDb: PouchDbLike = {
+    get: () => Promise.reject(new Error("unused in this test")),
+    put: () => Promise.reject(new Error("unused in this test")),
+    remove: () => Promise.reject(new Error("unused in this test")),
+    allDocs: () => Promise.reject(new Error("unused in this test")),
+  }
+  return pouchDbAdapter(stubDb)
 })
 
 adapterSuite("pouchdb adapter", async () => {
