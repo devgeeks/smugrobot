@@ -4,8 +4,8 @@ const initial: AppState = {
   config: {
     dataTypes: ['json', 'text', 'image'],
     sizes: [1_024, 100_000, 1_000_000, 10_000_000],
-    adapter: 'memory',
-    keySource: 'raw',
+    adapter: 'indexeddb',
+    keySource: 'passphrase',
     iterations: 5,
   },
   running: false,

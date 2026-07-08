@@ -18,8 +18,8 @@ export class ConfigPanel {
   el: HTMLElement
   private selectedDataTypes = new Set<DataType>(['json', 'text', 'image'])
   private selectedSizes = new Set<number>([1_024, 100_000, 1_000_000, 10_000_000])
-  private adapter: AdapterId = 'memory'
-  private keySource: KeySourceId = 'raw'
+  private adapter: AdapterId = 'indexeddb'
+  private keySource: KeySourceId = 'passphrase'
   private iterations = 5
   private runBtn: HTMLElement
 
@@ -56,11 +56,11 @@ export class ConfigPanel {
       </fieldset>
 
       <div class="config-row">
-        <vault-select label="Storage adapter" value="memory">
+        <vault-select label="Storage adapter" value="indexeddb">
           <option value="memory">Memory (pure cipher speed)</option>
           <option value="indexeddb">IndexedDB (browser persistence)</option>
         </vault-select>
-        <vault-select label="Key source" value="raw">
+        <vault-select label="Key source" value="passphrase">
           <option value="raw">Raw key (skip KDF)</option>
           <option value="passphrase">Passphrase (scrypt)</option>
         </vault-select>
