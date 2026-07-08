@@ -1,7 +1,7 @@
 import { createEncryptedStore } from 'echidna.js'
 import type { BenchConfig, BenchEvent } from '../state/types.js'
 import { buildAdapter } from './adapters.js'
-import { generatePayload } from './generators.js'
+import { preparePayload } from './generators.js'
 import { summarize, formatSizeLabel } from './stats.js'
 
 const TEST_PASSPHRASE = 'echidna-bench-passphrase'
@@ -41,14 +41,21 @@ export async function* runBenchmark(config: BenchConfig): AsyncGenerator<BenchEv
 
       for (let i = 0; i < config.iterations; i++) {
         const id = `bench-${docCounter++}`
-        const payload = generatePayload(dataType, sizeBytes)
+        const prepared = preparePayload(dataType, sizeBytes)
 
+        // For images, encode() does the base64 conversion a real app must pay
+        // for on every write — timed here as part of "encrypt" rather than
+        // hidden in untimed test-data setup.
         const setStart = performance.now()
-        await store.set(id, payload, { title: id })
+        const body = prepared.encode()
+        await store.set(id, body, { title: id })
         encryptDurations.push(performance.now() - setStart)
 
+        // Symmetric: decode() base64-decodes an image body back to bytes,
+        // timed here as part of "decrypt".
         const getStart = performance.now()
-        await store.get(id)
+        const returned = await store.get(id)
+        if (returned !== null) prepared.decode(returned)
         decryptDurations.push(performance.now() - getStart)
 
         await store.delete(id)

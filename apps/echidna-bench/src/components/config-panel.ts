@@ -1,10 +1,10 @@
 import type { BenchConfig, DataType, AdapterId, KeySourceId } from '../state/types.js'
 import { showToast } from '../utils/toast.js'
 
-const DATA_TYPE_OPTIONS: Array<{ id: DataType; label: string }> = [
+const DATA_TYPE_OPTIONS: Array<{ id: DataType; label: string; hint?: string }> = [
   { id: 'json', label: 'JSON blob' },
   { id: 'text', label: 'Text document' },
-  { id: 'image', label: 'Image (binary)' },
+  { id: 'image', label: 'Image (binary)', hint: 'Throughput includes base64 encode/decode, not just cipher speed' },
 ]
 
 const SIZE_OPTIONS: Array<{ bytes: number; label: string }> = [
@@ -36,7 +36,9 @@ export class ConfigPanel {
         <div class="toggle-row" data-group="data-type">
           ${DATA_TYPE_OPTIONS.map(
             (opt) =>
-              `<vault-toggle data-value="${opt.id}" label="${opt.label}" checked></vault-toggle>`,
+              `<vault-toggle data-value="${opt.id}" label="${opt.label}" ${
+                opt.hint ? `hint="${opt.hint}"` : ''
+              } checked></vault-toggle>`,
           ).join('')}
         </div>
       </fieldset>

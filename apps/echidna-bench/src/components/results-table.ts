@@ -17,6 +17,7 @@ function formatThroughput(mbs: number): string {
 export class ResultsTable {
   el: HTMLElement
   private kdfNote: HTMLElement
+  private imageNote: HTMLElement
   private tbody: HTMLElement
 
   constructor() {
@@ -24,6 +25,7 @@ export class ResultsTable {
     this.el.className = 'results-panel'
     this.el.innerHTML = `
       <p class="kdf-note" hidden></p>
+      <p class="image-note" hidden>* Image throughput includes base64 encode/decode time, not just echidna.js's cipher — that conversion is a real cost any app storing binary data through its string-only API must pay.</p>
       <table class="results-table">
         <thead>
           <tr>
@@ -39,6 +41,7 @@ export class ResultsTable {
       </table>
     `
     this.kdfNote = this.el.querySelector('.kdf-note')!
+    this.imageNote = this.el.querySelector('.image-note')!
     this.tbody = this.el.querySelector('tbody')!
   }
 
@@ -50,11 +53,13 @@ export class ResultsTable {
       this.kdfNote.hidden = true
     }
 
+    this.imageNote.hidden = !results.some((r) => r.dataType === 'image')
+
     this.tbody.innerHTML = results
       .map(
         (r) => `
           <tr>
-            <td>${DATA_TYPE_LABELS[r.dataType] ?? r.dataType}</td>
+            <td>${DATA_TYPE_LABELS[r.dataType] ?? r.dataType}${r.dataType === 'image' ? ' *' : ''}</td>
             <td>${r.sizeLabel}</td>
             <td>${formatMs(r.encrypt.meanMs)} / ${formatMs(r.encrypt.medianMs)}</td>
             <td>${formatThroughput(r.encrypt.throughputMBs)}</td>
