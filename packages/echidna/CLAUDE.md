@@ -198,6 +198,11 @@ Each adapter is a separate file and a separate package.json `exports` entry so c
 - Key `docs/abc/meta` → `{rootDir}/docs/abc/meta` (mkdir -p as needed)
 - Uses `node:fs/promises` — no extra dependencies
 
+### `src/adapters/indexeddb.ts`
+- Async, binary-native storage via raw `IDBDatabase` — no base64 encoding overhead, much higher quota than `localStorage`
+- `indexedDbAdapter(dbName = 'echidna', storeName = 'vault')` opens (or creates) a single object store keyed by the adapter's string keys
+- On init, calls `navigator.storage.persist()` (guarded by feature detection, `.catch(() => {})` on rejection) to request exemption from the browser's best-effort storage eviction. Fire-and-forget — never blocks or fails adapter creation if unsupported or denied.
+
 ### `src/adapters/async-storage.ts`
 - Wraps `@react-native-async-storage/async-storage`
 - That package is a **peer dependency** — not installed by echidna

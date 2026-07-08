@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest"
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
 import { mkdtemp, rm } from "node:fs/promises"
 import { join } from "node:path"
 import { tmpdir } from "node:os"
@@ -85,6 +85,54 @@ adapterSuite("indexeddb adapter", async () => {
   globalThis.indexedDB = idb
   const dbName = `echidna-test-${Math.random().toString(36).slice(2)}`
   return { adapter: await indexedDbAdapter(dbName) }
+})
+
+describe("indexeddb adapter persistence request", () => {
+  const originalStorage = globalThis.navigator?.storage
+
+  afterEach(() => {
+    Object.defineProperty(globalThis.navigator, "storage", {
+      value: originalStorage,
+      configurable: true,
+    })
+  })
+
+  it("requests persistent storage on init", async () => {
+    globalThis.indexedDB = new IDBFactory()
+    const persist = vi.fn().mockResolvedValue(true)
+    Object.defineProperty(globalThis.navigator, "storage", {
+      value: { persist },
+      configurable: true,
+    })
+
+    await indexedDbAdapter(`echidna-test-${Math.random().toString(36).slice(2)}`)
+
+    expect(persist).toHaveBeenCalledOnce()
+  })
+
+  it("does not throw when persist() rejects", async () => {
+    globalThis.indexedDB = new IDBFactory()
+    Object.defineProperty(globalThis.navigator, "storage", {
+      value: { persist: vi.fn().mockRejectedValue(new Error("denied")) },
+      configurable: true,
+    })
+
+    await expect(
+      indexedDbAdapter(`echidna-test-${Math.random().toString(36).slice(2)}`),
+    ).resolves.toBeDefined()
+  })
+
+  it("does not throw when navigator.storage is unavailable", async () => {
+    globalThis.indexedDB = new IDBFactory()
+    Object.defineProperty(globalThis.navigator, "storage", {
+      value: undefined,
+      configurable: true,
+    })
+
+    await expect(
+      indexedDbAdapter(`echidna-test-${Math.random().toString(36).slice(2)}`),
+    ).resolves.toBeDefined()
+  })
 })
 
 adapterSuite("pouchdb adapter", async () => {

@@ -29,6 +29,10 @@ export async function indexedDbAdapter(
   dbName = "echidna",
   storeName = "vault",
 ): Promise<StorageAdapter> {
+  if (typeof navigator !== "undefined" && navigator.storage?.persist) {
+    await navigator.storage.persist().catch(() => {})
+  }
+
   const db = await openDB(dbName, storeName)
 
   return {

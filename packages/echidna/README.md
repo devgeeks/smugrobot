@@ -88,6 +88,8 @@ const adapter = await indexedDbAdapter()                        // db 'echidna',
 const adapter = await indexedDbAdapter('myapp', 'documents')   // custom db and store names
 ```
 
+On init, the adapter calls [`navigator.storage.persist()`](https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/persist) to request exemption from the browser's automatic "best-effort" storage eviction (which can otherwise clear IndexedDB data under disk pressure — Safari is particularly aggressive here). This is best-effort: the call is skipped where unsupported (e.g. Safari doesn't implement the API) and never throws if the browser declines the request. It does **not** protect against a user explicitly clearing site data or uninstalling the app.
+
 ### React Native (expo-file-system)
 
 Binary-native filesystem storage for Expo apps. No size constraints beyond device storage, and no base64 overhead — `Uint8Array` values are written directly to disk. Requires `expo-file-system` v17+ as a peer dependency.
