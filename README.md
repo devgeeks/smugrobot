@@ -2,6 +2,8 @@
 
 Privacy-focused tools for local-first computing.
 
+NOTE: This is still a work in progress. Check any use of cryptography before using it.
+
 ## What is smugrobot?
 
 smugrobot is a monorepo of tools built around one principle: your data is encrypted on your device before it goes anywhere. There is no backend, no account, and no sync service that can read your content. If you use Dropbox to sync across devices, Dropbox only ever receives opaque ciphertext — the encryption key never leaves the device that holds it.
