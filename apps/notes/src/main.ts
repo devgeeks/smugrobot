@@ -25,6 +25,11 @@ if (import.meta.env.DEV && 'serviceWorker' in navigator) {
 
 VaultTheme.init()
 
+const versionBadge = document.createElement('div')
+versionBadge.className = 'app-version-badge'
+versionBadge.textContent = `v${__APP_VERSION__}`
+document.body.appendChild(versionBadge)
+
 const root = document.getElementById('app')!
 
 let currentScreen = ''

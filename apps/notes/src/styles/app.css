@@ -365,6 +365,19 @@ body {
   pointer-events: all;
 }
 
+.app-version-badge {
+  position: fixed;
+  right: var(--sp-2);
+  bottom: var(--sp-2);
+  z-index: 50;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  opacity: 0.6;
+  pointer-events: none;
+  user-select: none;
+}
+
 .dialog-overlay {
   position: fixed;
   inset: 0;
