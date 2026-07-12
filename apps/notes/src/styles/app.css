@@ -373,7 +373,6 @@ body {
   font-family: var(--font-body);
   font-size: var(--text-xs);
   color: var(--text-muted);
-  opacity: 0.6;
   pointer-events: none;
   user-select: none;
 }
