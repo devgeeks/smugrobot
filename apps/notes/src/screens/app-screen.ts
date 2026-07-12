@@ -88,8 +88,10 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
       state.selectedNoteId !== null &&
       state.selectedNoteId !== editorPane.currentNoteId
     ) {
+      await editorPane.flushPendingSave()
       await editorPane.loadNote(state.selectedNoteId)
     } else if (state.selectedNoteId === null && editorPane.currentNoteId !== null) {
+      await editorPane.flushPendingSave()
       editorPane.clearNote()
     }
   })

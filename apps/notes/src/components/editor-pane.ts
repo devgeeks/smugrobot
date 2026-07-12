@@ -16,6 +16,7 @@ export class EditorPane {
   private editor: Editor | null = null
   private saveTimer: ReturnType<typeof setTimeout> | null = null
   private pendingMarkdown = ''
+  private pendingSaveNoteId: string | null = null
   private lastSavedMarkdown = ''
   currentNoteId: string | null = null
   private lockBtn!: HTMLElement
@@ -129,14 +130,17 @@ export class EditorPane {
 
   private scheduleAutoSave(markdown: string): void {
     if (!this.currentNoteId || markdown === this.lastSavedMarkdown) return
+    const noteId = this.currentNoteId
+    this.pendingSaveNoteId = noteId
     if (this.saveTimer) clearTimeout(this.saveTimer)
     dispatch({ type: 'NOTE_SAVE_START' })
-    this.saveTimer = setTimeout(() => this.doSave(markdown), 800)
+    this.saveTimer = setTimeout(() => {
+      this.saveTimer = null
+      this.doSave(noteId, markdown)
+    }, 800)
   }
 
-  private async doSave(markdown: string): Promise<void> {
-    const noteId = this.currentNoteId
-    if (!noteId) return
+  private async doSave(noteId: string, markdown: string): Promise<void> {
     const state = getState()
     if (!state.store) return
     const title = deriveTitleFromMarkdown(markdown)
@@ -146,15 +150,18 @@ export class EditorPane {
       type: 'note',
       folderId: existingMeta ? (existingMeta['folderId'] ?? null) : state.selectedFolderId,
     })
-    this.lastSavedMarkdown = markdown
+    if (noteId === this.currentNoteId) this.lastSavedMarkdown = markdown
     dispatch({ type: 'NOTE_SAVE_DONE', meta: meta as NoteMeta })
   }
 
   async flushPendingSave(): Promise<void> {
-    if (this.saveTimer) {
+    if (this.saveTimer && this.pendingSaveNoteId) {
       clearTimeout(this.saveTimer)
       this.saveTimer = null
-      await this.doSave(this.pendingMarkdown)
+      const noteId = this.pendingSaveNoteId
+      const markdown = this.pendingMarkdown
+      this.pendingSaveNoteId = null
+      await this.doSave(noteId, markdown)
     }
   }
 
