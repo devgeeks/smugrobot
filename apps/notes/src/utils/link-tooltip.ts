@@ -158,6 +158,13 @@ export const linkTooltip = $prose(() => {
           // Don't override an actively-focused tooltip
           if (t.contains(document.activeElement)) return
 
+          // Only auto-show for a collapsed cursor inside the link; a range
+          // selection spanning into/across a link should remain selectable.
+          if (!view.state.selection.empty) {
+            hide()
+            return
+          }
+
           const link = findLinkMark(view)
           if (link) {
             if (link.href !== currentHref || t.style.display === 'none') {
