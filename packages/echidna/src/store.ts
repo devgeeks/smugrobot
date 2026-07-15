@@ -30,6 +30,38 @@ function decodeJson<T>(bytes: Uint8Array): T {
   return JSON.parse(decoder.decode(bytes)) as T
 }
 
+// Control characters (C0 range + DEL) break file-path backends and are never
+// meaningful in a document id.
+const CONTROL_CHARS = /[\u0000-\u001f\u007f]/
+
+/**
+ * Validates a document id before it is baked into a `docs/{id}/...` storage key.
+ *
+ * Ids become a path segment in the adapter's forward-slash namespace, so a `/`
+ * would split one document across keys `list()` can't recompose (and could
+ * collide two ids), and `.`/`..` could traverse the namespace on path-based
+ * adapters (e.g. node-fs). Rejecting them keeps behaviour identical across all
+ * adapters. Note: no on-disk format changes for valid ids, so existing vaults
+ * are unaffected.
+ *
+ * @throws {EchidnaJsError} `INVALID_ID` if the id is empty, contains `/` or a
+ *   control character, or is `.`/`..`.
+ */
+function assertValidId(id: string): void {
+  if (typeof id !== "string" || id.length === 0) {
+    throw new EchidnaJsError("Document id must be a non-empty string", "INVALID_ID")
+  }
+  if (id.includes("/")) {
+    throw new EchidnaJsError(`Document id must not contain "/": ${JSON.stringify(id)}`, "INVALID_ID")
+  }
+  if (id === "." || id === "..") {
+    throw new EchidnaJsError(`Document id must not be "." or "..": ${JSON.stringify(id)}`, "INVALID_ID")
+  }
+  if (CONTROL_CHARS.test(id)) {
+    throw new EchidnaJsError("Document id must not contain control characters", "INVALID_ID")
+  }
+}
+
 async function resolveKey(
   keySource: KeySource,
   salt: Uint8Array,
@@ -79,6 +111,7 @@ export class DocStore {
   }
 
   async set(id: string, body: string, meta?: SetMetaOptions): Promise<DocMeta> {
+    assertValidId(id)
     const encrypted = encrypt(body, this.#key, id)
     const now = Date.now()
     const existingMeta = await this.getMeta(id)
@@ -101,18 +134,21 @@ export class DocStore {
   }
 
   async get(id: string): Promise<string | null> {
+    assertValidId(id)
     const blob = await this.#adapter.get(`docs/${id}/body`)
     if (blob === null) return null
     return decrypt(blob, this.#key, id)
   }
 
   async getMeta(id: string): Promise<DocMeta | null> {
+    assertValidId(id)
     const bytes = await this.#adapter.get(`docs/${id}/meta`)
     if (bytes === null) return null
     return decodeJson<DocMeta>(bytes)
   }
 
   async updateMeta(id: string, meta: SetMetaOptions): Promise<DocMeta> {
+    assertValidId(id)
     const existing = await this.getMeta(id)
     if (existing === null) {
       throw new EchidnaJsError(`Document not found: ${id}`, "NOT_FOUND")
@@ -123,22 +159,21 @@ export class DocStore {
   }
 
   async delete(id: string): Promise<void> {
+    assertValidId(id)
     await this.#adapter.delete(`docs/${id}/meta`)
     await this.#adapter.delete(`docs/${id}/body`)
   }
 
   async list(options?: ListOptions): Promise<DocMeta[]> {
+    // Read each doc's plaintext meta record directly from its `docs/{id}/meta`
+    // key. The id lives inside the meta JSON, so there is no need to recompose
+    // it from the key path — which is what previously mis-parsed ids.
     const keys = await this.#adapter.list("docs/")
-    const ids = new Set<string>()
-    for (const key of keys) {
-      const id = key.split("/")[1]
-      if (id) ids.add(id)
-    }
-
     const metas: DocMeta[] = []
-    for (const id of ids) {
-      const meta = await this.getMeta(id)
-      if (meta !== null) metas.push(meta)
+    for (const key of keys) {
+      if (!key.endsWith("/meta")) continue
+      const bytes = await this.#adapter.get(key)
+      if (bytes !== null) metas.push(decodeJson<DocMeta>(bytes))
     }
 
     return metas.filter((meta) => {

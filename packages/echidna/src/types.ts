@@ -59,6 +59,7 @@ export type EchidnaJsErrorCode =
   | "TAMPERED"
   | "NEEDS_MIGRATION"
   | "INVALID_KEY"
+  | "INVALID_ID"
   | "NOT_FOUND"
   | "KDF_FAILED"
   | "VAULT_EXISTS"

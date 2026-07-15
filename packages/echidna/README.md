@@ -252,6 +252,11 @@ Encrypts and writes a document. Generates a fresh nonce on every write. Returns 
 
 On overwrite, `createdAt` is preserved and `updatedAt` is bumped.
 
+The `id` becomes a segment in the adapter's key namespace, so it must be a
+non-empty string that does not contain `/` or control characters and is not `.`
+or `..`. Invalid ids throw `EchidnaJsError('INVALID_ID')` (from every id-taking
+method). Use opaque ids such as UUIDs; keep any human-readable label in `title`.
+
 ```ts
 const meta = await store.set('doc-id', 'plaintext body', {
   title: 'My document',
@@ -410,6 +415,7 @@ try {
 | `CORRUPT_BLOB` | Encrypted blob is malformed or has an unknown version byte |
 | `TAMPERED` | Blob decrypted cleanly but is bound to a different document id (body substituted from another document) |
 | `NEEDS_MIGRATION` | Body is a legacy `0x01` blob — call `store.migrate()` to upgrade the vault |
+| `INVALID_ID` | Document id is empty, contains `/` or a control character, or is `.`/`..` |
 | `NOT_FOUND` | Document id does not exist (only from `updateMeta`) |
 | `KDF_FAILED` | Key derivation threw an unexpected error |
 | `VAULT_NOT_FOUND` | Adapter has no vault initialised |

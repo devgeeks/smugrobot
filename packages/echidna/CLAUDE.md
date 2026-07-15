@@ -28,6 +28,12 @@ docs/{id}/meta       →  JSON (plaintext): DocMeta
 docs/{id}/body       →  binary (Uint8Array, encrypted)
 ```
 
+`{id}` is a single key segment: it must be a non-empty string with no `/` or
+control characters and must not be `.` or `..`. Every id-taking `DocStore`
+method validates this and throws `EchidnaJsError('INVALID_ID')` otherwise, so
+`list()` can read `docs/{id}/meta` records directly without re-parsing ids out
+of key paths.
+
 ### Encrypted body blob format
 
 ```
@@ -110,6 +116,7 @@ export type EchidnaJsErrorCode =
   | 'CORRUPT_BLOB'      // blob too short, bad version byte, or malformed authenticated message
   | 'TAMPERED'          // blob authenticated but is bound to a different document id
   | 'NEEDS_MIGRATION'   // legacy 0x01 body; run store.migrate() to upgrade
+  | 'INVALID_ID'        // doc id is empty, contains "/" or a control char, or is "."/".."
   | 'NOT_FOUND'         // doc id does not exist
   | 'KDF_FAILED'        // key derivation threw
   | 'VAULT_EXISTS'      // tried to init an already-initialised vault

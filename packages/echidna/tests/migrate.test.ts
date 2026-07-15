@@ -77,12 +77,6 @@ describe("migrate", () => {
     expect(await store.get("doc1")).toBe("hello")
   })
 
-  it("migrate binds ids that contain slashes to the same id get() uses", async () => {
-    const { store } = await legacyVault({ "folder/note": "nested body" })
-    await store.migrate()
-    expect(await store.get("folder/note")).toBe("nested body")
-  })
-
   it("migrate does not rewrite already-0x02 bodies", async () => {
     const adapter = memoryAdapter()
     const store = await createEncryptedStore({
