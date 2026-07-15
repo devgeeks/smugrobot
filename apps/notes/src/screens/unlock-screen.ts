@@ -100,11 +100,21 @@ export function mountUnlockScreen(root: HTMLElement): () => void {
       if (creating) {
         store = await createVault(currentState.adapter, passphrase)
       } else {
-        const result = await openVault(currentState.adapter, passphrase, (p) => {
-          const pct = Math.round(p * 100)
-          progressBar.style.width = `${pct}%`
-          progressLabel.textContent = `Unlocking private notes… ${pct}%`
-        })
+        const result = await openVault(
+          currentState.adapter,
+          passphrase,
+          (p) => {
+            const pct = Math.round(p * 100)
+            progressBar.style.width = `${pct}%`
+            progressLabel.textContent = `Unlocking private notes… ${pct}%`
+          },
+          () => {
+            // One-time upgrade from the legacy 0.1.0 vault format. migrate() has
+            // no progress signal, so fill the bar and swap the label.
+            progressBar.style.width = '100%'
+            progressLabel.textContent = 'Upgrading your notes…'
+          },
+        )
         store = result.store
         saveKeyToSession(result.key)
       }

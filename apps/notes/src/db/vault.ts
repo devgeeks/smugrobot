@@ -67,6 +67,27 @@ async function deriveKey(
   return new Uint8Array(bits)
 }
 
+// ── Migration ────────────────────────────────────────────────────────────────
+
+/**
+ * Upgrade a legacy echidna 0.1.0 vault (0x01 bodies) to the 0.2.0 format in
+ * place. No-op on an already-current vault (a single `vault/version` read).
+ *
+ * `store.migrate()` decrypts legacy bodies with the vault key, so it also
+ * surfaces `EchidnaJsError('WRONG_KEY')` for a bad key — letting it double as
+ * key verification on a legacy vault, where the sentinel read below would
+ * otherwise throw `NEEDS_MIGRATION` regardless of key correctness.
+ */
+async function ensureMigrated(
+  store: Awaited<ReturnType<typeof createEncryptedStore>>,
+  onMigrateStart?: () => void,
+): Promise<void> {
+  if (await store.needsMigration()) {
+    onMigrateStart?.()
+    await store.migrate()
+  }
+}
+
 // ── Public API ───────────────────────────────────────────────────────────────
 
 export async function detectVault(): Promise<{ adapter: StorageAdapter; exists: boolean }> {
@@ -89,6 +110,7 @@ export async function openVault(
   adapter: StorageAdapter,
   passphrase: string,
   onProgress?: (p: number) => void,
+  onMigrateStart?: () => void,
 ): Promise<{ store: Awaited<ReturnType<typeof createEncryptedStore>>; key: Uint8Array }> {
   const kdf = await readVaultKdf(adapter)
   if (!kdf) throw new Error('Vault not found')
@@ -99,6 +121,11 @@ export async function openVault(
     adapter,
     keySource: { type: 'raw', key },
   })
+
+  // Upgrade a legacy 0.1.0 vault before any body is read. On a legacy vault this
+  // also verifies the key (throws WRONG_KEY on a bad passphrase); on a current
+  // vault it is a no-op and the sentinel read below does the verification.
+  await ensureMigrated(store, onMigrateStart)
 
   // Verify the key — throws EchidnaJsError('WRONG_KEY') if bad passphrase
   await store.get(SENTINEL_ID)
@@ -112,8 +139,11 @@ export async function openVaultFromKey(adapter: StorageAdapter, key: Uint8Array)
     adapter,
     keySource: { type: 'raw', key },
   })
-  // Verify the key is still valid (vault may have been recreated)
+  // Upgrade a legacy vault, then verify the key is still valid (the vault may
+  // have been recreated). This resume path has no unlock UI, so migration runs
+  // silently. A WRONG_KEY from either step means the cached key is stale.
   try {
+    await ensureMigrated(store)
     await store.get(SENTINEL_ID)
   } catch (err) {
     if (err instanceof EchidnaJsError && err.code === 'WRONG_KEY') {
