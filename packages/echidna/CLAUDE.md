@@ -10,6 +10,7 @@ echidna.js is a TypeScript library for storing arbitrary text documents encrypte
 - Key derivation: scrypt-js or PBKDF2 from a user passphrase, or a raw 32-byte key
 - Salt: 16 random bytes, generated once at vault creation, stored plaintext at `vault/salt`
 - Nonce: 24 random bytes, generated fresh per write, prepended to the ciphertext blob
+- Document binding: the document id is bound into the authenticated message as additional authenticated data (secretbox has no AAD parameter, so it is prepended, length-framed, inside the MAC-protected plaintext). A blob transplanted to another id decrypts under the vault key but fails the id check — surface this as a typed `TAMPERED` error. This does not defend against same-document rollback (no trusted version anchor).
 - Wrong key signal: `nacl.secretbox.open` returns `null` — surface this as a typed error, never return garbage
 - The salt is not secret — it exists only to prevent precomputation attacks across vaults
 
@@ -22,6 +23,7 @@ All keys use forward-slash namespacing within the adapter:
 ```
 vault/salt           →  16 raw bytes (Uint8Array, plaintext)
 vault/kdf            →  JSON (plaintext): { algo, ...params }
+vault/version        →  JSON (plaintext): on-disk format version (number, currently 2)
 docs/{id}/meta       →  JSON (plaintext): DocMeta
 docs/{id}/body       →  binary (Uint8Array, encrypted)
 ```
@@ -32,9 +34,9 @@ docs/{id}/body       →  binary (Uint8Array, encrypted)
 [ version: 1 byte ][ nonce: 24 bytes ][ ciphertext: N bytes ]
 ```
 
-- `version` is currently `0x01` — reserved for future algorithm migration
+- `version` is currently `0x02`. `0x01` (which omitted the id binding below) is no longer readable and surfaces as `CORRUPT_BLOB`
 - `nonce` is stored with the blob so each write is independently decryptable
-- `ciphertext` is the output of `nacl.secretbox(plaintextBytes, nonce, key)`
+- `ciphertext` is `nacl.secretbox(message, nonce, key)`, where `message` is the authenticated framing `[ uint32BE(idLen) ][ id ][ plaintextBytes ]` — the id (additional authenticated data) is verified on decrypt and must match the id being read
 
 ---
 
@@ -105,7 +107,9 @@ export class EchidnaJsError extends Error {
 
 export type EchidnaJsErrorCode =
   | 'WRONG_KEY'         // secretbox.open returned null
-  | 'CORRUPT_BLOB'      // blob too short or bad version byte
+  | 'CORRUPT_BLOB'      // blob too short, bad version byte, or malformed authenticated message
+  | 'TAMPERED'          // blob authenticated but is bound to a different document id
+  | 'NEEDS_MIGRATION'   // legacy 0x01 body; run store.migrate() to upgrade
   | 'NOT_FOUND'         // doc id does not exist
   | 'KDF_FAILED'        // key derivation threw
   | 'VAULT_EXISTS'      // tried to init an already-initialised vault
@@ -148,6 +152,14 @@ export class DocStore {
 
   // Permanently destroy the vault (all docs + vault keys). Use with care.
   async destroy(): Promise<void>
+
+  // True if the vault predates the current format (missing/old vault/version)
+  // and should be upgraded with migrate(). Cheap: one vault/version read.
+  async needsMigration(): Promise<boolean>
+
+  // Re-encrypt legacy 0x01 bodies to 0x02 (id-bound). Idempotent, resumable;
+  // rewrites bodies only (meta untouched). Returns { scanned, upgraded }.
+  async migrate(): Promise<{ scanned: number; upgraded: number }>
 }
 ```
 
@@ -166,15 +178,23 @@ export class DocStore {
 ## Crypto Primitives (`src/core/crypto.ts`)
 
 ```ts
-export function encrypt(plaintext: string, key: Uint8Array): Uint8Array
-// Returns: [0x01][nonce(24)][ciphertext]
+export function encrypt(plaintext: string, key: Uint8Array, aad: string): Uint8Array
+// aad is the document id, bound into the authenticated message.
+// Returns: [0x02][nonce(24)][ secretbox( [uint32BE(idLen)][id][plaintext] ) ]
 
-export function decrypt(blob: Uint8Array, key: Uint8Array): string
-// Throws EchidnaJsError('CORRUPT_BLOB') if blob is malformed
+export function decrypt(blob: Uint8Array, key: Uint8Array, aad: string): string
+// Throws EchidnaJsError('CORRUPT_BLOB') if blob/message is malformed
 // Throws EchidnaJsError('WRONG_KEY') if secretbox.open returns null
+// Throws EchidnaJsError('TAMPERED') if the embedded id !== aad
+// Throws EchidnaJsError('NEEDS_MIGRATION') on a legacy 0x01 blob
 
+export function decryptLegacyV1(blob: Uint8Array, key: Uint8Array): string
+// Decrypts a legacy 0x01 blob (no id binding). Used ONLY by store.migrate();
+// not re-exported from index.ts. Ordinary reads must go through decrypt().
+
+export function blobVersion(blob: Uint8Array): number   // blob[0], throws CORRUPT_BLOB if empty
 export function generateSalt(): Uint8Array   // nacl.randomBytes(16)
-export function generateNonce(): Uint8Array  // nacl.randomBytes(24)
+// generateNonce is internal to crypto.ts (not exported)
 ```
 
 ---

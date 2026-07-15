@@ -56,6 +56,8 @@ export interface SetMetaOptions {
 export type EchidnaJsErrorCode =
   | "WRONG_KEY"
   | "CORRUPT_BLOB"
+  | "TAMPERED"
+  | "NEEDS_MIGRATION"
   | "INVALID_KEY"
   | "NOT_FOUND"
   | "KDF_FAILED"

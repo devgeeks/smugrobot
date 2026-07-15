@@ -103,6 +103,29 @@ describe("store", () => {
     )
   })
 
+  it("detects a body swapped between documents (TAMPERED)", async () => {
+    // Simulate a hostile/compromised storage backend that swaps two documents'
+    // encrypted bodies. Both decrypt cleanly under the vault key, but each is
+    // bound to the other's id, so reads must fail rather than silently return
+    // the wrong document's plaintext.
+    const adapter = memoryAdapter()
+    const store = await createEncryptedStore({ adapter, keySource: rawKey() })
+    await store.set("doc1", "contents of one")
+    await store.set("doc2", "contents of two")
+
+    const body1 = await adapter.get("docs/doc1/body")
+    const body2 = await adapter.get("docs/doc2/body")
+    await adapter.set("docs/doc1/body", body2!)
+    await adapter.set("docs/doc2/body", body1!)
+
+    await expect(store.get("doc1")).rejects.toThrow(
+      expect.objectContaining({ code: "TAMPERED" }),
+    )
+    await expect(store.get("doc2")).rejects.toThrow(
+      expect.objectContaining({ code: "TAMPERED" }),
+    )
+  })
+
   it("set updates updatedAt but not createdAt on overwrite", async () => {
     const store = await createEncryptedStore({ adapter: memoryAdapter(), keySource: rawKey() })
     const meta1 = await store.set("doc1", "v1")

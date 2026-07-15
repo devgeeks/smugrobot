@@ -174,7 +174,7 @@ In browsers, `pouchdb-browser` is typically backed by IndexedDB, so this adapter
 
 > **Note:** echidna.js only implements local storage through this adapter. Remote sync — the CouchDB URL, auth, live replication, retry policy — is your app's responsibility, driven directly against the same PouchDB instance you pass in.
 
-> **Privacy warning:** syncing does not make document metadata private. `docs/{id}/meta` (title, tags, timestamps, size, and any custom fields) is always stored as plaintext JSON — by design, so lists can be filtered without decrypting bodies — and it is unauthenticated, so a malicious or compromised CouchDB server can read *and silently rewrite* it. Only `docs/{id}/body` is encrypted and MAC-protected; decryption fails loudly (`WRONG_KEY`) if a server tampers with it. A hostile server operator can also see attachment sizes and write timing, and can withhold or roll back revisions without detection, since there's no vault-level integrity check across the whole sync. Don't put anything sensitive in `title`, `tags`, or custom metadata fields if you don't trust the CouchDB server operator.
+> **Privacy warning:** syncing does not make document metadata private. `docs/{id}/meta` (title, tags, timestamps, size, and any custom fields) is always stored as plaintext JSON — by design, so lists can be filtered without decrypting bodies — and it is unauthenticated, so a malicious or compromised CouchDB server can read *and silently rewrite* it. Only `docs/{id}/body` is encrypted and MAC-protected; tampering with a body fails loudly (`WRONG_KEY`), and moving one document's body onto another id is caught by the id binding (`TAMPERED`). What is **not** protected: a hostile server operator can see attachment sizes and write timing, can withhold documents, and can roll a body (and its metadata) back to an *earlier version of the same document* undetectably — there is no vault-level integrity check or version anchor across the whole sync. Don't put anything sensitive in `title`, `tags`, or custom metadata fields if you don't trust the CouchDB server operator.
 
 ```ts
 import PouchDB from 'pouchdb'
@@ -314,6 +314,56 @@ Permanently deletes all documents and vault keys from the adapter. Irreversible.
 await store.destroy()
 ```
 
+### `store.needsMigration()`
+
+Returns `true` if the vault predates the current on-disk format and should be
+upgraded with `migrate()`. Cheap — a single `vault/version` read.
+
+```ts
+if (await store.needsMigration()) await store.migrate()
+```
+
+### `store.migrate()`
+
+Upgrades legacy `0x01` document bodies to the current `0x02` format (see
+[Upgrading from 0.1.0](#upgrading-from-010)). Idempotent and resumable; returns
+counts of bodies `scanned` and `upgraded`.
+
+```ts
+const { scanned, upgraded } = await store.migrate()
+```
+
+---
+
+## Upgrading from 0.1.0
+
+echidna 0.1.0 wrote body blobs in the `0x01` format, which did **not** bind the
+document id into the ciphertext. The current format (`0x02`) does, so ordinary
+reads reject `0x01` blobs with `EchidnaJsError('NEEDS_MIGRATION')` until they are
+upgraded. The vault key is unchanged between the two formats, so migration is a
+one-time re-encryption — no passphrase re-entry or key derivation.
+
+Run it once, right after opening the vault:
+
+```ts
+const store = await createEncryptedStore({ adapter, keySource })
+if (await store.needsMigration()) {
+  const { upgraded } = await store.migrate()
+  console.log(`Upgraded ${upgraded} document(s) to the 0x02 format`)
+}
+```
+
+`migrate()` rewrites only body blobs (metadata, including `createdAt` /
+`updatedAt`, is untouched), skips already-`0x02` bodies, and is safe to re-run if
+interrupted — the `vault/version` marker is only advanced after a full pass.
+
+> **Run migration on trusted storage.** Migration binds the id going forward but
+> cannot audit the past: it re-binds whatever plaintext currently sits at
+> `docs/{id}/body`. If a `0x01` vault was tampered with while its bodies were
+> still unbound (e.g. two were swapped), that is laundered into an authenticated
+> `0x02` blob. Migrate while the vault is local/trusted, before syncing to an
+> untrusted backend, and run it single-flight before other writers touch the vault.
+
 ---
 
 ## Types
@@ -358,6 +408,8 @@ try {
 |---|---|
 | `WRONG_KEY` | Decryption failed — wrong key or corrupted ciphertext |
 | `CORRUPT_BLOB` | Encrypted blob is malformed or has an unknown version byte |
+| `TAMPERED` | Blob decrypted cleanly but is bound to a different document id (body substituted from another document) |
+| `NEEDS_MIGRATION` | Body is a legacy `0x01` blob — call `store.migrate()` to upgrade the vault |
 | `NOT_FOUND` | Document id does not exist (only from `updateMeta`) |
 | `KDF_FAILED` | Key derivation threw an unexpected error |
 | `VAULT_NOT_FOUND` | Adapter has no vault initialised |
@@ -370,22 +422,28 @@ try {
 - **Key derivation:** scrypt (`N=131072, r=8, p=1`) or PBKDF2 (`600,000 iterations, SHA-256`)
 - **Salt:** 16 random bytes, generated once at vault creation, stored plaintext
 - **Nonce:** 24 random bytes, generated fresh on every write, prepended to the ciphertext blob
+- **Document binding:** each body is encrypted with its document id as additional authenticated data (see blob format). A body moved or relabelled to another document — e.g. by a compromised storage backend swapping two blobs — decrypts under the vault key but fails its id check, surfaced as `EchidnaJsError('TAMPERED')`. This does **not** prevent rolling a body back to an *earlier version of the same document* (there is no trusted version anchor).
 - **Wrong key detection:** `nacl.secretbox.open` returns `null` — surfaced as `EchidnaJsError('WRONG_KEY')`. Garbage is never returned.
 - **What is never stored:** the key, the passphrase, or any derivative that would allow offline verification
 
 ### Encrypted blob format
 
 ```
-[ 0x01 ][ nonce: 24 bytes ][ ciphertext: N bytes ]
+[ 0x02 ][ nonce: 24 bytes ][ ciphertext: N bytes ]
 ```
 
-The version byte (`0x01`) is reserved for future algorithm migration.
+The ciphertext is `nacl.secretbox` over the authenticated message
+`[ uint32BE(idLen) ][ id ][ plaintext ]`, so the document id is bound into the
+MAC. The version byte distinguishes format revisions; `0x02` blobs are **not**
+backward compatible with the original `0x01` format (which omitted the id
+binding), and `0x01` blobs now surface as `CORRUPT_BLOB`.
 
 ### Vault storage layout
 
 ```
 vault/salt         →  16 raw bytes (plaintext)
 vault/kdf          →  JSON (plaintext): KDF algorithm and parameters
+vault/version      →  JSON (plaintext): on-disk format version (for migration)
 docs/{id}/meta     →  JSON (plaintext): title, tags, timestamps, size
 docs/{id}/body     →  binary (encrypted blob)
 ```

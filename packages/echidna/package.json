@@ -1,6 +1,6 @@
 {
   "name": "echidna.js",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Encrypted document store with adapters for multiple environments",
   "author": "tommy-carlos williams",
   "license": "MIT",
