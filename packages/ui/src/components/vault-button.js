@@ -53,6 +53,7 @@ class VaultButton extends HTMLElement {
           border: 1.5px solid transparent;
           border-radius: var(--radius-md);
           cursor: pointer;
+          touch-action: manipulation;
           transition:
             background var(--duration-fast) var(--ease-out),
             border-color var(--duration-fast) var(--ease-out),
@@ -63,11 +64,14 @@ class VaultButton extends HTMLElement {
           ${sizeStyles[size] || sizeStyles.md}
           ${variantStyles[variant] || variantStyles.primary}
         }
-        button:hover:not(:disabled) {
-          ${hoverStyles[variant] || hoverStyles.primary}
-        }
         button:active:not(:disabled) {
+          ${hoverStyles[variant] || hoverStyles.primary}
           transform: translateY(1px);
+        }
+        @media (hover: hover) {
+          button:hover:not(:disabled) {
+            ${hoverStyles[variant] || hoverStyles.primary}
+          }
         }
         button:focus-visible {
           outline: none;
