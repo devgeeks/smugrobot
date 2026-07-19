@@ -1,9 +1,11 @@
+import escapeHtml from 'escape-html'
 import type { AppState, FolderMeta } from '../state/types.js'
 import { dispatch, getState } from '../state/store.js'
 import { loadFolders, loadNotes } from '../screens/app-screen.js'
 import { confirmDialog, promptDialog } from '../utils/dialog.js'
 import { closeMenuAfterTap } from '../utils/menu.js'
 import { showToast } from '../utils/toast.js'
+import { generateId } from '../utils/id.js'
 
 export class FolderPane {
   el: HTMLElement
@@ -62,44 +64,8 @@ export class FolderPane {
     listbox.appendChild(allOpt)
 
     for (const folder of folders) {
-      const opt = document.createElement('vault-listbox-option')
-      opt.setAttribute('value', folder.id)
-      if (activeValue === folder.id) opt.setAttribute('active', '')
-      if ((noteCounts[folder.id] ?? 0) === 0) opt.setAttribute('data-empty', '')
-
-      const row = document.createElement('div')
-      row.className = 'folder-row-content'
-
-      const label = document.createElement('span')
-      label.className = 'folder-label'
-      label.textContent = folder.title
-      row.appendChild(label)
-
-      const menu = document.createElement('vault-popover') as HTMLElement & { close(): void }
-      menu.className = 'folder-menu'
-      menu.setAttribute('placement', 'bottom-end')
-      menu.innerHTML = `
-        <vault-button slot="trigger" variant="ghost" size="md" class="folder-menu-btn" aria-label="Folder options">⋮</vault-button>
-        <div class="folder-menu-panel">
-          <button class="menu-item" data-action="rename">Rename</button>
-          <button class="menu-item menu-item--danger" data-action="delete">Delete</button>
-        </div>
-      `
-      // Keep clicks/presses on the menu from also reaching the listbox's own
-      // pointerdown/click handlers, which would select or re-activate this
-      // option instead of (or as well as) operating the menu.
-      menu.addEventListener('pointerdown', (e) => e.stopPropagation())
-      menu.addEventListener('click', (e) => e.stopPropagation())
-      menu.querySelector('[data-action="rename"]')!.addEventListener('click', () => {
-        closeMenuAfterTap(menu, () => this.renameFolder(folder))
-      })
-      menu.querySelector('[data-action="delete"]')!.addEventListener('click', () => {
-        closeMenuAfterTap(menu, () => this.deleteFolder(folder))
-      })
-      row.appendChild(menu)
-
-      opt.appendChild(row)
-      listbox.appendChild(opt)
+      const empty = (noteCounts[folder.id] ?? 0) === 0
+      listbox.appendChild(this.renderFolderRow(folder, activeValue === folder.id, empty))
     }
 
     listbox.addEventListener('vault-change', (e) => {
@@ -110,6 +76,50 @@ export class FolderPane {
     })
 
     nav.appendChild(listbox)
+  }
+
+  private renderFolderRow(folder: FolderMeta, active: boolean, empty: boolean): HTMLElement {
+    const opt = document.createElement('vault-listbox-option')
+    opt.setAttribute('value', folder.id)
+    if (active) opt.setAttribute('active', '')
+    if (empty) opt.setAttribute('data-empty', '')
+
+    const row = document.createElement('div')
+    row.className = 'folder-row-content'
+
+    const label = document.createElement('span')
+    label.className = 'folder-label'
+    label.textContent = folder.title
+    row.appendChild(label)
+    row.appendChild(this.renderFolderMenu(folder))
+
+    opt.appendChild(row)
+    return opt
+  }
+
+  private renderFolderMenu(folder: FolderMeta): HTMLElement {
+    const menu = document.createElement('vault-popover') as HTMLElement & { close(): void }
+    menu.className = 'folder-menu'
+    menu.setAttribute('placement', 'bottom-end')
+    menu.innerHTML = `
+      <vault-button slot="trigger" variant="ghost" size="md" class="folder-menu-btn" aria-label="Folder options">⋮</vault-button>
+      <div class="folder-menu-panel">
+        <button class="menu-item" data-action="rename">Rename</button>
+        <button class="menu-item menu-item--danger" data-action="delete">Delete</button>
+      </div>
+    `
+    // Keep clicks/presses on the menu from also reaching the listbox's own
+    // pointerdown/click handlers, which would select or re-activate this
+    // option instead of (or as well as) operating the menu.
+    menu.addEventListener('pointerdown', (e) => e.stopPropagation())
+    menu.addEventListener('click', (e) => e.stopPropagation())
+    menu.querySelector('[data-action="rename"]')!.addEventListener('click', () => {
+      closeMenuAfterTap(menu, () => this.renameFolder(folder))
+    })
+    menu.querySelector('[data-action="delete"]')!.addEventListener('click', () => {
+      closeMenuAfterTap(menu, () => this.deleteFolder(folder))
+    })
+    return menu
   }
 
   private async renameFolder(folder: FolderMeta): Promise<void> {
@@ -166,7 +176,7 @@ export class FolderPane {
       if (!name) return
       const store = getState().store
       if (!store) return
-      const id = 'folder-' + Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('')
+      const id = generateId('folder')
       const meta = await store.set(id, '', {
         title: name,
         type: 'folder',
@@ -195,6 +205,3 @@ export class FolderPane {
   }
 }
 
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}

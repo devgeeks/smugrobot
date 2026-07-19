@@ -1,3 +1,4 @@
+import escapeHtml from 'escape-html'
 import { Editor, rootCtx, editorViewOptionsCtx, defaultValueCtx, editorViewCtx } from '@milkdown/core'
 import { commonmark } from '@milkdown/preset-commonmark'
 import { gfm } from '@milkdown/preset-gfm'
@@ -11,6 +12,8 @@ import { deriveTitleFromMarkdown } from '../utils/markdown.js'
 import { showToast } from '../utils/toast.js'
 import { confirmDialog } from '../utils/dialog.js'
 import { closeMenuAfterTap } from '../utils/menu.js'
+import { generateId } from '../utils/id.js'
+import { computeNoteList, computeNoteCounts } from '../screens/app-screen.js'
 import type { NoteMeta } from '../state/types.js'
 
 export class EditorPane {
@@ -212,7 +215,7 @@ export class EditorPane {
   async createNote(): Promise<void> {
     const state = getState()
     if (!state.store) return
-    const id = 'note-' + Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join('')
+    const id = generateId('note')
     const defaultContent = '# Untitled\n\n'
     await state.store.set(id, defaultContent, {
       title: 'Untitled',
@@ -221,12 +224,8 @@ export class EditorPane {
     })
     // reload notes then select the new one
     const all = await state.store.list()
-    const notes = (all.filter(
-      (m) => m['type'] === 'note' && ((m['folderId'] ?? null) === state.selectedFolderId)
-    ) as NoteMeta[]).sort((a, b) => b.updatedAt - a.updatedAt)
-    const noteCounts = getState().noteCounts
-    const key = (state.selectedFolderId ?? '') as string
-    const updatedCounts = { ...noteCounts, [key]: notes.length }
+    const notes = computeNoteList(all, state.selectedFolderId)
+    const updatedCounts = computeNoteCounts(all)
     this.currentNoteId = id
     this.pendingMarkdown = defaultContent
     // NOTE_SELECTED first: app-screen's subscribe callback compares
@@ -271,6 +270,3 @@ async function confirmDeleteNote(note: NoteMeta): Promise<boolean> {
   return true
 }
 
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}

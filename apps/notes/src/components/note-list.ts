@@ -76,21 +76,31 @@ export class NoteList {
     const option = document.createElement('vault-listbox-option')
     option.setAttribute('value', note.id)
 
-    option.innerHTML = `
-      <div class="note-row-content">
-        <div class="note-row-main">
-          <div class="note-title">${escapeHtml(note.title)}</div>
-          <div class="note-meta">
-            <span class="note-time" data-ts="${note.updatedAt}">${formatRelativeTime(note.updatedAt)}</span>
-          </div>
-        </div>
-      </div>
-    `
+    const content = document.createElement('div')
+    content.className = 'note-row-content'
+
+    const main = document.createElement('div')
+    main.className = 'note-row-main'
+
+    const title = document.createElement('div')
+    title.className = 'note-title'
+    title.textContent = note.title
+
+    const meta = document.createElement('div')
+    meta.className = 'note-meta'
+
+    const time = document.createElement('span')
+    time.className = 'note-time'
+    time.dataset['ts'] = String(note.updatedAt)
+    time.textContent = formatRelativeTime(note.updatedAt)
+
+    meta.appendChild(time)
+    main.appendChild(title)
+    main.appendChild(meta)
+    content.appendChild(main)
+    option.appendChild(content)
 
     return option as HTMLElement
   }
 }
 
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}

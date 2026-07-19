@@ -21,9 +21,11 @@
     "@milkdown/utils": "^7.21.2",
     "@smugrobot/ui": "*",
     "echidna.js": "*",
+    "escape-html": "^1.0.3",
     "scrypt-js": "^3.0.1"
   },
   "devDependencies": {
+    "@types/escape-html": "^1.0.4",
     "@vite-pwa/assets-generator": "^1.0.2",
     "typescript": "*",
     "vite": "^5.4.0",
