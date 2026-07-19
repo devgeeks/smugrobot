@@ -27,7 +27,7 @@ class VaultButton extends HTMLElement {
       primary:   `background: var(--cipher); color: var(--ink-950); border-color: var(--cipher);`,
       secondary: `background: transparent; color: var(--text-primary); border-color: var(--surface-border);`,
       ghost:     `background: transparent; color: var(--text-primary); border-color: transparent;`,
-      danger:    `background: var(--danger-fill); color: #fff; border-color: var(--danger-fill);`,
+      danger:    `background: var(--danger-fill); color: var(--ink-50); border-color: var(--danger-fill);`,
     };
 
     const hoverStyles = {

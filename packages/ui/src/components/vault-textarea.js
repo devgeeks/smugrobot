@@ -9,11 +9,19 @@ class VaultTextarea extends HTMLElement {
 
   attributeChangedCallback(name, _oldVal, newVal) {
     if (!this.shadowRoot) return;
+    const ta = this.shadowRoot.querySelector('textarea');
     if (name === 'value') {
-      const ta = this.shadowRoot.querySelector('textarea');
       if (ta && ta.value !== newVal) { ta.value = newVal ?? ''; this.#autoResize(ta); }
-    } else {
-      this.#render();
+      return;
+    }
+    const hadFocus = ta && this.shadowRoot.activeElement === ta;
+    const selStart = hadFocus ? ta.selectionStart : null;
+    const selEnd   = hadFocus ? ta.selectionEnd   : null;
+    this.#render();
+    if (hadFocus) {
+      const newTa = this.shadowRoot.querySelector('textarea');
+      newTa.focus();
+      newTa.setSelectionRange(selStart, selEnd);
     }
   }
 
@@ -76,7 +84,7 @@ class VaultTextarea extends HTMLElement {
         textarea::placeholder { color: var(--text-muted); }
         textarea:focus {
           border-color: ${error ? 'var(--danger)' : 'var(--cipher)'};
-          box-shadow: ${error ? '0 0 0 2px rgba(217,95,95,0.25)' : '0 0 0 2px rgba(46,204,143,0.15)'};
+          box-shadow: ${error ? '0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent)' : '0 0 0 2px color-mix(in srgb, var(--cipher) 15%, transparent)'};
         }
         textarea:focus-visible { outline: none; }
         .hint-text {

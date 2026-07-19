@@ -42,10 +42,12 @@ All components are native custom elements. Zero framework required.
 | `<vault-spinner>` | `size` (sm\|md\|lg), `label` (sr-only text) |
 | `<vault-avatar>` | `name`, `src`, `size` (sm\|md\|lg), `status` (online\|offline\|away\|busy) |
 | `<vault-listbox>` | `label`, `aria-label`, `value`, `disabled`, `selectable`, `ghost` — children are `<vault-listbox-option value="…">` |
+| `<vault-popover>` | `placement` (top\|bottom\|top-start\|top-end\|bottom-start\|bottom-end, default `bottom-start`), `open` — trigger goes in `slot="trigger"`, panel content in the default slot |
 
 All components emit custom events that bubble through shadow DOM (`composed: true`):
 - `vault-input` — `{ value: string }` — fires on every keystroke
 - `vault-change` — `{ value: string }` or `{ checked: boolean }` — fires on commit/blur
+- `vault-open` / `vault-close` — no detail — fired by `vault-popover` when its `open` attribute is toggled (by trigger activation, outside click, or Escape). Call `.close()` on the element to close it programmatically.
 
 ---
 

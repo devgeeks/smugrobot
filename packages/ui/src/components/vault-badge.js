@@ -17,10 +17,10 @@ class VaultBadge extends HTMLElement {
 
     const colors = {
       default: `color: var(--text-secondary); background: var(--surface-overlay); border-color: var(--surface-border);`,
-      success: `color: var(--cipher-text);  background: rgba(46,204,143,0.1);  border-color: rgba(46,204,143,0.3);`,
-      warn:    `color: var(--warn-text);    background: rgba(232,168,56,0.1);  border-color: rgba(232,168,56,0.3);`,
-      danger:  `color: var(--danger-text);  background: rgba(217,95,95,0.1);   border-color: rgba(217,95,95,0.3);`,
-      info:    `color: var(--info-text);    background: rgba(86,156,214,0.1);  border-color: rgba(86,156,214,0.3);`,
+      success: `color: var(--cipher-text);  background: color-mix(in srgb, var(--cipher) 10%, transparent);  border-color: color-mix(in srgb, var(--cipher) 30%, transparent);`,
+      warn:    `color: var(--warn-text);    background: color-mix(in srgb, var(--warn) 10%, transparent);    border-color: color-mix(in srgb, var(--warn) 30%, transparent);`,
+      danger:  `color: var(--danger-text);  background: color-mix(in srgb, var(--danger) 10%, transparent);  border-color: color-mix(in srgb, var(--danger) 30%, transparent);`,
+      info:    `color: var(--info-text);    background: color-mix(in srgb, var(--info) 10%, transparent);   border-color: color-mix(in srgb, var(--info) 30%, transparent);`,
     };
 
     const dotColors = {
@@ -44,7 +44,7 @@ class VaultBadge extends HTMLElement {
           font-size: var(--text-xs);
           font-weight: 500;
           letter-spacing: 0.06em;
-          padding: 2px var(--sp-2);
+          padding: var(--sp-1) var(--sp-2);
           border-radius: var(--radius-full);
           border: 1px solid transparent;
           ${colors[variant] || colors.default}

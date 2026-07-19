@@ -19,10 +19,12 @@ class VaultSelect extends HTMLElement {
     if (!this.shadowRoot) return;
     if (name === 'value') {
       if (this.#select) this.#select.value = newVal ?? '';
-    } else {
-      this.#render();
-      this.#syncOptions();
+      return;
     }
+    const hadFocus = this.#select && this.shadowRoot.activeElement === this.#select;
+    this.#render();
+    this.#syncOptions();
+    if (hadFocus) this.#select.focus();
   }
 
   get value() { return this.#select?.value ?? this.getAttribute('value') ?? ''; }
@@ -92,7 +94,7 @@ class VaultSelect extends HTMLElement {
         }
         select:focus {
           border-color: ${error ? 'var(--danger)' : 'var(--cipher)'};
-          box-shadow: ${error ? '0 0 0 2px rgba(217,95,95,0.25)' : '0 0 0 2px rgba(46,204,143,0.15)'};
+          box-shadow: ${error ? '0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent)' : '0 0 0 2px color-mix(in srgb, var(--cipher) 15%, transparent)'};
         }
         select:focus-visible { outline: none; }
         select option { background: var(--surface-overlay); color: var(--text-primary); }
@@ -101,7 +103,7 @@ class VaultSelect extends HTMLElement {
           right: var(--sp-3);
           pointer-events: none;
           color: var(--text-muted);
-          font-size: 10px;
+          font-size: var(--text-xs);
         }
         .hint-text {
           font-family: var(--font-body);

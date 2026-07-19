@@ -9,11 +9,19 @@ class VaultInput extends HTMLElement {
 
   attributeChangedCallback(name, _oldVal, newVal) {
     if (!this.shadowRoot) return;
+    const input = this.shadowRoot.querySelector('input');
     if (name === 'value') {
-      const input = this.shadowRoot.querySelector('input');
       if (input && input.value !== newVal) input.value = newVal ?? '';
-    } else {
-      this.#render();
+      return;
+    }
+    const hadFocus = input && this.shadowRoot.activeElement === input;
+    const selStart = hadFocus ? input.selectionStart : null;
+    const selEnd   = hadFocus ? input.selectionEnd   : null;
+    this.#render();
+    if (hadFocus) {
+      const newInput = this.shadowRoot.querySelector('input');
+      newInput.focus();
+      try { newInput.setSelectionRange(selStart, selEnd); } catch { /* unsupported for this input type */ }
     }
   }
 
@@ -66,7 +74,7 @@ class VaultInput extends HTMLElement {
         }
         .wrap:focus-within {
           border-color: ${error ? 'var(--danger)' : 'var(--cipher)'};
-          box-shadow: ${error ? '0 0 0 2px rgba(217,95,95,0.25)' : '0 0 0 2px rgba(46,204,143,0.15)'};
+          box-shadow: ${error ? '0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent)' : '0 0 0 2px color-mix(in srgb, var(--cipher) 15%, transparent)'};
         }
         .prefix {
           padding: 0 var(--sp-2) 0 var(--sp-3);

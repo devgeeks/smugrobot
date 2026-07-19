@@ -23,6 +23,7 @@ Dark by default. Fully accessible. Every component works in any framework or pla
   - [vault-alert](#vault-alert)
   - [vault-spinner](#vault-spinner)
   - [vault-avatar](#vault-avatar)
+  - [vault-popover](#vault-popover)
 - [Design tokens](#design-tokens)
 - [Theme switching](#theme-switching)
 - [Custom components](#custom-components)
@@ -326,7 +327,41 @@ User or entity avatar. Falls back to initials (max 2 chars) when no `src` is set
 | `size` | `sm` (32px) `md` (40px) `lg` (56px) | `md` |
 | `status` | `online` `offline` `away` `busy` | — |
 
-Status dot colors: `online` → cipher-green, `away` → warn, `busy` → danger, `offline` → muted.
+Status dot colors: `online` → cipher-green, `away` → warn, `busy` → danger, `offline` → muted. Shape also differs per status (filled circle, filled square, dashed ring, solid ring) so state doesn't depend on color perception alone.
+
+---
+
+### vault-popover
+
+Positioned panel anchored to a trigger element. Repositions on scroll/resize, closes on outside click or Escape, and respects `prefers-reduced-motion`.
+
+```html
+<vault-popover placement="bottom-start">
+  <vault-button slot="trigger" variant="secondary">Options</vault-button>
+  <div>Panel content</div>
+</vault-popover>
+```
+
+| Attribute | Values | Default | Notes |
+|---|---|---|---|
+| `placement` | `top` `bottom` `top-start` `top-end` `bottom-start` `bottom-end` | `bottom-start` | Flips to the opposite axis automatically if there isn't room |
+| `open` | boolean | — | Reflects open/closed state; toggle it or call `.close()` |
+
+Put the trigger element in `slot="trigger"`; everything else becomes the panel content.
+
+**Events**
+
+| Event | Detail | When |
+|---|---|---|
+| `vault-open` | — | Panel opens |
+| `vault-close` | — | Panel closes (outside click, Escape, or `.close()`) |
+
+```js
+const popover = document.querySelector('vault-popover');
+popover.addEventListener('vault-close', () => {
+  // panel is now closed
+});
+```
 
 ---
 
@@ -561,7 +596,7 @@ Then invoke it with `/vault-ui` in any Claude Code session inside that project.
 
 ### What the skill knows
 
-- Full attribute and event API for all 10 components
+- Full attribute and event API for all 11 components
 - Complete design token reference (colors, spacing, typography, radius, motion, focus)
 - All design rules (color usage, font roles, spacing constraints, WCAG requirements)
 - The new component template pattern

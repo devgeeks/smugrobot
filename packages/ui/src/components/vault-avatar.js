@@ -38,6 +38,16 @@ class VaultAvatar extends HTMLElement {
       busy:    'var(--danger)',
     };
 
+    // Status is distinguished by shape as well as color, so it doesn't rely on color perception alone:
+    // online = filled circle, busy = filled square, away = dashed ring, offline = solid ring.
+    const statusShapes = {
+      online:  { fill: true,  radius: 'var(--radius-full)', border: 'solid'  },
+      busy:    { fill: true,  radius: 'var(--radius-sm)',   border: 'solid'  },
+      away:    { fill: false, radius: 'var(--radius-full)', border: 'dashed' },
+      offline: { fill: false, radius: 'var(--radius-full)', border: 'solid'  },
+    };
+    const shape = statusShapes[status] || statusShapes.online;
+
     if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
 
     this.shadowRoot.innerHTML = TOKEN_BRIDGE + `
@@ -78,9 +88,10 @@ class VaultAvatar extends HTMLElement {
           right: 1px;
           width: ${statusDims[size] || statusDims.md};
           height: ${statusDims[size] || statusDims.md};
-          border-radius: var(--radius-full);
-          border: 2px solid var(--surface-base);
-          background: ${statusColors[status] || 'transparent'};
+          border-radius: ${shape.radius};
+          border: 2px ${shape.border} var(--surface-base);
+          background: ${shape.fill ? (statusColors[status] || 'transparent') : 'transparent'};
+          ${!shape.fill ? `box-shadow: inset 0 0 0 1.5px ${statusColors[status] || 'var(--text-muted)'};` : ''}
         }
       </style>
       <span class="avatar" role="img" aria-label="${name || 'Avatar'}${status ? `, ${status}` : ''}">

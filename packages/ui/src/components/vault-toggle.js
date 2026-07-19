@@ -8,7 +8,11 @@ class VaultToggle extends HTMLElement {
   }
 
   attributeChangedCallback() {
-    if (this.shadowRoot) this.#render();
+    if (!this.shadowRoot) return;
+    const input = this.shadowRoot.querySelector('input');
+    const hadFocus = input && this.shadowRoot.activeElement === input;
+    this.#render();
+    if (hadFocus) this.shadowRoot.querySelector('input').focus();
   }
 
   get checked() { return this.hasAttribute('checked'); }
@@ -57,8 +61,8 @@ class VaultToggle extends HTMLElement {
           width: ${thumbS};
           height: ${thumbS};
           border-radius: var(--radius-full);
-          background: #fff;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+          background: var(--ink-50);
+          box-shadow: var(--shadow-sm);
           transition: left var(--duration-normal) var(--ease-out);
         }
         input[type="checkbox"] {
@@ -72,7 +76,7 @@ class VaultToggle extends HTMLElement {
           box-shadow: var(--focus-ring);
         }
         .track-wrap { position: relative; display: inline-flex; }
-        .text { display: flex; flex-direction: column; gap: 2px; }
+        .text { display: flex; flex-direction: column; gap: var(--sp-1); }
         .label-text {
           font-family: var(--font-mono);
           font-size: var(--text-sm);

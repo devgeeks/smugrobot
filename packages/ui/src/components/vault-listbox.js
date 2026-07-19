@@ -14,7 +14,7 @@ class VaultListboxOption extends HTMLElement {
 
   attributeChangedCallback() {
     this.#syncAria();
-    if (this.shadowRoot) this.#render();
+    if (!this.shadowRoot) this.#render(); // markup/styles are attribute-independent; :host([...]) selectors handle the rest
   }
 
   #syncAria() {

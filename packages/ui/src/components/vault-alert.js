@@ -18,10 +18,10 @@ class VaultAlert extends HTMLElement {
 
     const icons = { info: 'ℹ', success: '✓', warn: '⚠', danger: '✕' };
     const styles = {
-      info:    `color: var(--info-text);    background: rgba(86,156,214,0.08);  border-color: rgba(86,156,214,0.3);`,
-      success: `color: var(--cipher-text);  background: rgba(46,204,143,0.08);  border-color: rgba(46,204,143,0.3);`,
-      warn:    `color: var(--warn-text);    background: rgba(232,168,56,0.08);  border-color: rgba(232,168,56,0.3);`,
-      danger:  `color: var(--danger-text);  background: rgba(217,95,95,0.08);   border-color: rgba(217,95,95,0.3);`,
+      info:    `color: var(--info-text);    background: color-mix(in srgb, var(--info) 8%, transparent);    border-color: color-mix(in srgb, var(--info) 30%, transparent);`,
+      success: `color: var(--cipher-text);  background: color-mix(in srgb, var(--cipher) 8%, transparent);  border-color: color-mix(in srgb, var(--cipher) 30%, transparent);`,
+      warn:    `color: var(--warn-text);    background: color-mix(in srgb, var(--warn) 8%, transparent);    border-color: color-mix(in srgb, var(--warn) 30%, transparent);`,
+      danger:  `color: var(--danger-text);  background: color-mix(in srgb, var(--danger) 8%, transparent);  border-color: color-mix(in srgb, var(--danger) 30%, transparent);`,
     };
 
     if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
@@ -51,7 +51,7 @@ class VaultAlert extends HTMLElement {
           flex-shrink: 0;
           line-height: 1.4;
         }
-        .body { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+        .body { flex: 1; display: flex; flex-direction: column; gap: var(--sp-1); }
         .title {
           font-family: var(--font-mono);
           font-size: var(--text-sm);
