@@ -2,6 +2,7 @@ import { dispatch, getState, subscribe } from '../state/store.js'
 import { FolderPane } from '../components/folder-pane.js'
 import { NoteList } from '../components/note-list.js'
 import { EditorPane } from '../components/editor-pane.js'
+import { confirmDialog } from '../utils/dialog.js'
 import type { NoteMeta } from '../state/types.js'
 
 let unsub: (() => void) | null = null
@@ -18,6 +19,14 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
 
   root.innerHTML = ''
 
+  const header = document.createElement('div')
+  header.className = 'app-header'
+  header.innerHTML = `
+    <span class="app-header-logo">Notes</span>
+    <vault-button variant="secondary" size="md" class="app-header-lock-btn">Lock</vault-button>
+  `
+  root.appendChild(header)
+
   const layout = document.createElement('div')
   layout.className = 'app-layout'
   root.appendChild(layout)
@@ -29,6 +38,19 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   layout.appendChild(folderPane.el)
   layout.appendChild(noteList.el)
   layout.appendChild(editorPane.el)
+
+  const headerLockBtn = header.querySelector('.app-header-lock-btn')!
+  headerLockBtn.addEventListener('click', async () => {
+    const ok = await confirmDialog({
+      title: 'Lock vault?',
+      body: "You'll need your passphrase to unlock it again.",
+      confirmLabel: 'Lock',
+    })
+    if (!ok) return
+    headerLockBtn.setAttribute('loading', '')
+    await editorPane.lock()
+    headerLockBtn.removeAttribute('loading')
+  })
 
   // ── Mobile single-pane navigation ─────────────────────────
   const PANE_ORDER = ['folders', 'list', 'editor'] as const
@@ -64,14 +86,6 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   backToFoldersBtn.textContent = '← Folders'
   noteListHeader.insertBefore(backToFoldersBtn, noteListHeader.firstChild)
   backToFoldersBtn.addEventListener('click', () => setMobilePane('folders', { moveFocus: true }))
-
-  const noteListLockBtn = document.createElement('vault-button')
-  noteListLockBtn.setAttribute('variant', 'secondary')
-  noteListLockBtn.setAttribute('size', 'md')
-  noteListLockBtn.className = 'mobile-nav-btn'
-  noteListLockBtn.textContent = 'Lock'
-  noteListHeader.appendChild(noteListLockBtn)
-  noteListLockBtn.addEventListener('click', () => editorPane.lock())
 
   noteList.onNewNote = () => editorPane.createNote()
 

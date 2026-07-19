@@ -25,7 +25,6 @@ export class EditorPane {
   private dirty = false
   currentNoteId: string | null = null
   onNoteDeleted?: () => void
-  private lockBtn!: HTMLElement
   private spinner!: HTMLElement
   private milkdownHost!: HTMLElement
   private emptyState!: HTMLElement
@@ -45,20 +44,17 @@ export class EditorPane {
               <button class="menu-item menu-item--danger" data-action="delete">Delete</button>
             </div>
           </vault-popover>
-          <vault-button variant="secondary" size="md" class="lock-btn">Lock</vault-button>
         </div>
       </div>
       <div class="milkdown-host"></div>
       <p class="editor-empty-state" hidden>Select a note, or create a new one.</p>
     `
 
-    this.lockBtn = this.el.querySelector('.lock-btn')!
     this.spinner = this.el.querySelector('.save-spinner')!
     this.milkdownHost = this.el.querySelector('.milkdown-host')!
     this.emptyState = this.el.querySelector('.editor-empty-state')!
     this.noteMenu = this.el.querySelector('.note-menu')!
 
-    this.lockBtn.addEventListener('click', () => this.lock())
     this.noteMenu.addEventListener('click', (e) => e.stopPropagation())
 
     this.noteMenu.querySelector('[data-action="copy"]')!.addEventListener('click', () => {
@@ -208,9 +204,7 @@ export class EditorPane {
   }
 
   async lock(): Promise<void> {
-    this.lockBtn.setAttribute('loading', '')
     await this.flushPendingSave()
-    this.lockBtn.removeAttribute('loading')
     showToast('Vault locked.', 'success')
     dispatch({ type: 'LOCKED' })
   }
