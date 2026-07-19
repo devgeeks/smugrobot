@@ -116,6 +116,7 @@ export class EditorPane {
     if (!store) return
     this.currentNoteId = noteId
     const content = await store.get(noteId)
+    if (this.currentNoteId !== noteId) return
     const md = content ?? ''
     this.pendingMarkdown = md
     this.lastSavedMarkdown = md
@@ -143,15 +144,21 @@ export class EditorPane {
   private async doSave(noteId: string, markdown: string): Promise<void> {
     const state = getState()
     if (!state.store) return
-    const title = deriveTitleFromMarkdown(markdown)
-    const existingMeta = await state.store.getMeta(noteId)
-    const meta = await state.store.set(noteId, markdown, {
-      title,
-      type: 'note',
-      folderId: existingMeta ? (existingMeta['folderId'] ?? null) : state.selectedFolderId,
-    })
-    if (noteId === this.currentNoteId) this.lastSavedMarkdown = markdown
-    dispatch({ type: 'NOTE_SAVE_DONE', meta: meta as NoteMeta })
+    try {
+      const title = deriveTitleFromMarkdown(markdown)
+      const existingMeta = await state.store.getMeta(noteId)
+      const meta = await state.store.set(noteId, markdown, {
+        title,
+        type: 'note',
+        folderId: existingMeta ? (existingMeta['folderId'] ?? null) : state.selectedFolderId,
+      })
+      if (noteId === this.currentNoteId) this.lastSavedMarkdown = markdown
+      dispatch({ type: 'NOTE_SAVE_DONE', meta: meta as NoteMeta })
+    } catch (err) {
+      dispatch({ type: 'NOTE_SAVE_FAILED' })
+      showToast('Failed to save note. Your changes may be lost.', 'danger')
+      console.error('Note save failed:', err)
+    }
   }
 
   async flushPendingSave(): Promise<void> {
@@ -200,6 +207,15 @@ export class EditorPane {
 
   getCurrentMarkdown(): string {
     return this.editor?.action(getMarkdown()) ?? ''
+  }
+
+  async destroy(): Promise<void> {
+    if (this.saveTimer) {
+      clearTimeout(this.saveTimer)
+      this.saveTimer = null
+    }
+    await this.editor?.destroy()
+    this.editor = null
   }
 }
 

@@ -36,6 +36,7 @@ export type Action =
   | { type: 'NOTE_SELECTED'; noteId: string }
   | { type: 'NOTE_SAVE_START' }
   | { type: 'NOTE_SAVE_DONE'; meta: NoteMeta }
+  | { type: 'NOTE_SAVE_FAILED' }
   | { type: 'NOTE_DELETED'; noteId: string }
   | { type: 'FOLDER_CREATED'; folder: FolderMeta }
   | { type: 'LOCKED' }

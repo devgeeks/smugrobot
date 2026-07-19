@@ -55,6 +55,8 @@ function reducer(state: AppState, action: Action): AppState {
           n.id === action.meta.id ? action.meta : n
         ),
       }
+    case 'NOTE_SAVE_FAILED':
+      return { ...state, isSaving: false }
     case 'NOTE_DELETED':
       return {
         ...state,

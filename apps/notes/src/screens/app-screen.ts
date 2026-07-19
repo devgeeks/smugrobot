@@ -7,11 +7,14 @@ import type { NoteMeta } from '../state/types.js'
 let unsub: (() => void) | null = null
 let unsubFolderLoad: (() => void) | null = null
 let timestampInterval: ReturnType<typeof setInterval> | null = null
+let activeEditorPane: EditorPane | null = null
 
 export async function mountAppScreen(root: HTMLElement): Promise<void> {
   unsub?.()
   unsubFolderLoad?.()
   if (timestampInterval) clearInterval(timestampInterval)
+  await activeEditorPane?.destroy()
+  activeEditorPane = null
 
   root.innerHTML = ''
 
@@ -72,6 +75,7 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   noteList.onNoteSelect = () => setMobilePane('editor')
   // ──────────────────────────────────────────────────────────
 
+  activeEditorPane = editorPane
   await editorPane.mount()
 
   // Load initial data
@@ -125,6 +129,8 @@ export function unmountAppScreen(): void {
     clearInterval(timestampInterval)
     timestampInterval = null
   }
+  void activeEditorPane?.destroy()
+  activeEditorPane = null
 }
 
 async function loadFolders(): Promise<void> {
