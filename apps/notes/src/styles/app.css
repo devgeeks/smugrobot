@@ -123,22 +123,34 @@ body {
 /* ── Global app header ──────────────────────────────────── */
 
 .app-header {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: var(--sp-2) var(--sp-4);
   min-height: 48px;
   border-bottom: 1px solid var(--surface-border);
   background: var(--surface-base);
   flex-shrink: 0;
+  gap: var(--sp-2);
 }
 
+/* Centered independent of the back/lock button widths on either side — see
+   the matching note on .pane-title below for why this can't be plain flex
+   centering. */
 .app-header-logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: var(--text-sm);
   color: var(--cipher-text);
   letter-spacing: -0.02em;
+}
+
+.app-header-lock-btn {
+  margin-left: auto;
 }
 
 /* ── Three-pane app layout ──────────────────────────────── */
@@ -162,9 +174,9 @@ body {
 }
 
 .pane-header {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: var(--sp-2) var(--sp-3) var(--sp-2) var(--sp-4);
   min-height: 56px;
   border-bottom: 1px solid var(--surface-border);
@@ -172,21 +184,7 @@ body {
   flex-shrink: 0;
 }
 
-/* Right-hand action button (Add folder / New note) — always the trailing column. */
-.pane-header > vault-button {
-  grid-column: 3;
-  justify-self: end;
-}
-
-/* Mobile back button — leading column, only present on the note-list pane header. */
-.pane-header .mobile-nav-btn {
-  grid-column: 1;
-  justify-self: start;
-}
-
 .pane-title {
-  grid-column: 2;
-  justify-self: center;
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   font-weight: 500;
@@ -713,7 +711,14 @@ body {
     flex: 1;
     width: 100%;
     min-width: 0;
-    animation: mobile-pane-enter var(--duration-normal) var(--ease-out) both;
+    /* No forwards/both fill-mode: once the animation ends, transform must
+       revert to none (there's no competing rule, so it does). A fill-mode
+       that keeps the final translateX(0) applied would leave a non-none
+       transform on the pane indefinitely, which makes it the containing
+       block for any position:fixed descendant — breaking vault-popover's
+       viewport-relative positioning for any menu opened after navigating
+       to that pane. */
+    animation: mobile-pane-enter var(--duration-normal) var(--ease-out);
   }
 
   .app-layout[data-mobile-pane="folders"] .folder-pane,
@@ -730,9 +735,5 @@ body {
     color: var(--text-secondary);
     white-space: nowrap;
     flex-shrink: 0;
-  }
-
-  .editor-toolbar .mobile-nav-btn {
-    margin-right: var(--sp-2);
   }
 }

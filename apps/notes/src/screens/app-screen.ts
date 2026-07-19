@@ -22,6 +22,7 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   const header = document.createElement('div')
   header.className = 'app-header'
   header.innerHTML = `
+    <button class="icon-btn mobile-nav-btn app-header-back-btn" aria-label="Back"></button>
     <span class="app-header-logo">Notes</span>
     <vault-button variant="secondary" size="md" class="app-header-lock-btn">Lock</vault-button>
   `
@@ -53,6 +54,8 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   })
 
   // ── Mobile single-pane navigation ─────────────────────────
+  const headerBackBtn = header.querySelector('.app-header-back-btn') as HTMLElement
+
   const PANE_ORDER = ['folders', 'list', 'editor'] as const
   let mobilePaneVisible: 'folders' | 'list' | 'editor' = 'list'
   function setMobilePane(pane: typeof mobilePaneVisible, options: { moveFocus?: boolean } = {}): void {
@@ -61,42 +64,43 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
     mobilePaneVisible = pane
     layout.dataset['mobilePane'] = pane
 
+    // The header back button is shared across panes — it navigates one step
+    // back up PANE_ORDER, or hides entirely on the root 'folders' pane.
+    if (pane === 'folders') {
+      headerBackBtn.style.display = 'none'
+    } else {
+      headerBackBtn.style.display = ''
+      headerBackBtn.textContent = pane === 'list' ? '← Folders' : '← Notes'
+      headerBackBtn.setAttribute('aria-label', pane === 'list' ? 'Back to folders' : 'Back to notes')
+    }
+
     if (options.moveFocus) {
       // The pane we just hid may contain the currently focused element (e.g.
-      // the button that triggered this navigation); move focus into the pane
-      // that's now visible instead of letting it fall back to <body>.
+      // the button that triggered this navigation, or — for a folder row —
+      // its nested overflow-menu button, which the browser's default
+      // focus-follows-click can land on for a moment). Move focus into the
+      // pane that's now visible instead of letting it fall back to <body>.
+      // preventScroll avoids a second scroll-into-view correction stacking
+      // on top of the one the browser may already be doing for that handoff,
+      // which otherwise shows up as a brief left-right wiggle on mobile.
       if (pane === 'editor') {
-        backToNotesBtn.focus()
+        headerBackBtn.focus({ preventScroll: true })
       } else {
         const paneEl = pane === 'folders' ? folderPane.el : noteList.el
         const heading = paneEl.querySelector('.pane-title') as HTMLElement | null
         heading?.setAttribute('tabindex', '-1')
-        heading?.focus()
+        heading?.focus({ preventScroll: true })
       }
     }
   }
   setMobilePane('list')
 
-  // Inject mobile-only nav buttons into the NoteList's existing pane-header
-  const noteListHeader = noteList.el.querySelector('.pane-header')!
-
-  const backToFoldersBtn = document.createElement('button')
-  backToFoldersBtn.className = 'icon-btn mobile-nav-btn'
-  backToFoldersBtn.setAttribute('aria-label', 'Back to folders')
-  backToFoldersBtn.textContent = '← Folders'
-  noteListHeader.insertBefore(backToFoldersBtn, noteListHeader.firstChild)
-  backToFoldersBtn.addEventListener('click', () => setMobilePane('folders', { moveFocus: true }))
+  headerBackBtn.addEventListener('click', () => {
+    if (mobilePaneVisible === 'editor') setMobilePane('list', { moveFocus: true })
+    else if (mobilePaneVisible === 'list') setMobilePane('folders', { moveFocus: true })
+  })
 
   noteList.onNewNote = () => editorPane.createNote()
-
-  // Inject "← Notes" button at start of editor toolbar
-  const backToNotesBtn = document.createElement('button')
-  backToNotesBtn.className = 'icon-btn mobile-nav-btn'
-  backToNotesBtn.setAttribute('aria-label', 'Back to notes')
-  backToNotesBtn.textContent = '← Notes'
-  const toolbar = editorPane.el.querySelector('.editor-toolbar')!
-  toolbar.insertBefore(backToNotesBtn, toolbar.firstChild)
-  backToNotesBtn.addEventListener('click', () => setMobilePane('list', { moveFocus: true }))
 
   // Navigate on every tap, including re-taps of the already-selected item.
   folderPane.onFolderSelect = () => setMobilePane('list', { moveFocus: true })

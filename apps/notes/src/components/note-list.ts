@@ -6,6 +6,7 @@ export class NoteList {
   el: HTMLElement
   onNoteSelect?: (noteId: string) => void
   onNewNote?: () => void
+  private titleEl: HTMLElement
   private prevNotes: NoteMeta[] = []
   private prevSelected: string | null = null
 
@@ -14,13 +15,14 @@ export class NoteList {
     this.el.className = 'note-list'
     this.el.innerHTML = `
       <div class="pane-header">
-        <span class="pane-title">Notes</span>
         <vault-button variant="primary" size="md" class="new-note-btn">New note</vault-button>
+        <span class="pane-title">All notes</span>
       </div>
       <div class="note-list-inner">
         <vault-listbox selectable ghost aria-label="Notes"></vault-listbox>
       </div>
     `
+    this.titleEl = this.el.querySelector('.pane-title')!
     this.el.querySelector('.new-note-btn')!.addEventListener('click', () => this.onNewNote?.())
     this.el.querySelector('vault-listbox')!.addEventListener('vault-change', (e: Event) => {
       const { value } = (e as CustomEvent<{ value: string }>).detail
@@ -30,6 +32,11 @@ export class NoteList {
   }
 
   render(state: AppState): void {
+    this.titleEl.textContent =
+      state.selectedFolderId === null
+        ? 'All notes'
+        : state.folders.find((f) => f.id === state.selectedFolderId)?.title ?? 'All notes'
+
     if (state.notes === this.prevNotes && state.selectedNoteId === this.prevSelected)
       return
 

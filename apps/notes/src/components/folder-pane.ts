@@ -17,8 +17,8 @@ export class FolderPane {
     this.el.className = 'folder-pane'
     this.el.innerHTML = `
       <div class="pane-header">
-        <span class="pane-title">Folders</span>
         <vault-button variant="secondary" size="md" class="add-folder-btn">Add folder</vault-button>
+        <span class="pane-title">Folders</span>
       </div>
       <nav class="folder-tree" aria-label="Folders"></nav>
     `
