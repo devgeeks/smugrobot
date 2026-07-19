@@ -38,11 +38,6 @@ class VaultSpinner extends HTMLElement {
         @media (prefers-reduced-motion: reduce) {
           .spinner { animation: none; border-top-color: var(--cipher); opacity: 0.7; }
         }
-        .sr-only {
-          position: absolute; width: 1px; height: 1px;
-          padding: 0; margin: -1px; overflow: hidden;
-          clip: rect(0,0,0,0); white-space: nowrap; border: 0;
-        }
       </style>
       <span class="spinner"></span>
       <span class="sr-only" role="status">${label}</span>

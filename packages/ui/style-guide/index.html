@@ -175,7 +175,7 @@
       .sg-swatch-color {
         height: 48px;
         border-radius: var(--radius-md);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--surface-border);
       }
       .sg-swatch-name {
         font-family: var(--font-mono);
@@ -206,7 +206,7 @@
         height: 20px;
         border-radius: var(--radius-sm);
         flex-shrink: 0;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--surface-border);
       }
       .sg-token-name {
         color: var(--cipher-text);
@@ -214,7 +214,7 @@
       }
       .sg-token-desc {
         color: var(--text-muted);
-        font-size: 0.65rem;
+        font-size: var(--text-xs);
       }
 
       /* Type scale rows */
@@ -527,10 +527,7 @@
                 <div class="sg-swatch">
                   <div
                     class="sg-swatch-color"
-                    style="
-                      background: #f2f5f3;
-                      border-color: rgba(0, 0, 0, 0.1);
-                    "
+                    style="background: #f2f5f3"
                   ></div>
                   <div class="sg-swatch-name">--ink-50</div>
                   <div class="sg-swatch-hex">#F2F5F3</div>
@@ -950,7 +947,7 @@
               <div class="sg-type-row">
                 <span class="sg-type-meta">--text-xs · 0.70rem</span
                 ><span class="sg-label-example"
-                  >Field label · mono · 500 · uppercase · 0.08em</span
+                  >Field label · mono · 500 · sentence case · 0.08em</span
                 >
               </div>
             </div>
@@ -1498,7 +1495,7 @@ input.addEventListener('vault-change', e =&gt; console.log(e.detail.value)); // 
             <tbody>
               <tr>
                 <td>label</td>
-                <td>Rendered as a mono uppercase label above the field</td>
+                <td>Rendered above the field in mono, sentence case, with letter-spacing</td>
               </tr>
               <tr>
                 <td>type</td>
@@ -1585,7 +1582,7 @@ input.addEventListener('vault-change', e =&gt; console.log(e.detail.value)); // 
             <tbody>
               <tr>
                 <td>label</td>
-                <td>Mono uppercase label</td>
+                <td>Rendered in mono, sentence case, with letter-spacing</td>
               </tr>
               <tr>
                 <td>rows</td>

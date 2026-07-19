@@ -1,6 +1,6 @@
 {
   "name": "@smugrobot/ui",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
@@ -26,6 +26,8 @@
     "./components/vault-alert.js": "./src/components/vault-alert.js",
     "./components/vault-spinner.js": "./src/components/vault-spinner.js",
     "./components/vault-avatar.js": "./src/components/vault-avatar.js",
+    "./components/vault-popover.js": "./src/components/vault-popover.js",
+    "./components/vault-listbox.js": "./src/components/vault-listbox.js",
     "./components/vault-ui.d.ts": "./src/components/vault-ui.d.ts"
   },
   "scripts": {

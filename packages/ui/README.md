@@ -24,6 +24,7 @@ Dark by default. Fully accessible. Every component works in any framework or pla
   - [vault-spinner](#vault-spinner)
   - [vault-avatar](#vault-avatar)
   - [vault-popover](#vault-popover)
+  - [vault-listbox](#vault-listbox)
 - [Design tokens](#design-tokens)
 - [Theme switching](#theme-switching)
 - [Custom components](#custom-components)
@@ -116,7 +117,7 @@ Theme is controlled by `data-theme="light"` on `<html>`. Default is dark.
 
 | Attribute | Notes |
 |---|---|
-| `label` | Rendered as a mono uppercase label above the field |
+| `label` | Rendered above the field in mono, sentence case, with letter-spacing |
 | `type` | Any native input type. Default: `text` |
 | `value` | Reflected to/from the inner `<input>` |
 | `error` | Shown instead of hint; turns border red; sets `aria-invalid` |
@@ -153,7 +154,7 @@ document.querySelector('vault-input').addEventListener('vault-change', e => {
 
 | Attribute | Notes |
 |---|---|
-| `label` | Mono uppercase label |
+| `label` | Rendered in mono, sentence case, with letter-spacing |
 | `value` | Reflected to/from the inner `<textarea>` |
 | `rows` | Initial visible row count. Default: `4` |
 | `maxlength` | Shows a live `n / max` counter when set |
@@ -253,7 +254,7 @@ Dropdown wrapping a native `<select>`. Children are plain `<option>` tags in the
 
 | Attribute | Notes |
 |---|---|
-| `label` | Mono uppercase label |
+| `label` | Rendered in mono, sentence case, with letter-spacing |
 | `value` | Currently selected value |
 | `error` `hint` | Same as `vault-input` |
 | `required` | Forwarded to the native `<select>` |
@@ -349,6 +350,8 @@ Positioned panel anchored to a trigger element. Repositions on scroll/resize, cl
 
 Put the trigger element in `slot="trigger"`; everything else becomes the panel content.
 
+The trigger gets `aria-haspopup`, `aria-controls`, and `aria-expanded` automatically. The library does not impose a role on the panel — set the appropriate role on your slotted content (e.g. `role="menu"` for a menu, nothing for a plain filter panel), since a popover is a generic positioned container, not always a dialog.
+
 **Events**
 
 | Event | Detail | When |
@@ -361,6 +364,44 @@ const popover = document.querySelector('vault-popover');
 popover.addEventListener('vault-close', () => {
   // panel is now closed
 });
+```
+
+---
+
+### vault-listbox
+
+Single-select listbox with full keyboard navigation (`role="listbox"`). Children are `<vault-listbox-option>` elements.
+
+```html
+<vault-listbox label="KDF algorithm" value="scrypt" selectable>
+  <vault-listbox-option value="scrypt">scrypt (recommended)</vault-listbox-option>
+  <vault-listbox-option value="pbkdf2">PBKDF2</vault-listbox-option>
+</vault-listbox>
+```
+
+| Attribute | Values | Default | Notes |
+|---|---|---|---|
+| `label` | string | — | Rendered as a heading above the list and set as `aria-label` |
+| `value` | string | — | Currently selected option's value |
+| `disabled` | boolean | — | Disables the whole listbox |
+| `selectable` | boolean | — | When present, clicking or keyboard-selecting an option updates `value` and sets `[selected]` on it |
+| `ghost` | boolean | — | Removes border, background, and border-radius so it sits flush in a pane or container |
+
+`<vault-listbox-option value="…" selected disabled>` — children support `selected` and `disabled` booleans directly.
+
+Keyboard: Arrow Up/Down, Home, End move the active option; Enter/Space selects it.
+
+**Events**
+
+| Event | Detail | When |
+|---|---|---|
+| `vault-change` | `{ value: string }` | An option is selected |
+
+```html
+<vault-listbox label="Recent files" ghost>
+  <vault-listbox-option value="a.txt">a.txt</vault-listbox-option>
+  <vault-listbox-option value="b.txt" disabled>b.txt</vault-listbox-option>
+</vault-listbox>
 ```
 
 ---
@@ -381,7 +422,7 @@ var(--info)         /* #569CD6 */
 /* Accent text — WCAG-safe; use for all readable text that conveys status */
 var(--cipher-text)  /* dark: #2ECC8F · light: #0F5735 (8.62:1 AAA) */
 var(--warn-text)    /* dark: #E8A838 · light: #5C3E0A (9.77:1 AAA) */
-var(--danger-text)  /* dark: #D95F5F · light: #C0392B (5.44:1 AA)  */
+var(--danger-text)  /* dark: #EE6666 · light: #C0392B (5.44:1 AA)  */
 var(--info-text)    /* dark: #569CD6 · light: #1A5FA8 (6.47:1 AA)  */
 ```
 
@@ -458,7 +499,7 @@ Internally sets/removes `data-theme="light"` on `<html>` and persists to `localS
 When you need a component not in the library, follow this pattern:
 
 ```js
-// Import TOKEN_BRIDGE from vault.js or copy the pattern
+// Import TOKEN_BRIDGE from token-bridge.js
 const TOKEN_BRIDGE = `
   <style>
     *, *::before, *::after { box-sizing: border-box; }
@@ -524,7 +565,7 @@ customElements.define('vault-my-thing', VaultMyThing);
 ```
 
 **After adding a new component:**
-1. Add the class + `customElements.define` to `src/components/vault.js`
+1. Create `src/components/vault-my-thing.js` with the class + `customElements.define`, then re-export it from the `vault.js` barrel
 2. Add the element interface and `HTMLElementTagNameMap` entry to `src/components/vault-ui.d.ts`
 3. Add a section to `style-guide.html` showing all variants
 
@@ -596,7 +637,7 @@ Then invoke it with `/vault-ui` in any Claude Code session inside that project.
 
 ### What the skill knows
 
-- Full attribute and event API for all 11 components
+- Full attribute and event API for all 13 components
 - Complete design token reference (colors, spacing, typography, radius, motion, focus)
 - All design rules (color usage, font roles, spacing constraints, WCAG requirements)
 - The new component template pattern

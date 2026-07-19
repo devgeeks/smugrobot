@@ -1,11 +1,14 @@
 import { TOKEN_BRIDGE } from './token-bridge.js';
 
+let _popoverId = 0;
+
 class VaultPopover extends HTMLElement {
   static observedAttributes = ['placement', 'open'];
 
   #outsideClick = null;
   #escapeKey    = null;
   #reposition   = null;
+  #panelId      = `vault-popover-${++_popoverId}`;
 
   connectedCallback() {
     if (!this.shadowRoot) this.#render();
@@ -58,10 +61,13 @@ class VaultPopover extends HTMLElement {
         }
       </style>
       <slot name="trigger"></slot>
-      <div class="panel" hidden role="dialog" aria-modal="false">
+      <div class="panel" id="${this.#panelId}" hidden>
         <slot></slot>
       </div>
     `;
+
+    this.#syncTrigger();
+    this.shadowRoot.querySelector('slot[name="trigger"]').addEventListener('slotchange', () => this.#syncTrigger());
 
     // Mouse/touch presses are handled on pointerup rather than click: with
     // this many layers of slotted shadow DOM (listbox option > popover >
@@ -78,6 +84,14 @@ class VaultPopover extends HTMLElement {
     this.addEventListener('click', this.#handleTriggerActivate);
   }
 
+  #syncTrigger() {
+    const trigger = this.shadowRoot.querySelector('slot[name="trigger"]').assignedElements()[0];
+    if (!trigger) return;
+    trigger.setAttribute('aria-haspopup', 'true');
+    trigger.setAttribute('aria-controls', this.#panelId);
+    trigger.setAttribute('aria-expanded', String(this.hasAttribute('open')));
+  }
+
   #handleTriggerActivate = (e) => {
     if (e.type === 'pointerup' && e.button !== 0) return;
     if (e.type === 'click' && e.detail !== 0) return;
@@ -90,6 +104,8 @@ class VaultPopover extends HTMLElement {
   #syncOpen() {
     const panel = this.shadowRoot.querySelector('.panel');
     const isOpen = this.hasAttribute('open');
+
+    this.#syncTrigger();
 
     if (isOpen) {
       panel.removeAttribute('hidden');

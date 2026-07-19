@@ -8,10 +8,15 @@ Privacy-focused component library. Zero dependencies. Pure Web Components + CSS 
 vault-ui/
 ├── src/
 │   ├── tokens/
-│   │   ├── tokens.css   ← all design tokens (CSS custom properties)
-│   │   └── base.css     ← reset, typography, utility classes
+│   │   ├── tokens.css       ← all design tokens (CSS custom properties)
+│   │   ├── base.css         ← reset, typography, utility classes
+│   │   └── fonts.css        ← @font-face declarations
 │   └── components/
-│       └── vault.js     ← all web components + VaultTheme helper
+│       ├── vault.js         ← barrel — re-exports every component + VaultTheme
+│       ├── token-bridge.js  ← shared shadow-DOM box-sizing/display reset
+│       ├── vault-theme.js   ← VaultTheme (light/dark persistence)
+│       ├── vault-ui.d.ts    ← TypeScript declarations
+│       └── vault-*.js       ← one file per component (vault-button.js, vault-input.js, …)
 └── CLAUDE.md
 ```
 
@@ -200,10 +205,10 @@ Max `--radius-lg` for non-circular shapes. Pillls and avatars use `--radius-full
 
 **New components**
 - Extend `HTMLElement`. Use Shadow DOM (`attachShadow({ mode: 'open' })`).
-- Inject `TOKEN_BRIDGE` (copy the pattern from `vault.js`) so all `--*` tokens work inside shadow DOM.
-- Register with `customElements.define('vault-my-thing', MyThing)` at the bottom of `vault.js`.
+- Create `src/components/vault-my-thing.js` and `import { TOKEN_BRIDGE } from './token-bridge.js';` so all `--*` tokens work inside shadow DOM.
+- Call `customElements.define('vault-my-thing', VaultMyThing)` and `export { VaultMyThing };` at the bottom of that file, then re-export it from the `vault.js` barrel.
 - Emit events with `{ bubbles: true, composed: true }` so they pierce shadow boundaries.
-- Add TypeScript types to `vault-ui.d.ts`.
+- Add TypeScript types to `vault-ui.d.ts` — only declare properties as settable if you add a real getter/setter; otherwise they're attribute-only (see the file's header comment).
 
 ---
 

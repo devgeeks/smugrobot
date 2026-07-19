@@ -99,7 +99,7 @@
   --surface-raised:  #FFFFFF;
   --surface-overlay: #FFFFFF;
   --surface-border:  var(--ink-100);
-  --surface-hover:   var(--ink-50);
+  --surface-hover:   #E6EAE7;
 
   --text-primary:   var(--ink-950);
   --text-secondary: var(--ink-600);

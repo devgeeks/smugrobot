@@ -125,6 +125,34 @@ VaultTheme.init(); // restores saved preference; defaults to dark
 - Falls back to initials (max 2 chars) when `src` is absent or fails to load.
 - `status` dot colors: online → cipher, away → warn, busy → danger, offline → muted.
 
+### `<vault-popover>`
+```html
+<vault-popover placement="bottom-start">
+  <vault-button slot="trigger" variant="secondary">Options</vault-button>
+  <div>Panel content</div>
+</vault-popover>
+```
+- Put the trigger in `slot="trigger"`; everything else becomes the panel content.
+- `placement`: `top|bottom|top-start|top-end|bottom-start|bottom-end`, default `bottom-start`. Flips axis automatically if there isn't room.
+- Repositions on scroll/resize, closes on outside click or Escape, respects `prefers-reduced-motion`.
+- The trigger automatically gets `aria-haspopup`, `aria-controls`, `aria-expanded`. The panel has no built-in role — set one on your slotted content (e.g. `role="menu"` for a menu); a popover is a generic container, not always a dialog.
+- Reach it from code as `document.querySelector('vault-popover').close()`.
+- Events: `vault-open`, `vault-close` (no detail).
+
+### `<vault-listbox>`
+```html
+<vault-listbox label="KDF algorithm" value="scrypt" selectable>
+  <vault-listbox-option value="scrypt">scrypt (recommended)</vault-listbox-option>
+  <vault-listbox-option value="pbkdf2">PBKDF2</vault-listbox-option>
+</vault-listbox>
+```
+- Use for a selectable list of options (a menu, a file list, a settings picker) — prefer this over `<vault-select>` when the options need to always be visible or need richer per-row content, not hidden inside a native dropdown.
+- `role="listbox"` with full keyboard nav: Arrow Up/Down, Home, End move the active option; Enter/Space selects it.
+- `selectable` — when present, selecting an option updates `value` and sets `[selected]` on it. Omit it to use the listbox as a pure menu/action list instead of a single-select control.
+- `ghost` — strips border/background/radius so it sits flush inside a pane.
+- `<vault-listbox-option>` supports `value`, `selected`, `disabled` attributes directly.
+- Event: `vault-change` `{ value: string }`.
+
 ---
 
 ## Event listening pattern

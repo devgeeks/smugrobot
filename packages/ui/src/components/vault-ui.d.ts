@@ -2,6 +2,13 @@
  * TypeScript declarations for vault-ui web components.
  * Import this file in tsconfig.json `types` or reference it in your source:
  *   /// <reference types="@smugrobot/ui/components/vault-ui" />
+ *
+ * Only `value` (input/textarea/select/listbox) and `checked` (toggle) are
+ * real JS accessors — setting them updates the live element. Every other
+ * config below is attribute-only: it's typed here so `el.getAttribute(...)`
+ * and JSX/template usage get autocomplete, but `el.variant = 'danger'`
+ * silently sets a plain object property and does nothing. Use
+ * `el.setAttribute('variant', 'danger')` (or the HTML attribute) instead.
  */
 
 export declare const VaultTheme: {
@@ -23,126 +30,74 @@ interface VaultChangeCheckedDetail { checked: boolean }
 // ── Element interfaces ─────────────────────────────────────────────────────
 
 interface VaultButtonElement extends HTMLElement {
-  /** primary | secondary | ghost | danger. Default: primary */
-  variant: string;
-  /** sm | md | lg. Default: md */
-  size: string;
-  disabled: boolean;
-  loading: boolean;
+  // variant, size, disabled, loading: attribute-only — see file header.
 }
 
 interface VaultInputElement extends HTMLElement {
-  label: string;
-  type: string;
   value: string;
-  error: string;
-  hint: string;
-  /** Text rendered before the input field */
-  prefixIcon: string;
-  required: boolean;
-  disabled: boolean;
-  readonly: boolean;
+  // label, type, error, hint, prefix-icon, required, disabled, readonly: attribute-only — see file header.
   addEventListener(type: 'vault-input',  listener: (e: CustomEvent<VaultInputDetail>) => void, options?: boolean | AddEventListenerOptions): void;
   addEventListener(type: 'vault-change', listener: (e: CustomEvent<VaultChangeValueDetail>) => void, options?: boolean | AddEventListenerOptions): void;
   addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
 }
 
 interface VaultTextareaElement extends HTMLElement {
-  label: string;
   value: string;
-  rows: string;
-  maxlength: string;
-  /** none | vertical | auto. Default: vertical */
-  resize: string;
-  error: string;
-  hint: string;
+  // label, rows, maxlength, resize, error, hint: attribute-only — see file header.
   addEventListener(type: 'vault-input',  listener: (e: CustomEvent<VaultInputDetail>) => void, options?: boolean | AddEventListenerOptions): void;
   addEventListener(type: 'vault-change', listener: (e: CustomEvent<VaultChangeValueDetail>) => void, options?: boolean | AddEventListenerOptions): void;
   addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
 }
 
 interface VaultBadgeElement extends HTMLElement {
-  /** default | success | warn | danger | info. Default: default */
-  variant: string;
-  /** Show a status dot */
-  dot: boolean;
+  // variant, dot: attribute-only — see file header.
 }
 
 interface VaultCardElement extends HTMLElement {
-  /** sm | md | lg. Default: md */
-  padding: string;
-  border: boolean;
-  elevated: boolean;
+  // padding, border, elevated: attribute-only — see file header.
 }
 
 interface VaultToggleElement extends HTMLElement {
   checked: boolean;
-  label: string;
-  hint: string;
-  /** sm | md. Default: md */
-  size: string;
-  disabled: boolean;
+  // label, hint, size, disabled: attribute-only — see file header.
   addEventListener(type: 'vault-change', listener: (e: CustomEvent<VaultChangeCheckedDetail>) => void, options?: boolean | AddEventListenerOptions): void;
   addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
 }
 
 interface VaultSelectElement extends HTMLElement {
-  label: string;
   value: string;
-  error: string;
-  hint: string;
-  required: boolean;
+  // label, error, hint, required: attribute-only — see file header.
   addEventListener(type: 'vault-change', listener: (e: CustomEvent<VaultChangeValueDetail>) => void, options?: boolean | AddEventListenerOptions): void;
   addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
 }
 
 interface VaultAlertElement extends HTMLElement {
-  /** info | success | warn | danger. Default: info */
-  variant: string;
-  title: string;
-  dismissible: boolean;
+  // variant, title, dismissible: attribute-only — see file header.
   addEventListener(type: 'vault-dismiss', listener: (e: CustomEvent<void>) => void, options?: boolean | AddEventListenerOptions): void;
   addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
 }
 
 interface VaultSpinnerElement extends HTMLElement {
-  /** sm | md | lg. Default: md */
-  size: string;
-  /** Screen-reader label. Default: "Loading…" */
-  label: string;
+  // size, label: attribute-only — see file header.
 }
 
 interface VaultAvatarElement extends HTMLElement {
-  name: string;
-  src: string;
-  /** sm | md | lg. Default: md */
-  size: string;
-  /** online | offline | away | busy */
-  status: string;
+  // name, src, size, status: attribute-only — see file header.
 }
 
 interface VaultListboxOptionElement extends HTMLElement {
-  value: string;
-  selected: boolean;
-  disabled: boolean;
+  // value, selected, disabled: attribute-only — see file header.
 }
 
 interface VaultListboxElement extends HTMLElement {
-  label: string;
   value: string;
-  disabled: boolean;
-  /** When present, clicking or keyboard-selecting an option updates value and sets [selected] on that option. */
-  selectable: boolean;
-  /** When present, removes the border, background, and border-radius so the listbox sits flush in a pane or container. */
-  ghost: boolean;
+  // label, disabled, selectable, ghost: attribute-only — see file header.
   addEventListener(type: 'vault-change', listener: (e: CustomEvent<VaultListboxChangeDetail>) => void, options?: boolean | AddEventListenerOptions): void;
   addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
 }
 
 interface VaultPopoverElement extends HTMLElement {
-  /** bottom-start | bottom-end | bottom | top-start | top-end | top. Default: bottom-start */
-  placement: string;
-  open: boolean;
+  // placement, open: attribute-only — see file header.
   /** Programmatically close the popover and return focus to the trigger */
   close(): void;
   addEventListener(type: 'vault-open',  listener: (e: CustomEvent<void>) => void, options?: boolean | AddEventListenerOptions): void;

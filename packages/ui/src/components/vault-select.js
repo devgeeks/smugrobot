@@ -114,11 +114,11 @@ class VaultSelect extends HTMLElement {
       <div class="field">
         ${label ? `<label for="${uid}">${label}${required ? '<span class="required" aria-hidden="true">*</span>' : ''}</label>` : ''}
         <div class="wrap">
-          <select id="${uid}" ${required ? 'required' : ''} ${error ? `aria-invalid="true"` : ''} ${!label && ariaLabel ? `aria-label="${ariaLabel.replace(/"/g, '&quot;')}"` : ''}>
+          <select id="${uid}" ${required ? 'required' : ''} ${error ? `aria-invalid="true" aria-describedby="${uid}-hint"` : ''} ${!label && ariaLabel ? `aria-label="${ariaLabel.replace(/"/g, '&quot;')}"` : ''}>
           </select>
           <span class="chevron" aria-hidden="true">▼</span>
         </div>
-        ${error || hint ? `<span class="hint-text">${error || hint}</span>` : ''}
+        ${error || hint ? `<span class="hint-text" id="${uid}-hint">${error || hint}</span>` : ''}
       </div>
     `;
 

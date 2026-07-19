@@ -65,13 +65,6 @@ class VaultToggle extends HTMLElement {
           box-shadow: var(--shadow-sm);
           transition: left var(--duration-normal) var(--ease-out);
         }
-        input[type="checkbox"] {
-          position: absolute;
-          width: 1px; height: 1px;
-          padding: 0; margin: -1px;
-          overflow: hidden; clip: rect(0,0,0,0);
-          white-space: nowrap; border: 0;
-        }
         input:focus-visible ~ .track-wrap .track {
           box-shadow: var(--focus-ring);
         }
@@ -91,7 +84,7 @@ class VaultToggle extends HTMLElement {
         }
       </style>
       <label class="toggle-row">
-        <input type="checkbox" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''} role="switch" aria-checked="${checked}" ${!label && ariaLabel ? `aria-label="${ariaLabel.replace(/"/g, '&quot;')}"` : ''} />
+        <input type="checkbox" class="sr-only" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''} role="switch" aria-checked="${checked}" ${!label && ariaLabel ? `aria-label="${ariaLabel.replace(/"/g, '&quot;')}"` : ''} />
         <span class="track-wrap">
           <span class="track"><span class="thumb"></span></span>
         </span>
