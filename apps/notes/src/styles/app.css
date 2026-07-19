@@ -190,6 +190,10 @@ body {
   font-weight: 500;
   letter-spacing: 0.08em;
   color: var(--text-secondary);
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 /* Programmatically focused after mobile pane navigation — see setMobilePane. */
@@ -491,6 +495,11 @@ body {
   font-family: var(--font-body);
   font-size: var(--text-sm);
   color: var(--text-secondary);
+  margin: 0 0 var(--sp-5) 0;
+}
+
+.dialog-card > vault-input {
+  display: block;
   margin: 0 0 var(--sp-5) 0;
 }
 
