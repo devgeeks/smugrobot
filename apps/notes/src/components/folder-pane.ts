@@ -149,10 +149,16 @@ export class FolderPane {
 
     const all = await store.list()
     const notesToMove = all.filter((m) => m['type'] === 'note' && (m['folderId'] ?? null) === folder.id)
-    for (const noteMeta of notesToMove) {
-      await store.updateMeta(noteMeta.id, { folderId: null })
+    try {
+      for (const noteMeta of notesToMove) {
+        await store.updateMeta(noteMeta.id, { folderId: null })
+      }
+      await store.delete(folder.id)
+    } catch (err) {
+      showToast('Failed to delete folder. Notes may not have been moved.', 'danger')
+      console.error('Folder delete failed:', err)
+      return
     }
-    await store.delete(folder.id)
 
     dispatch({ type: 'FOLDER_DELETED', folderId: folder.id })
     await loadFolders()

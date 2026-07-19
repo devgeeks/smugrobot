@@ -99,11 +99,6 @@ export function promptDialog(opts: {
     const input = overlay.querySelector('vault-input') as HTMLElement & { value: string }
     focusVaultInput(input)
 
-    let currentValue = opts.initialValue ?? ''
-    input.addEventListener('vault-input', (e) => {
-      currentValue = (e as CustomEvent<{ value: string }>).detail.value
-    })
-
     const finish = (result: string | null) => {
       document.removeEventListener('keydown', onKey)
       overlay.remove()
@@ -112,14 +107,17 @@ export function promptDialog(opts: {
     }
 
     overlay.querySelector('.dialog-cancel')!.addEventListener('click', () => finish(null))
-    overlay.querySelector('.dialog-confirm')!.addEventListener('click', () => finish(currentValue.trim() || null))
+    overlay.querySelector('.dialog-confirm')!.addEventListener('click', () => {
+      // Read directly from the input element to avoid stale closure variable
+      finish(input.value.trim() || null)
+    })
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) finish(null)
     })
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') finish(null)
-      if (e.key === 'Enter') finish(currentValue.trim() || null)
+      if (e.key === 'Enter') finish(input.value.trim() || null)
     }
     document.addEventListener('keydown', onKey)
   })

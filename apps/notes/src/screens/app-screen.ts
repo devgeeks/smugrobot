@@ -9,6 +9,7 @@ let unsub: (() => void) | null = null
 let unsubFolderLoad: (() => void) | null = null
 let timestampInterval: ReturnType<typeof setInterval> | null = null
 let activeEditorPane: EditorPane | null = null
+let subscriberProcessing = false
 
 export async function mountAppScreen(root: HTMLElement): Promise<void> {
   unsub?.()
@@ -116,26 +117,32 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   await loadNotes(getState().selectedFolderId)
 
   unsub = subscribe(async () => {
-    const state = getState()
-    folderPane.render(state)
-    noteList.render(state)
-    editorPane.render(state)
+    if (subscriberProcessing) return
+    subscriberProcessing = true
+    try {
+      const state = getState()
+      folderPane.render(state)
+      noteList.render(state)
+      editorPane.render(state)
 
-    if (
-      state.selectedNoteId !== null &&
-      state.selectedNoteId !== editorPane.currentNoteId
-    ) {
-      const noteId = state.selectedNoteId
-      await editorPane.flushPendingSave()
-      // A later dispatch (e.g. createNote's NOTES_LOADED followed immediately
-      // by NOTE_SELECTED) may have already resolved selectedNoteId to
-      // something else while this async continuation was suspended on the
-      // await above — re-check against fresh state before acting on the
-      // stale snapshot captured at the top of this callback.
-      if (getState().selectedNoteId === noteId) await editorPane.loadNote(noteId)
-    } else if (state.selectedNoteId === null && editorPane.currentNoteId !== null) {
-      await editorPane.flushPendingSave()
-      if (getState().selectedNoteId === null) editorPane.clearNote()
+      if (
+        state.selectedNoteId !== null &&
+        state.selectedNoteId !== editorPane.currentNoteId
+      ) {
+        const noteId = state.selectedNoteId
+        await editorPane.flushPendingSave()
+        // A later dispatch (e.g. createNote's NOTES_LOADED followed immediately
+        // by NOTE_SELECTED) may have already resolved selectedNoteId to
+        // something else while this async continuation was suspended on the
+        // await above — re-check against fresh state before acting on the
+        // stale snapshot captured at the top of this callback.
+        if (getState().selectedNoteId === noteId) await editorPane.loadNote(noteId)
+      } else if (state.selectedNoteId === null && editorPane.currentNoteId !== null) {
+        await editorPane.flushPendingSave()
+        if (getState().selectedNoteId === null) editorPane.clearNote()
+      }
+    } finally {
+      subscriberProcessing = false
     }
   })
 

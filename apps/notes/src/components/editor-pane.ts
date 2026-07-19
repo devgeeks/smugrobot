@@ -137,6 +137,9 @@ export class EditorPane {
     const md = content ?? ''
     this.pendingMarkdown = md
     this.lastSavedMarkdown = md
+    // Reset dirty tracking for the newly loaded note
+    this.dirty = false
+    this.pendingSaveNoteId = null
     this.editor?.action(replaceAll(md))
   }
 
@@ -228,6 +231,7 @@ export class EditorPane {
     const updatedCounts = computeNoteCounts(all)
     this.currentNoteId = id
     this.pendingMarkdown = defaultContent
+    this.lastSavedMarkdown = defaultContent
     // NOTE_SELECTED first: app-screen's subscribe callback compares
     // selectedNoteId against editorPane.currentNoteId (already `id` above) on
     // every dispatch, so selecting before the NOTES_LOADED dispatch keeps

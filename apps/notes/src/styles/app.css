@@ -352,10 +352,16 @@ body {
     background var(--duration-fast) var(--ease-out);
 }
 
-.note-menu-btn:hover,
 .note-menu-btn:active {
   color: var(--text-primary);
   background: var(--surface-overlay);
+}
+
+@media (hover: hover) {
+  .note-menu-btn:hover {
+    color: var(--text-primary);
+    background: var(--surface-overlay);
+  }
 }
 
 .note-menu-btn:focus-visible {
