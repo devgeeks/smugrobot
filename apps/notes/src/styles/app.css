@@ -162,9 +162,9 @@ body {
 }
 
 .pane-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   padding: var(--sp-2) var(--sp-3) var(--sp-2) var(--sp-4);
   min-height: 56px;
   border-bottom: 1px solid var(--surface-border);
@@ -172,7 +172,21 @@ body {
   flex-shrink: 0;
 }
 
+/* Right-hand action button (Add folder / New note) — always the trailing column. */
+.pane-header > vault-button {
+  grid-column: 3;
+  justify-self: end;
+}
+
+/* Mobile back button — leading column, only present on the note-list pane header. */
+.pane-header .mobile-nav-btn {
+  grid-column: 1;
+  justify-self: start;
+}
+
 .pane-title {
+  grid-column: 2;
+  justify-self: center;
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   font-weight: 500;
