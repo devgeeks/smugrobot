@@ -33,11 +33,25 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   // ── Mobile single-pane navigation ─────────────────────────
   const PANE_ORDER = ['folders', 'list', 'editor'] as const
   let mobilePaneVisible: 'folders' | 'list' | 'editor' = 'list'
-  function setMobilePane(pane: typeof mobilePaneVisible): void {
+  function setMobilePane(pane: typeof mobilePaneVisible, options: { moveFocus?: boolean } = {}): void {
     const direction = PANE_ORDER.indexOf(pane) >= PANE_ORDER.indexOf(mobilePaneVisible) ? 1 : -1
     layout.style.setProperty('--pane-slide-direction', String(direction))
     mobilePaneVisible = pane
     layout.dataset['mobilePane'] = pane
+
+    if (options.moveFocus) {
+      // The pane we just hid may contain the currently focused element (e.g.
+      // the button that triggered this navigation); move focus into the pane
+      // that's now visible instead of letting it fall back to <body>.
+      if (pane === 'editor') {
+        backToNotesBtn.focus()
+      } else {
+        const paneEl = pane === 'folders' ? folderPane.el : noteList.el
+        const heading = paneEl.querySelector('.pane-title') as HTMLElement | null
+        heading?.setAttribute('tabindex', '-1')
+        heading?.focus()
+      }
+    }
   }
   setMobilePane('list')
 
@@ -49,7 +63,7 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   backToFoldersBtn.setAttribute('aria-label', 'Back to folders')
   backToFoldersBtn.textContent = '← Folders'
   noteListHeader.insertBefore(backToFoldersBtn, noteListHeader.firstChild)
-  backToFoldersBtn.addEventListener('click', () => setMobilePane('folders'))
+  backToFoldersBtn.addEventListener('click', () => setMobilePane('folders', { moveFocus: true }))
 
   const noteListLockBtn = document.createElement('vault-button')
   noteListLockBtn.setAttribute('variant', 'secondary')
@@ -68,11 +82,12 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   backToNotesBtn.textContent = '← Notes'
   const toolbar = editorPane.el.querySelector('.editor-toolbar')!
   toolbar.insertBefore(backToNotesBtn, toolbar.firstChild)
-  backToNotesBtn.addEventListener('click', () => setMobilePane('list'))
+  backToNotesBtn.addEventListener('click', () => setMobilePane('list', { moveFocus: true }))
 
   // Navigate on every tap, including re-taps of the already-selected item.
-  folderPane.onFolderSelect = () => setMobilePane('list')
-  noteList.onNoteSelect = () => setMobilePane('editor')
+  folderPane.onFolderSelect = () => setMobilePane('list', { moveFocus: true })
+  noteList.onNoteSelect = () => setMobilePane('editor', { moveFocus: true })
+  editorPane.onNoteDeleted = () => setMobilePane('list', { moveFocus: true })
   // ──────────────────────────────────────────────────────────
 
   activeEditorPane = editorPane
@@ -92,11 +107,17 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
       state.selectedNoteId !== null &&
       state.selectedNoteId !== editorPane.currentNoteId
     ) {
+      const noteId = state.selectedNoteId
       await editorPane.flushPendingSave()
-      await editorPane.loadNote(state.selectedNoteId)
+      // A later dispatch (e.g. createNote's NOTES_LOADED followed immediately
+      // by NOTE_SELECTED) may have already resolved selectedNoteId to
+      // something else while this async continuation was suspended on the
+      // await above — re-check against fresh state before acting on the
+      // stale snapshot captured at the top of this callback.
+      if (getState().selectedNoteId === noteId) await editorPane.loadNote(noteId)
     } else if (state.selectedNoteId === null && editorPane.currentNoteId !== null) {
       await editorPane.flushPendingSave()
-      editorPane.clearNote()
+      if (getState().selectedNoteId === null) editorPane.clearNote()
     }
   })
 
@@ -133,7 +154,7 @@ export function unmountAppScreen(): void {
   activeEditorPane = null
 }
 
-async function loadFolders(): Promise<void> {
+export async function loadFolders(): Promise<void> {
   const store = getState().store
   if (!store) return
   const all = await store.list()
@@ -141,7 +162,7 @@ async function loadFolders(): Promise<void> {
   dispatch({ type: 'FOLDERS_LOADED', folders })
 }
 
-async function loadNotes(folderId: string | null): Promise<void> {
+export async function loadNotes(folderId: string | null): Promise<void> {
   const store = getState().store
   if (!store) return
   const all = await store.list()

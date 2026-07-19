@@ -32,6 +32,10 @@ document.body.appendChild(versionBadge)
 
 const root = document.getElementById('app')!
 
+// Shown until detectVault() resolves and boot() dispatches the first real
+// screen transition — otherwise a slow IndexedDB open leaves a blank page.
+root.innerHTML = `<div class="app-loading"><vault-spinner size="lg" label="Loading…"></vault-spinner></div>`
+
 let currentScreen = ''
 
 subscribe(async () => {

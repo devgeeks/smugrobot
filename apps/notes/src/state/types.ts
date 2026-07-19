@@ -39,4 +39,6 @@ export type Action =
   | { type: 'NOTE_SAVE_FAILED' }
   | { type: 'NOTE_DELETED'; noteId: string }
   | { type: 'FOLDER_CREATED'; folder: FolderMeta }
+  | { type: 'FOLDER_RENAMED'; folder: FolderMeta }
+  | { type: 'FOLDER_DELETED'; folderId: string }
   | { type: 'LOCKED' }

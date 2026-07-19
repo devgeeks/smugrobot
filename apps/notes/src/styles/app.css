@@ -14,6 +14,15 @@ body {
   color: var(--text-primary);
 }
 
+/* ── Boot loading state ─────────────────────────────────── */
+
+.app-loading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ── Unlock screen ──────────────────────────────────────── */
 
 .unlock-wrap {
@@ -150,11 +159,26 @@ body {
   color: var(--text-secondary);
 }
 
+/* Programmatically focused after mobile pane navigation — see setMobilePane. */
+.pane-title[tabindex] {
+  outline: none;
+  border-radius: var(--radius-sm);
+}
+
+.pane-title[tabindex]:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
 .icon-btn {
   background: none;
   border: none;
   cursor: pointer;
-  padding: var(--sp-1);
+  padding: var(--sp-2);
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: var(--radius-sm);
   font-size: var(--text-base);
   color: var(--text-muted);
@@ -164,9 +188,16 @@ body {
     background var(--duration-fast) var(--ease-out);
 }
 
-.icon-btn:hover {
+.icon-btn:active {
   color: var(--text-primary);
   background: var(--surface-hover);
+}
+
+@media (hover: hover) {
+  .icon-btn:hover {
+    color: var(--text-primary);
+    background: var(--surface-hover);
+  }
 }
 
 .icon-btn:focus-visible {
@@ -183,17 +214,22 @@ body {
   font-weight: 600;
 }
 
-.folder-inline-input {
-  width: calc(100% - var(--sp-6));
-  margin: var(--sp-1) var(--sp-3);
-  background: var(--surface-overlay);
-  border: 1.5px solid var(--cipher);
-  border-radius: var(--radius-sm);
-  padding: var(--sp-1) var(--sp-2);
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  color: var(--text-primary);
-  outline: none;
+.folder-row-content {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.folder-row-content .folder-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folder-menu-btn {
+  flex-shrink: 0;
 }
 
 /* ── Note list pane ─────────────────────────────────────── */
@@ -274,7 +310,8 @@ body {
     background var(--duration-fast) var(--ease-out);
 }
 
-.note-menu-btn:hover {
+.note-menu-btn:hover,
+.note-menu-btn:active {
   color: var(--text-primary);
   background: var(--surface-overlay);
 }
@@ -326,7 +363,8 @@ body {
   background: none;
   border: none;
   cursor: pointer;
-  padding: var(--sp-2) var(--sp-4);
+  touch-action: manipulation;
+  padding: var(--sp-3) var(--sp-4);
   font-family: var(--font-body);
   font-size: var(--text-sm);
   color: var(--text-primary);
@@ -334,8 +372,14 @@ body {
   transition: background var(--duration-fast) var(--ease-out);
 }
 
-.menu-item:hover {
-  background: rgba(255, 255, 255, 0.07);
+.menu-item:active {
+  background: var(--surface-hover);
+}
+
+@media (hover: hover) {
+  .menu-item:hover {
+    background: var(--surface-hover);
+  }
 }
 
 .menu-item:focus-visible {
@@ -445,6 +489,23 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: var(--sp-6) var(--sp-8);
+}
+
+.editor-empty-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  padding: var(--sp-6) var(--sp-4);
+  text-align: center;
+  margin: 0;
+}
+
+.editor-empty-state[hidden] {
+  display: none;
 }
 
 /* ── Milkdown editor styles ─────────────────────────────── */
@@ -582,15 +643,6 @@ body {
   margin: var(--sp-6) 0;
 }
 
-/* Milkdown placeholder (empty doc) */
-.milkdown-host .ProseMirror.ProseMirror-empty::before {
-  content: attr(data-placeholder);
-  color: var(--text-muted);
-  pointer-events: none;
-  float: left;
-  height: 0;
-}
-
 @keyframes mobile-pane-enter {
   from {
     opacity: 0;
@@ -645,9 +697,5 @@ body {
 
   .editor-toolbar .mobile-nav-btn {
     margin-right: var(--sp-2);
-  }
-
-  .editor-toolbar .new-note-btn {
-    display: none;
   }
 }

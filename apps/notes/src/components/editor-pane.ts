@@ -9,19 +9,26 @@ import type { AppState } from '../state/types.js'
 import { dispatch, getState } from '../state/store.js'
 import { deriveTitleFromMarkdown } from '../utils/markdown.js'
 import { showToast } from '../utils/toast.js'
+import { confirmDialog } from '../utils/dialog.js'
+import { closeMenuAfterTap } from '../utils/menu.js'
 import type { NoteMeta } from '../state/types.js'
 
 export class EditorPane {
   el: HTMLElement
   private editor: Editor | null = null
   private saveTimer: ReturnType<typeof setTimeout> | null = null
+  private saveInFlight: Promise<void> | null = null
   private pendingMarkdown = ''
   private pendingSaveNoteId: string | null = null
   private lastSavedMarkdown = ''
+  /** True whenever pendingMarkdown/pendingSaveNoteId hold an edit that hasn't been durably saved yet. */
+  private dirty = false
   currentNoteId: string | null = null
+  onNoteDeleted?: () => void
   private lockBtn!: HTMLElement
   private spinner!: HTMLElement
   private milkdownHost!: HTMLElement
+  private emptyState!: HTMLElement
   private noteMenu!: HTMLElement & { close(): void }
 
   constructor() {
@@ -42,26 +49,34 @@ export class EditorPane {
         </div>
       </div>
       <div class="milkdown-host"></div>
+      <p class="editor-empty-state" hidden>Select a note, or create a new one.</p>
     `
 
     this.lockBtn = this.el.querySelector('.lock-btn')!
     this.spinner = this.el.querySelector('.save-spinner')!
     this.milkdownHost = this.el.querySelector('.milkdown-host')!
+    this.emptyState = this.el.querySelector('.editor-empty-state')!
     this.noteMenu = this.el.querySelector('.note-menu')!
 
     this.lockBtn.addEventListener('click', () => this.lock())
     this.noteMenu.addEventListener('click', (e) => e.stopPropagation())
 
     this.noteMenu.querySelector('[data-action="copy"]')!.addEventListener('click', () => {
-      this.noteMenu.close()
-      const content = this.getCurrentMarkdown()
-      if (content) navigator.clipboard.writeText(content)
+      closeMenuAfterTap(this.noteMenu, () => {
+        const content = this.getCurrentMarkdown()
+        if (content) navigator.clipboard.writeText(content)
+      })
     })
 
     this.noteMenu.querySelector('[data-action="delete"]')!.addEventListener('click', () => {
-      this.noteMenu.close()
-      const note = getState().notes.find((n) => n.id === this.currentNoteId)
-      if (note) confirmDeleteNote(note)
+      closeMenuAfterTap(this.noteMenu, () => {
+        const note = getState().notes.find((n) => n.id === this.currentNoteId)
+        if (note) {
+          confirmDeleteNote(note).then((deleted) => {
+            if (deleted) this.onNoteDeleted?.()
+          })
+        }
+      })
     })
   }
 
@@ -109,6 +124,9 @@ export class EditorPane {
   render(state: AppState): void {
     this.spinner.style.display = state.isSaving ? '' : 'none'
     this.noteMenu.style.display = state.selectedNoteId === null ? 'none' : ''
+    const empty = state.selectedNoteId === null
+    this.emptyState.hidden = !empty
+    this.milkdownHost.style.display = empty ? 'none' : ''
   }
 
   async loadNote(noteId: string): Promise<void> {
@@ -133,11 +151,15 @@ export class EditorPane {
     if (!this.currentNoteId || markdown === this.lastSavedMarkdown) return
     const noteId = this.currentNoteId
     this.pendingSaveNoteId = noteId
+    this.pendingMarkdown = markdown
+    this.dirty = true
     if (this.saveTimer) clearTimeout(this.saveTimer)
     dispatch({ type: 'NOTE_SAVE_START' })
     this.saveTimer = setTimeout(() => {
       this.saveTimer = null
-      this.doSave(noteId, markdown)
+      this.saveInFlight = this.doSave(noteId, markdown).finally(() => {
+        this.saveInFlight = null
+      })
     }, 800)
   }
 
@@ -153,6 +175,11 @@ export class EditorPane {
         folderId: existingMeta ? (existingMeta['folderId'] ?? null) : state.selectedFolderId,
       })
       if (noteId === this.currentNoteId) this.lastSavedMarkdown = markdown
+      // Only clear dirty if no newer edit arrived while this save was in flight.
+      if (noteId === this.pendingSaveNoteId && markdown === this.pendingMarkdown) {
+        this.dirty = false
+        this.pendingSaveNoteId = null
+      }
       dispatch({ type: 'NOTE_SAVE_DONE', meta: meta as NoteMeta })
     } catch (err) {
       dispatch({ type: 'NOTE_SAVE_FAILED' })
@@ -161,13 +188,21 @@ export class EditorPane {
     }
   }
 
+  /**
+   * Retries until the last known edit is durably saved, not just until the
+   * debounce timer has fired — a save that already failed once (dirty stays
+   * true, saveTimer is already null) must still be retried before switching
+   * notes or locking, or the edit is silently discarded.
+   */
   async flushPendingSave(): Promise<void> {
-    if (this.saveTimer && this.pendingSaveNoteId) {
+    if (this.saveTimer) {
       clearTimeout(this.saveTimer)
       this.saveTimer = null
+    }
+    if (this.saveInFlight) await this.saveInFlight
+    if (this.dirty && this.pendingSaveNoteId) {
       const noteId = this.pendingSaveNoteId
       const markdown = this.pendingMarkdown
-      this.pendingSaveNoteId = null
       await this.doSave(noteId, markdown)
     }
   }
@@ -200,9 +235,15 @@ export class EditorPane {
     const updatedCounts = { ...noteCounts, [key]: notes.length }
     this.currentNoteId = id
     this.pendingMarkdown = defaultContent
-    dispatch({ type: 'NOTES_LOADED', notes, noteCounts: updatedCounts })
+    // NOTE_SELECTED first: app-screen's subscribe callback compares
+    // selectedNoteId against editorPane.currentNoteId (already `id` above) on
+    // every dispatch, so selecting before the NOTES_LOADED dispatch keeps
+    // them in sync throughout instead of racing an intermediate state where
+    // selectedNoteId is still the old value.
     dispatch({ type: 'NOTE_SELECTED', noteId: id })
+    dispatch({ type: 'NOTES_LOADED', notes, noteCounts: updatedCounts })
     this.editor?.action(replaceAll(defaultContent))
+    this.editor?.action((ctx) => ctx.get(editorViewCtx).focus())
   }
 
   getCurrentMarkdown(): string {
@@ -219,41 +260,21 @@ export class EditorPane {
   }
 }
 
-function confirmDeleteNote(note: NoteMeta): void {
-  const overlay = document.createElement('div')
-  overlay.className = 'dialog-overlay'
-  overlay.innerHTML = `
-    <vault-card border elevated class="dialog-card">
-      <h2 class="dialog-title">Delete note?</h2>
-      <p class="dialog-body">"${escapeHtml(note.title)}" will be permanently deleted.</p>
-      <div class="dialog-actions">
-        <vault-button variant="secondary" size="md" class="dialog-cancel">Cancel</vault-button>
-        <vault-button variant="danger" size="md" class="dialog-confirm">Delete</vault-button>
-      </div>
-    </vault-card>
-  `
-  document.body.appendChild(overlay)
-
-  const close = () => overlay.remove()
-
-  overlay.querySelector('.dialog-cancel')!.addEventListener('click', close)
-  overlay.querySelector('.dialog-confirm')!.addEventListener('click', async () => {
-    close()
-    const store = getState().store
-    if (!store) return
-    await store.delete(note.id)
-    dispatch({ type: 'NOTE_DELETED', noteId: note.id })
-    showToast(`"${note.title}" was deleted.`, 'info')
+/** Resolves true if the note was actually deleted, false if the user cancelled. */
+async function confirmDeleteNote(note: NoteMeta): Promise<boolean> {
+  const ok = await confirmDialog({
+    title: 'Delete note?',
+    body: `"${escapeHtml(note.title)}" will be permanently deleted.`,
+    confirmLabel: 'Delete',
+    danger: true,
   })
-
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) close()
-  })
-
-  const onKey = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey) }
-  }
-  document.addEventListener('keydown', onKey)
+  if (!ok) return false
+  const store = getState().store
+  if (!store) return false
+  await store.delete(note.id)
+  dispatch({ type: 'NOTE_DELETED', noteId: note.id })
+  showToast(`"${note.title}" was deleted.`, 'info')
+  return true
 }
 
 function escapeHtml(s: string): string {

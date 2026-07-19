@@ -1,5 +1,9 @@
 import type { AppState, FolderMeta } from '../state/types.js'
 import { dispatch, getState } from '../state/store.js'
+import { loadFolders, loadNotes } from '../screens/app-screen.js'
+import { confirmDialog, promptDialog } from '../utils/dialog.js'
+import { closeMenuAfterTap } from '../utils/menu.js'
+import { showToast } from '../utils/toast.js'
 
 export class FolderPane {
   el: HTMLElement
@@ -62,10 +66,39 @@ export class FolderPane {
       opt.setAttribute('value', folder.id)
       if (activeValue === folder.id) opt.setAttribute('active', '')
       if ((noteCounts[folder.id] ?? 0) === 0) opt.setAttribute('data-empty', '')
+
+      const row = document.createElement('div')
+      row.className = 'folder-row-content'
+
       const label = document.createElement('span')
       label.className = 'folder-label'
       label.textContent = folder.title
-      opt.appendChild(label)
+      row.appendChild(label)
+
+      const menu = document.createElement('vault-popover') as HTMLElement & { close(): void }
+      menu.className = 'folder-menu'
+      menu.setAttribute('placement', 'bottom-end')
+      menu.innerHTML = `
+        <vault-button slot="trigger" variant="ghost" size="md" class="folder-menu-btn" aria-label="Folder options">⋮</vault-button>
+        <div class="folder-menu-panel">
+          <button class="menu-item" data-action="rename">Rename</button>
+          <button class="menu-item menu-item--danger" data-action="delete">Delete</button>
+        </div>
+      `
+      // Keep clicks/presses on the menu from also reaching the listbox's own
+      // pointerdown/click handlers, which would select or re-activate this
+      // option instead of (or as well as) operating the menu.
+      menu.addEventListener('pointerdown', (e) => e.stopPropagation())
+      menu.addEventListener('click', (e) => e.stopPropagation())
+      menu.querySelector('[data-action="rename"]')!.addEventListener('click', () => {
+        closeMenuAfterTap(menu, () => this.renameFolder(folder))
+      })
+      menu.querySelector('[data-action="delete"]')!.addEventListener('click', () => {
+        closeMenuAfterTap(menu, () => this.deleteFolder(folder))
+      })
+      row.appendChild(menu)
+
+      opt.appendChild(row)
       listbox.appendChild(opt)
     }
 
@@ -77,6 +110,44 @@ export class FolderPane {
     })
 
     nav.appendChild(listbox)
+  }
+
+  private async renameFolder(folder: FolderMeta): Promise<void> {
+    const name = await promptDialog({
+      title: 'Rename folder',
+      label: 'Folder name',
+      initialValue: folder.title,
+      confirmLabel: 'Rename',
+    })
+    if (!name || name === folder.title) return
+    const store = getState().store
+    if (!store) return
+    const meta = await store.updateMeta(folder.id, { title: name })
+    dispatch({ type: 'FOLDER_RENAMED', folder: meta as FolderMeta })
+  }
+
+  private async deleteFolder(folder: FolderMeta): Promise<void> {
+    const ok = await confirmDialog({
+      title: 'Delete folder?',
+      body: `"${escapeHtml(folder.title)}" will be deleted. Notes inside it will move to "All notes".`,
+      confirmLabel: 'Delete',
+      danger: true,
+    })
+    if (!ok) return
+    const store = getState().store
+    if (!store) return
+
+    const all = await store.list()
+    const notesToMove = all.filter((m) => m['type'] === 'note' && (m['folderId'] ?? null) === folder.id)
+    for (const noteMeta of notesToMove) {
+      await store.updateMeta(noteMeta.id, { folderId: null })
+    }
+    await store.delete(folder.id)
+
+    dispatch({ type: 'FOLDER_DELETED', folderId: folder.id })
+    await loadFolders()
+    await loadNotes(getState().selectedFolderId)
+    showToast(`"${folder.title}" was deleted.`, 'info')
   }
 
   private promptNewFolder(): void {
@@ -122,4 +193,8 @@ export class FolderPane {
     nav.appendChild(vaultInput)
     vaultInput.focus()
   }
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }

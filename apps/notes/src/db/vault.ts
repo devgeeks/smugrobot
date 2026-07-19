@@ -96,10 +96,30 @@ export async function detectVault(): Promise<{ adapter: StorageAdapter; exists: 
   return { adapter, exists: salt !== null }
 }
 
-export async function createVault(adapter: StorageAdapter, passphrase: string) {
+/**
+ * Creates a fresh vault, deriving the key locally (rather than handing the
+ * passphrase to echidna's own `keySource: { type: 'passphrase' }` path) so
+ * scrypt progress can be reported — mirroring the same manual salt/KDF
+ * handling `openVault` below already does for the same reason.
+ */
+export async function createVault(
+  adapter: StorageAdapter,
+  passphrase: string,
+  onProgress?: (p: number) => void,
+) {
+  const params: KdfParams = { algo: 'scrypt', N: 131072, r: 8, p: 1 }
+  const salt = crypto.getRandomValues(new Uint8Array(16))
+  await adapter.set('vault/salt', salt)
+  await adapter.set('vault/kdf', new TextEncoder().encode(JSON.stringify(params)))
+  // Fresh vaults are born at the current on-disk format version (matches
+  // what echidna's own createEncryptedStore writes for a brand-new vault).
+  await adapter.set('vault/version', new TextEncoder().encode(JSON.stringify(2)))
+
+  const key = await deriveKey(passphrase, salt, params, onProgress)
+
   const store = await createEncryptedStore({
     adapter,
-    keySource: { type: 'passphrase', passphrase },
+    keySource: { type: 'raw', key },
   })
   await store.set(SENTINEL_ID, 'ok', { title: '__sentinel__', type: '__sentinel__' })
   return store

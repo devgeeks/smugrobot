@@ -66,6 +66,19 @@ function reducer(state: AppState, action: Action): AppState {
       }
     case 'FOLDER_CREATED':
       return { ...state, folders: [...state.folders, action.folder] }
+    case 'FOLDER_RENAMED':
+      return {
+        ...state,
+        folders: state.folders.map((f) => (f.id === action.folder.id ? action.folder : f)),
+      }
+    case 'FOLDER_DELETED':
+      return {
+        ...state,
+        folders: state.folders.filter((f) => f.id !== action.folderId),
+        selectedFolderId: state.selectedFolderId === action.folderId ? null : state.selectedFolderId,
+        selectedNoteId: state.selectedFolderId === action.folderId ? null : state.selectedNoteId,
+        notes: state.selectedFolderId === action.folderId ? [] : state.notes,
+      }
     case 'LOCKED':
       return { ...initial, screen: 'unlock', vaultExists: true, adapter: state.adapter }
     default:

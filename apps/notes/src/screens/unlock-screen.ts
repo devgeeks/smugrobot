@@ -41,9 +41,9 @@ export function mountUnlockScreen(root: HTMLElement): () => void {
         </vault-button>
       </vault-card>
       <div id="kdf-progress" class="kdf-progress">
-        <span class="kdf-progress-label">Unlocking private notes…</span>
+        <span class="kdf-progress-label" aria-live="polite">Unlocking private notes…</span>
         <div class="kdf-progress-track">
-          <div class="kdf-progress-bar"></div>
+          <div class="kdf-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
         </div>
       </div>
     </div>
@@ -58,6 +58,8 @@ export function mountUnlockScreen(root: HTMLElement): () => void {
   const progressBar = wrap.querySelector('.kdf-progress-bar') as HTMLElement
   const progressLabel = wrap.querySelector('.kdf-progress-label') as HTMLElement
 
+  ;(passphraseInput as HTMLElement & { shadowRoot: ShadowRoot | null }).shadowRoot?.querySelector('input')?.focus()
+
   // vault-input re-renders on any attribute change, resetting the native input value
   // to the 'value' attribute. Sync 'value' first so the typed text is preserved.
   const setInputError = (el: HTMLElement & { value: string }, msg: string) => {
@@ -67,6 +69,19 @@ export function mountUnlockScreen(root: HTMLElement): () => void {
 
   passphraseInput.addEventListener('vault-input', () => passphraseInput.removeAttribute('error'))
   confirmInput?.addEventListener('vault-input', () => confirmInput.removeAttribute('error'))
+
+  // Announced text updates in 10% steps so screen readers get periodic
+  // progress without an announcement on every single percentage point.
+  let lastAnnouncedPct = -1
+  const updateProgress = (pct: number, message: string) => {
+    progressBar.style.width = `${pct}%`
+    progressBar.setAttribute('aria-valuenow', String(pct))
+    const step = Math.floor(pct / 10) * 10
+    if (step !== lastAnnouncedPct) {
+      lastAnnouncedPct = step
+      progressLabel.textContent = message
+    }
+  }
 
   const doUnlock = async () => {
     const passphrase: string = (passphraseInput as unknown as { value: string }).value ?? ''
@@ -89,30 +104,31 @@ export function mountUnlockScreen(root: HTMLElement): () => void {
 
     btn.setAttribute('loading', '')
     btn.setAttribute('disabled', '')
-    progressBar.style.width = '0%'
-    progressLabel.textContent = 'Unlocking private notes…'
-    if (!creating) progressWrap.classList.add('visible')
+    lastAnnouncedPct = -1
+    updateProgress(0, creating ? 'Encrypting your vault…' : 'Unlocking private notes…')
+    progressWrap.classList.add('visible')
 
     try {
       const currentState = getState()
       if (!currentState.adapter) throw new Error('No adapter')
       let store
       if (creating) {
-        store = await createVault(currentState.adapter, passphrase)
+        store = await createVault(currentState.adapter, passphrase, (p) => {
+          const pct = Math.round(p * 100)
+          updateProgress(pct, `Encrypting your vault… ${pct}%`)
+        })
       } else {
         const result = await openVault(
           currentState.adapter,
           passphrase,
           (p) => {
             const pct = Math.round(p * 100)
-            progressBar.style.width = `${pct}%`
-            progressLabel.textContent = `Unlocking private notes… ${pct}%`
+            updateProgress(pct, `Unlocking private notes… ${pct}%`)
           },
           () => {
             // One-time upgrade from the legacy 0.1.0 vault format. migrate() has
             // no progress signal, so fill the bar and swap the label.
-            progressBar.style.width = '100%'
-            progressLabel.textContent = 'Upgrading your notes…'
+            updateProgress(100, 'Upgrading your notes…')
           },
         )
         store = result.store
@@ -131,6 +147,7 @@ export function mountUnlockScreen(root: HTMLElement): () => void {
       btn.removeAttribute('disabled')
       progressWrap.classList.remove('visible')
       progressBar.style.width = '0%'
+      progressBar.setAttribute('aria-valuenow', '0')
     }
   }
 
