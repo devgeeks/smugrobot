@@ -1,5 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#0D0F0E"/>
+  <!-- keep in sync with vault-ui's ink-950 / surface-base token (packages/ui/src/tokens/tokens.css) -->
+  <rect width="512" height="512" rx="112" fill="#121413"/>
   <text
     x="256" y="352"
     font-family="monospace"

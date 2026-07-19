@@ -29,8 +29,9 @@ export default defineConfig(({ mode }) => {
           short_name: 'Notes',
           description: 'Private encrypted notes',
           display: 'standalone',
-          background_color: '#0D0F0E',
-          theme_color: '#0D0F0E',
+          // keep in sync with vault-ui's --ink-950 / --surface-base (packages/ui/src/tokens/tokens.css)
+          background_color: '#121413',
+          theme_color: '#121413',
           start_url: '/notes/',
           scope: '/notes/',
           icons: [

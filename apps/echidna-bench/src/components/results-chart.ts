@@ -7,7 +7,7 @@ const DATA_TYPE_LABELS: Record<string, string> = {
 }
 
 // Validated via the dataviz palette validator (categorical, 2 slots) against both
-// the dark (#0D0F0E) and light (#F2F5F3) vault-ui surfaces — passes lightness band,
+// the dark (#121413) and light (#F2F5F3) vault-ui surfaces — passes lightness band,
 // chroma floor, CVD separation (deutan ΔE 54.7), and contrast in both modes.
 const ENCRYPT_COLOR = '#1E9966'
 const DECRYPT_COLOR = '#3D7DB8'

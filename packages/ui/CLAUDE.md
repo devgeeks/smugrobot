@@ -56,12 +56,12 @@ All tokens are CSS custom properties. Shadow DOM inherits them automatically —
 ### Color palette
 
 ```
---ink-950: #0D0F0E   surface-base (dark)
---ink-900: #141817   surface-raised (dark)
---ink-800: #1C2020   surface-overlay (dark)
---ink-700: #252B2A   surface-border (dark)
+--ink-950: #121413   surface-base (dark)
+--ink-900: #191D1C   surface-raised (dark)
+--ink-800: #212525   surface-overlay (dark)
+--ink-700: #2A302F   surface-border (dark)
 --ink-600: #303938
---ink-500: #7C8A87   text-muted (dark) — 5.35:1 on ink-950
+--ink-500: #83908D   text-muted (dark) — 5.59:1 on ink-950
 --ink-400: #687270   text-muted (light), UI borders — 4.52:1 on ink-50
 --ink-300: #8E9A98   text-secondary (dark)
 --ink-100: #CDD4D1
