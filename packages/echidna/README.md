@@ -111,6 +111,8 @@ Requires a [Dropbox app](https://www.dropbox.com/developers/apps) configured wit
 
 > **Note:** Dropbox is case-insensitive. Document IDs that differ only by case will collide.
 
+> **Privacy warning:** metadata (`title`, `tags`, and any custom fields) is stored as plaintext, unauthenticated JSON. A compromised Dropbox account can read it and write arbitrary values into it. Treat every metadata field as untrusted input in your UI — never pass it to `innerHTML` or an equivalent unescaped-HTML sink.
+
 ```ts
 import {
   dropboxAdapter,
@@ -174,7 +176,7 @@ In browsers, `pouchdb-browser` is typically backed by IndexedDB, so this adapter
 
 > **Note:** echidna.js only implements local storage through this adapter. Remote sync — the CouchDB URL, auth, live replication, retry policy — is your app's responsibility, driven directly against the same PouchDB instance you pass in.
 
-> **Privacy warning:** syncing does not make document metadata private. `docs/{id}/meta` (title, tags, timestamps, size, and any custom fields) is always stored as plaintext JSON — by design, so lists can be filtered without decrypting bodies — and it is unauthenticated, so a malicious or compromised CouchDB server can read _and silently rewrite_ it. Only `docs/{id}/body` is encrypted and MAC-protected; tampering with a body fails loudly (`WRONG_KEY`), and moving one document's body onto another id is caught by the id binding (`TAMPERED`). What is **not** protected: a hostile server operator can see attachment sizes and write timing, can withhold documents, and can roll a body (and its metadata) back to an _earlier version of the same document_ undetectably — there is no vault-level integrity check or version anchor across the whole sync. Don't put anything sensitive in `title`, `tags`, or custom metadata fields if you don't trust the CouchDB server operator.
+> **Privacy warning:** syncing does not make document metadata private. `docs/{id}/meta` (title, tags, timestamps, size, and any custom fields) is always stored as plaintext JSON — by design, so lists can be filtered without decrypting bodies — and it is unauthenticated, so a malicious or compromised CouchDB server can read _and silently rewrite_ it. Only `docs/{id}/body` is encrypted and MAC-protected; tampering with a body fails loudly (`WRONG_KEY`), and moving one document's body onto another id is caught by the id binding (`TAMPERED`). What is **not** protected: a hostile server operator can see attachment sizes and write timing, can withhold documents, and can roll a body (and its metadata) back to an _earlier version of the same document_ undetectably — there is no vault-level integrity check or version anchor across the whole sync. Don't put anything sensitive in `title`, `tags`, or custom metadata fields if you don't trust the CouchDB server operator. The same server can also write arbitrary values into those fields, so any UI that renders them must treat them as untrusted input — never pass them to `innerHTML` or an equivalent unescaped-HTML sink.
 
 ```ts
 import PouchDB from "pouchdb";
@@ -431,6 +433,7 @@ try {
 - **Document binding:** each body is encrypted with its document id as additional authenticated data (see blob format). A body moved or relabelled to another document — e.g. by a compromised storage backend swapping two blobs — decrypts under the vault key but fails its id check, surfaced as `EchidnaJsError('TAMPERED')`. This does **not** prevent rolling a body back to an _earlier version of the same document_ (there is no trusted version anchor).
 - **Wrong key detection:** `nacl.secretbox.open` returns `null` — surfaced as `EchidnaJsError('WRONG_KEY')`. Garbage is never returned.
 - **What is never stored:** the key, the passphrase, or any derivative that would allow offline verification
+- **Metadata is untrusted input:** `DocMeta` fields are plaintext and unauthenticated by design, so lists can be filtered without decrypting bodies. When a vault is synced through a backend you don't fully trust (see the Dropbox and CouchDB/PouchDB sections above), that backend can write arbitrary values into `title`, `tags`, or custom fields — consuming UIs must treat every metadata field as attacker-controllable, unescaped input.
 
 ### Encrypted blob format
 
