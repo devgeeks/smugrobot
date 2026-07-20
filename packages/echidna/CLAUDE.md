@@ -4,6 +4,12 @@ echidna.js is a TypeScript library for storing arbitrary text documents encrypte
 
 ---
 
+## Keeping docs in sync
+
+This file and `README.md` are both spec/reference documents for echidna.js — this one for agents working on the package, the other for consumers of it. Whenever a code change affects the public API (`DocStore` methods, `EchidnaJsErrorCode`, exported types), adds/removes/changes an adapter, changes the storage layout or blob format, or changes the security model, update the relevant sections of **both** files in the same change. A stale doc here is treated as authoritative instruction by future agents, so letting it drift is worse than having no doc at all.
+
+---
+
 ## Security Model
 
 - Encryption: `nacl.secretbox` (XSalsa20-Poly1305)
