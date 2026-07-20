@@ -8,7 +8,7 @@
  */
 export function closeMenuAfterTap(menu: { close(): void }, action: () => void): void {
   setTimeout(() => {
-    menu.close()
-    action()
-  }, 100)
+    menu.close();
+    action();
+  }, 100);
 }

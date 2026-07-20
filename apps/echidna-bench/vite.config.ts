@@ -1,24 +1,24 @@
-import { defineConfig } from 'vite'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import { defineConfig } from "vite";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  base: '/echidna-bench/',
+  base: "/echidna-bench/",
   resolve: {
     alias: [
       {
         find: /^echidna\.js\/adapters\/(.+)$/,
-        replacement: path.resolve(__dirname, '../../packages/echidna/src/adapters/$1.ts'),
+        replacement: path.resolve(__dirname, "../../packages/echidna/src/adapters/$1.ts"),
       },
       {
-        find: 'echidna.js',
-        replacement: path.resolve(__dirname, '../../packages/echidna/src/index.ts'),
+        find: "echidna.js",
+        replacement: path.resolve(__dirname, "../../packages/echidna/src/index.ts"),
       },
     ],
   },
   optimizeDeps: {
-    exclude: ['echidna.js', '@smugrobot/ui'],
+    exclude: ["echidna.js", "@smugrobot/ui"],
   },
-})
+});

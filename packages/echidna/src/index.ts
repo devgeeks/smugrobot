@@ -1,5 +1,5 @@
-export { createEncryptedStore, DocStore } from "./store"
-export { EchidnaJsError } from "./types"
+export { createEncryptedStore, DocStore } from "./store";
+export { EchidnaJsError } from "./types";
 export type {
   StorageAdapter,
   DocMeta,
@@ -12,4 +12,4 @@ export type {
   ListOptions,
   SetMetaOptions,
   EchidnaJsErrorCode,
-} from "./types"
+} from "./types";

@@ -1,7 +1,7 @@
-import { TOKEN_BRIDGE } from './token-bridge.js';
+import { TOKEN_BRIDGE } from "./token-bridge.js";
 
 class VaultBadge extends HTMLElement {
-  static observedAttributes = ['variant', 'dot'];
+  static observedAttributes = ["variant", "dot"];
 
   connectedCallback() {
     if (!this.shadowRoot) this.#render();
@@ -12,28 +12,30 @@ class VaultBadge extends HTMLElement {
   }
 
   #render() {
-    const variant = this.getAttribute('variant') || 'default';
-    const dot     = this.hasAttribute('dot');
+    const variant = this.getAttribute("variant") || "default";
+    const dot = this.hasAttribute("dot");
 
     const colors = {
       default: `color: var(--text-secondary); background: var(--surface-overlay); border-color: var(--surface-border);`,
       success: `color: var(--cipher-text);  background: color-mix(in srgb, var(--cipher) 10%, transparent);  border-color: color-mix(in srgb, var(--cipher) 30%, transparent);`,
-      warn:    `color: var(--warn-text);    background: color-mix(in srgb, var(--warn) 10%, transparent);    border-color: color-mix(in srgb, var(--warn) 30%, transparent);`,
-      danger:  `color: var(--danger-text);  background: color-mix(in srgb, var(--danger) 10%, transparent);  border-color: color-mix(in srgb, var(--danger) 30%, transparent);`,
-      info:    `color: var(--info-text);    background: color-mix(in srgb, var(--info) 10%, transparent);   border-color: color-mix(in srgb, var(--info) 30%, transparent);`,
+      warn: `color: var(--warn-text);    background: color-mix(in srgb, var(--warn) 10%, transparent);    border-color: color-mix(in srgb, var(--warn) 30%, transparent);`,
+      danger: `color: var(--danger-text);  background: color-mix(in srgb, var(--danger) 10%, transparent);  border-color: color-mix(in srgb, var(--danger) 30%, transparent);`,
+      info: `color: var(--info-text);    background: color-mix(in srgb, var(--info) 10%, transparent);   border-color: color-mix(in srgb, var(--info) 30%, transparent);`,
     };
 
     const dotColors = {
       default: `background: var(--text-muted);`,
       success: `background: var(--cipher);`,
-      warn:    `background: var(--warn);`,
-      danger:  `background: var(--danger);`,
-      info:    `background: var(--info);`,
+      warn: `background: var(--warn);`,
+      danger: `background: var(--danger);`,
+      info: `background: var(--info);`,
     };
 
-    if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    if (!this.shadowRoot) this.attachShadow({ mode: "open" });
 
-    this.shadowRoot.innerHTML = TOKEN_BRIDGE + `
+    this.shadowRoot.innerHTML =
+      TOKEN_BRIDGE +
+      `
       <style>
         :host { display: inline-flex; }
         .badge {
@@ -58,13 +60,13 @@ class VaultBadge extends HTMLElement {
         }
       </style>
       <span class="badge">
-        ${dot ? '<span class="dot" aria-hidden="true"></span>' : ''}
+        ${dot ? '<span class="dot" aria-hidden="true"></span>' : ""}
         <slot></slot>
       </span>
     `;
   }
 }
 
-customElements.define('vault-badge', VaultBadge);
+customElements.define("vault-badge", VaultBadge);
 
 export { VaultBadge };

@@ -1,13 +1,13 @@
-import { TOKEN_BRIDGE } from './token-bridge.js';
+import { TOKEN_BRIDGE } from "./token-bridge.js";
 
 let _optionId = 0;
 
 class VaultListboxOption extends HTMLElement {
-  static observedAttributes = ['value', 'selected', 'disabled', 'active'];
+  static observedAttributes = ["value", "selected", "disabled", "active"];
 
   connectedCallback() {
     if (!this.id) this.id = `vlo-${++_optionId}`;
-    this.setAttribute('role', 'option');
+    this.setAttribute("role", "option");
     this.#syncAria();
     if (!this.shadowRoot) this.#render();
   }
@@ -18,18 +18,20 @@ class VaultListboxOption extends HTMLElement {
   }
 
   #syncAria() {
-    this.setAttribute('aria-selected', this.hasAttribute('selected') ? 'true' : 'false');
-    if (this.hasAttribute('disabled')) {
-      this.setAttribute('aria-disabled', 'true');
+    this.setAttribute("aria-selected", this.hasAttribute("selected") ? "true" : "false");
+    if (this.hasAttribute("disabled")) {
+      this.setAttribute("aria-disabled", "true");
     } else {
-      this.removeAttribute('aria-disabled');
+      this.removeAttribute("aria-disabled");
     }
   }
 
   #render() {
-    if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    if (!this.shadowRoot) this.attachShadow({ mode: "open" });
 
-    this.shadowRoot.innerHTML = TOKEN_BRIDGE + `
+    this.shadowRoot.innerHTML =
+      TOKEN_BRIDGE +
+      `
       <style>
         :host {
           display: block;
@@ -82,12 +84,12 @@ class VaultListboxOption extends HTMLElement {
 }
 
 class VaultListbox extends HTMLElement {
-  static observedAttributes = ['label', 'value', 'disabled', 'selectable', 'ghost'];
+  static observedAttributes = ["label", "value", "disabled", "selectable", "ghost"];
 
   #observer = null;
 
   #handleKeydown = (e) => {
-    if (this.hasAttribute('disabled')) return;
+    if (this.hasAttribute("disabled")) return;
     const opts = this.#enabledOptions();
     if (!opts.length) return;
 
@@ -95,19 +97,19 @@ class VaultListbox extends HTMLElement {
     const idx = active ? opts.indexOf(active) : -1;
 
     let next = null;
-    if (e.key === 'ArrowDown') {
+    if (e.key === "ArrowDown") {
       e.preventDefault();
       next = opts[idx + 1] ?? opts[0];
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === "ArrowUp") {
       e.preventDefault();
       next = idx > 0 ? opts[idx - 1] : opts[opts.length - 1];
-    } else if (e.key === 'Home') {
+    } else if (e.key === "Home") {
       e.preventDefault();
       next = opts[0];
-    } else if (e.key === 'End') {
+    } else if (e.key === "End") {
       e.preventDefault();
       next = opts[opts.length - 1];
-    } else if (e.key === 'Enter' || e.key === ' ') {
+    } else if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       if (active) this.#select(active);
     }
@@ -116,124 +118,128 @@ class VaultListbox extends HTMLElement {
   };
 
   #handlePointerdown = (e) => {
-    if (this.hasAttribute('disabled')) return;
-    const opt = e.composedPath().find(
-      el => el.tagName?.toLowerCase() === 'vault-listbox-option'
-    );
-    if (opt && !opt.hasAttribute('disabled')) this.#setActive(opt);
+    if (this.hasAttribute("disabled")) return;
+    const opt = e.composedPath().find((el) => el.tagName?.toLowerCase() === "vault-listbox-option");
+    if (opt && !opt.hasAttribute("disabled")) this.#setActive(opt);
   };
 
   #handleClick = (e) => {
-    if (this.hasAttribute('disabled')) return;
-    const opt = e.composedPath().find(
-      el => el.tagName?.toLowerCase() === 'vault-listbox-option'
-    );
-    if (opt && !opt.hasAttribute('disabled')) {
+    if (this.hasAttribute("disabled")) return;
+    const opt = e.composedPath().find((el) => el.tagName?.toLowerCase() === "vault-listbox-option");
+    if (opt && !opt.hasAttribute("disabled")) {
       this.#select(opt);
-      if (!this.hasAttribute('selectable')) this.#setActive(null);
+      if (!this.hasAttribute("selectable")) this.#setActive(null);
     }
   };
 
   connectedCallback() {
-    this.setAttribute('role', 'listbox');
-    if (!this.hasAttribute('tabindex')) this.setAttribute('tabindex', '0');
+    this.setAttribute("role", "listbox");
+    if (!this.hasAttribute("tabindex")) this.setAttribute("tabindex", "0");
     this.#syncAccessibleName();
     if (!this.shadowRoot) this.#render();
     this.#watchOptions();
     this.#syncValue();
-    this.addEventListener('keydown', this.#handleKeydown);
-    this.addEventListener('pointerdown', this.#handlePointerdown);
-    this.addEventListener('click', this.#handleClick);
+    this.addEventListener("keydown", this.#handleKeydown);
+    this.addEventListener("pointerdown", this.#handlePointerdown);
+    this.addEventListener("click", this.#handleClick);
   }
 
   disconnectedCallback() {
     this.#observer?.disconnect();
-    this.removeEventListener('keydown', this.#handleKeydown);
-    this.removeEventListener('pointerdown', this.#handlePointerdown);
-    this.removeEventListener('click', this.#handleClick);
+    this.removeEventListener("keydown", this.#handleKeydown);
+    this.removeEventListener("pointerdown", this.#handlePointerdown);
+    this.removeEventListener("click", this.#handleClick);
   }
 
   attributeChangedCallback(name) {
     if (!this.shadowRoot) return;
-    if (name === 'value') {
+    if (name === "value") {
       this.#syncValue();
-    } else if (name === 'label') {
+    } else if (name === "label") {
       this.#syncLabel();
       this.#syncAccessibleName();
-    } else if (name === 'disabled') {
+    } else if (name === "disabled") {
       this.#syncDisabled();
     }
   }
 
-  get value() { return this.getAttribute('value') ?? ''; }
-  set value(v) { this.setAttribute('value', v); }
+  get value() {
+    return this.getAttribute("value") ?? "";
+  }
+  set value(v) {
+    this.setAttribute("value", v);
+  }
 
   #allOptions() {
-    return [...this.querySelectorAll('vault-listbox-option')];
+    return [...this.querySelectorAll("vault-listbox-option")];
   }
 
   #enabledOptions() {
-    return this.#allOptions().filter(o => !o.hasAttribute('disabled'));
+    return this.#allOptions().filter((o) => !o.hasAttribute("disabled"));
   }
 
   #activeOption() {
-    return this.querySelector('vault-listbox-option[active]');
+    return this.querySelector("vault-listbox-option[active]");
   }
 
   #setActive(opt) {
-    for (const o of this.#allOptions()) o.removeAttribute('active');
+    for (const o of this.#allOptions()) o.removeAttribute("active");
     if (opt) {
-      opt.setAttribute('active', '');
-      this.setAttribute('aria-activedescendant', opt.id);
-      opt.scrollIntoView({ block: 'nearest' });
+      opt.setAttribute("active", "");
+      this.setAttribute("aria-activedescendant", opt.id);
+      opt.scrollIntoView({ block: "nearest" });
     } else {
-      this.removeAttribute('aria-activedescendant');
+      this.removeAttribute("aria-activedescendant");
     }
   }
 
   #select(opt) {
-    const value = opt.getAttribute('value') ?? '';
-    if (this.hasAttribute('selectable')) {
-      this.setAttribute('value', value);
+    const value = opt.getAttribute("value") ?? "";
+    if (this.hasAttribute("selectable")) {
+      this.setAttribute("value", value);
       this.#syncValue();
     }
-    this.dispatchEvent(new CustomEvent('vault-change', {
-      detail: { value },
-      bubbles: true,
-      composed: true,
-    }));
+    this.dispatchEvent(
+      new CustomEvent("vault-change", {
+        detail: { value },
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   #syncValue() {
-    const value = this.getAttribute('value') ?? '';
+    const value = this.getAttribute("value") ?? "";
     let matched = null;
     for (const opt of this.#allOptions()) {
-      const match = opt.getAttribute('value') === value && value !== '';
+      const match = opt.getAttribute("value") === value && value !== "";
       if (match) {
-        opt.setAttribute('selected', '');
-        opt.setAttribute('aria-selected', 'true');
+        opt.setAttribute("selected", "");
+        opt.setAttribute("aria-selected", "true");
         matched = opt;
       } else {
-        opt.removeAttribute('selected');
-        opt.setAttribute('aria-selected', 'false');
+        opt.removeAttribute("selected");
+        opt.setAttribute("aria-selected", "false");
       }
     }
-    if (this.hasAttribute('selectable')) this.#setActive(matched);
+    if (this.hasAttribute("selectable")) this.#setActive(matched);
   }
 
   #syncAccessibleName() {
-    const label = this.getAttribute('label') || '';
-    const ariaLabel = this.getAttribute('aria-label') || '';
+    const label = this.getAttribute("label") || "";
+    const ariaLabel = this.getAttribute("aria-label") || "";
     if (label) {
-      this.setAttribute('aria-label', label);
+      this.setAttribute("aria-label", label);
     } else if (!ariaLabel) {
-      console.warn('[vault-listbox] Missing accessible name — set a `label` or `aria-label` attribute.');
+      console.warn(
+        "[vault-listbox] Missing accessible name — set a `label` or `aria-label` attribute.",
+      );
     }
   }
 
   #syncLabel() {
-    const label = this.shadowRoot?.querySelector('.label');
-    const newLabel = this.getAttribute('label') || '';
+    const label = this.shadowRoot?.querySelector(".label");
+    const newLabel = this.getAttribute("label") || "";
     if (label) {
       label.textContent = newLabel;
       label.hidden = !newLabel;
@@ -241,12 +247,12 @@ class VaultListbox extends HTMLElement {
   }
 
   #syncDisabled() {
-    if (this.hasAttribute('disabled')) {
-      this.setAttribute('aria-disabled', 'true');
-      this.setAttribute('tabindex', '-1');
+    if (this.hasAttribute("disabled")) {
+      this.setAttribute("aria-disabled", "true");
+      this.setAttribute("tabindex", "-1");
     } else {
-      this.removeAttribute('aria-disabled');
-      this.setAttribute('tabindex', '0');
+      this.removeAttribute("aria-disabled");
+      this.setAttribute("tabindex", "0");
     }
   }
 
@@ -256,11 +262,13 @@ class VaultListbox extends HTMLElement {
   }
 
   #render() {
-    if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    if (!this.shadowRoot) this.attachShadow({ mode: "open" });
 
-    const label = this.getAttribute('label') || '';
+    const label = this.getAttribute("label") || "";
 
-    this.shadowRoot.innerHTML = TOKEN_BRIDGE + `
+    this.shadowRoot.innerHTML =
+      TOKEN_BRIDGE +
+      `
       <style>
         :host {
           display: block;
@@ -295,7 +303,7 @@ class VaultListbox extends HTMLElement {
         .label[hidden] { display: none; }
         .list { overflow-y: auto; }
       </style>
-      <span class="label"${!label ? ' hidden' : ''}>${label}</span>
+      <span class="label"${!label ? " hidden" : ""}>${label}</span>
       <div class="list" role="presentation">
         <slot></slot>
       </div>
@@ -303,7 +311,7 @@ class VaultListbox extends HTMLElement {
   }
 }
 
-customElements.define('vault-listbox-option', VaultListboxOption);
-customElements.define('vault-listbox', VaultListbox);
+customElements.define("vault-listbox-option", VaultListboxOption);
+customElements.define("vault-listbox", VaultListbox);
 
 export { VaultListbox, VaultListboxOption };

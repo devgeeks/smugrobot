@@ -50,77 +50,79 @@ of key paths.
 
 ```ts
 export interface StorageAdapter {
-  get(key: string): Promise<Uint8Array | null>
-  set(key: string, value: Uint8Array): Promise<void>
-  delete(key: string): Promise<void>
-  list(prefix?: string): Promise<string[]>
+  get(key: string): Promise<Uint8Array | null>;
+  set(key: string, value: Uint8Array): Promise<void>;
+  delete(key: string): Promise<void>;
+  list(prefix?: string): Promise<string[]>;
 }
 
 export interface DocMeta {
-  id: string
-  title: string
-  createdAt: number   // Unix ms
-  updatedAt: number   // Unix ms
-  tags?: string[]
-  size?: number       // byte length of plaintext UTF-8, for UI display
-  [key: string]: unknown  // allow caller-defined metadata fields
+  id: string;
+  title: string;
+  createdAt: number; // Unix ms
+  updatedAt: number; // Unix ms
+  tags?: string[];
+  size?: number; // byte length of plaintext UTF-8, for UI display
+  [key: string]: unknown; // allow caller-defined metadata fields
 }
 
-export type KdfAlgo = 'scrypt' | 'pbkdf2'
+export type KdfAlgo = "scrypt" | "pbkdf2";
 
 export interface ScryptParams {
-  algo: 'scrypt'
-  N: number   // default 2^17
-  r: number   // default 8
-  p: number   // default 1
+  algo: "scrypt";
+  N: number; // default 2^17
+  r: number; // default 8
+  p: number; // default 1
 }
 
 export interface Pbkdf2Params {
-  algo: 'pbkdf2'
-  iterations: number  // default 600_000
-  hash: 'SHA-256'
+  algo: "pbkdf2";
+  iterations: number; // default 600_000
+  hash: "SHA-256";
 }
 
-export type KdfParams = ScryptParams | Pbkdf2Params
+export type KdfParams = ScryptParams | Pbkdf2Params;
 
 export type KeySource =
-  | { type: 'passphrase'; passphrase: string; kdf?: KdfAlgo }
-  | { type: 'raw'; key: Uint8Array }
+  { type: "passphrase"; passphrase: string; kdf?: KdfAlgo } | { type: "raw"; key: Uint8Array };
 
 export interface CreateStoreOptions {
-  adapter: StorageAdapter
-  keySource: KeySource
+  adapter: StorageAdapter;
+  keySource: KeySource;
 }
 
 export interface ListOptions {
-  tags?: string[]
-  since?: number   // createdAt >= since
-  until?: number   // createdAt <= until
+  tags?: string[];
+  since?: number; // createdAt >= since
+  until?: number; // createdAt <= until
 }
 
 export interface SetMetaOptions {
-  title?: string
-  tags?: string[]
-  [key: string]: unknown
+  title?: string;
+  tags?: string[];
+  [key: string]: unknown;
 }
 
 export class EchidnaJsError extends Error {
-  constructor(message: string, public readonly code: EchidnaJsErrorCode) {
-    super(message)
-    this.name = 'EchidnaJsError'
+  constructor(
+    message: string,
+    public readonly code: EchidnaJsErrorCode,
+  ) {
+    super(message);
+    this.name = "EchidnaJsError";
   }
 }
 
 export type EchidnaJsErrorCode =
-  | 'WRONG_KEY'         // secretbox.open returned null
-  | 'CORRUPT_BLOB'      // blob too short, bad version byte, or malformed authenticated message
-  | 'TAMPERED'          // blob authenticated but is bound to a different document id
-  | 'NEEDS_MIGRATION'   // legacy 0x01 body; run store.migrate() to upgrade
-  | 'INVALID_ID'        // doc id is empty, contains "/" or a control char, or is "."/".."
-  | 'NOT_FOUND'         // doc id does not exist
-  | 'KDF_FAILED'        // key derivation threw
-  | 'VAULT_EXISTS'      // tried to init an already-initialised vault
-  | 'VAULT_NOT_FOUND'   // tried to open a vault with no salt stored
+  | "WRONG_KEY" // secretbox.open returned null
+  | "CORRUPT_BLOB" // blob too short, bad version byte, or malformed authenticated message
+  | "TAMPERED" // blob authenticated but is bound to a different document id
+  | "NEEDS_MIGRATION" // legacy 0x01 body; run store.migrate() to upgrade
+  | "INVALID_ID" // doc id is empty, contains "/" or a control char, or is "."/".."
+  | "NOT_FOUND" // doc id does not exist
+  | "KDF_FAILED" // key derivation threw
+  | "VAULT_EXISTS" // tried to init an already-initialised vault
+  | "VAULT_NOT_FOUND"; // tried to open a vault with no salt stored
 ```
 
 ---
@@ -128,45 +130,46 @@ export type EchidnaJsErrorCode =
 ## Public API (`src/store.ts`)
 
 Consumers import as:
+
 ```ts
-import { createEncryptedStore } from 'echidna.js'
-import { memoryAdapter } from 'echidna.js/adapters/memory'
+import { createEncryptedStore } from "echidna.js";
+import { memoryAdapter } from "echidna.js/adapters/memory";
 ```
 
 ```ts
 // Create or open a vault. If vault/salt exists, opens it. If not, creates it.
-export async function createEncryptedStore(options: CreateStoreOptions): Promise<DocStore>
+export async function createEncryptedStore(options: CreateStoreOptions): Promise<DocStore>;
 
 export class DocStore {
   // Write or overwrite a document. Generates new nonce on every write.
-  async set(id: string, body: string, meta?: SetMetaOptions): Promise<DocMeta>
+  async set(id: string, body: string, meta?: SetMetaOptions): Promise<DocMeta>;
 
   // Decrypt and return body text, or null if id does not exist.
   // Throws EchidnaError('WRONG_KEY') if decryption fails.
-  async get(id: string): Promise<string | null>
+  async get(id: string): Promise<string | null>;
 
   // Return plaintext metadata without decrypting the body.
-  async getMeta(id: string): Promise<DocMeta | null>
+  async getMeta(id: string): Promise<DocMeta | null>;
 
   // Update metadata fields only (no re-encryption of body needed).
-  async updateMeta(id: string, meta: SetMetaOptions): Promise<DocMeta>
+  async updateMeta(id: string, meta: SetMetaOptions): Promise<DocMeta>;
 
   // Delete both meta and body for a doc id.
-  async delete(id: string): Promise<void>
+  async delete(id: string): Promise<void>;
 
   // Return all DocMeta records, optionally filtered.
-  async list(options?: ListOptions): Promise<DocMeta[]>
+  async list(options?: ListOptions): Promise<DocMeta[]>;
 
   // Permanently destroy the vault (all docs + vault keys). Use with care.
-  async destroy(): Promise<void>
+  async destroy(): Promise<void>;
 
   // True if the vault predates the current format (missing/old vault/version)
   // and should be upgraded with migrate(). Cheap: one vault/version read.
-  async needsMigration(): Promise<boolean>
+  async needsMigration(): Promise<boolean>;
 
   // Re-encrypt legacy 0x01 bodies to 0x02 (id-bound). Idempotent, resumable;
   // rewrites bodies only (meta untouched). Returns { scanned, upgraded }.
-  async migrate(): Promise<{ scanned: number; upgraded: number }>
+  async migrate(): Promise<{ scanned: number; upgraded: number }>;
 }
 ```
 
@@ -185,22 +188,22 @@ export class DocStore {
 ## Crypto Primitives (`src/core/crypto.ts`)
 
 ```ts
-export function encrypt(plaintext: string, key: Uint8Array, aad: string): Uint8Array
+export function encrypt(plaintext: string, key: Uint8Array, aad: string): Uint8Array;
 // aad is the document id, bound into the authenticated message.
 // Returns: [0x02][nonce(24)][ secretbox( [uint32BE(idLen)][id][plaintext] ) ]
 
-export function decrypt(blob: Uint8Array, key: Uint8Array, aad: string): string
+export function decrypt(blob: Uint8Array, key: Uint8Array, aad: string): string;
 // Throws EchidnaJsError('CORRUPT_BLOB') if blob/message is malformed
 // Throws EchidnaJsError('WRONG_KEY') if secretbox.open returns null
 // Throws EchidnaJsError('TAMPERED') if the embedded id !== aad
 // Throws EchidnaJsError('NEEDS_MIGRATION') on a legacy 0x01 blob
 
-export function decryptLegacyV1(blob: Uint8Array, key: Uint8Array): string
+export function decryptLegacyV1(blob: Uint8Array, key: Uint8Array): string;
 // Decrypts a legacy 0x01 blob (no id binding). Used ONLY by store.migrate();
 // not re-exported from index.ts. Ordinary reads must go through decrypt().
 
-export function blobVersion(blob: Uint8Array): number   // blob[0], throws CORRUPT_BLOB if empty
-export function generateSalt(): Uint8Array   // nacl.randomBytes(16)
+export function blobVersion(blob: Uint8Array): number; // blob[0], throws CORRUPT_BLOB if empty
+export function generateSalt(): Uint8Array; // nacl.randomBytes(16)
 // generateNonce is internal to crypto.ts (not exported)
 ```
 
@@ -211,32 +214,38 @@ export function generateSalt(): Uint8Array   // nacl.randomBytes(16)
 Each adapter is a separate file and a separate package.json `exports` entry so consumers only bundle what they use. All adapters store and retrieve raw `Uint8Array` — encoding (e.g. base64 for text-only backends) is handled inside the adapter, not in the core.
 
 ### `src/adapters/memory.ts`
+
 - In-memory `Map<string, Uint8Array>`
 - Works in all environments, no dependencies
 - Primary adapter for tests
 
 ### `src/adapters/localstorage.ts`
+
 - Uses `window.localStorage`
 - Encodes `Uint8Array` as base64 strings for storage
 - Guard against `localStorage` being unavailable (SSR)
 - On init, calls `navigator.storage.persist()` (same guarded, fire-and-forget pattern as the IndexedDB adapter — see below) since this origin's storage is otherwise subject to the same best-effort eviction
 
 ### `src/adapters/node-fs.ts`
+
 - Stores each key as a file under a root directory
 - Key `docs/abc/meta` → `{rootDir}/docs/abc/meta` (mkdir -p as needed)
 - Uses `node:fs/promises` — no extra dependencies
 
 ### `src/adapters/indexeddb.ts`
+
 - Async, binary-native storage via raw `IDBDatabase` — no base64 encoding overhead, much higher quota than `localStorage`
 - `indexedDbAdapter(dbName = 'echidna', storeName = 'vault')` opens (or creates) a single object store keyed by the adapter's string keys
 - On init, calls `navigator.storage.persist()` (guarded by feature detection, `.catch(() => {})` on rejection) to request exemption from the browser's best-effort storage eviction. Fire-and-forget — never blocks or fails adapter creation if unsupported or denied.
 
 ### `src/adapters/async-storage.ts`
+
 - Wraps `@react-native-async-storage/async-storage`
 - That package is a **peer dependency** — not installed by echidna
 - Encodes `Uint8Array` as base64 strings
 
 ### `src/adapters/pouchdb.ts`
+
 - Wraps a caller-supplied PouchDB instance (`pouchDbAdapter(db)`) — does not construct its own, so the same `db` can be used for `.sync()` against a remote CouchDB by the consumer
 - Stores each value as a CouchDB attachment (base64-transported, binary at rest) rather than an inline JSON field
 - `set`/`delete` read the current `_rev` before writing and retry on 409 conflicts; `delete` on a missing key is a no-op
@@ -281,21 +290,21 @@ Use **tsup** for building. Output both ESM and CJS with `.d.ts` declarations.
 ### `tsup.config.ts`
 
 ```ts
-import { defineConfig } from 'tsup'
+import { defineConfig } from "tsup";
 
 export default defineConfig({
   entry: {
-    index: 'src/index.ts',
-    'adapters/memory': 'src/adapters/memory.ts',
-    'adapters/localstorage': 'src/adapters/localstorage.ts',
-    'adapters/node-fs': 'src/adapters/node-fs.ts',
-    'adapters/async-storage': 'src/adapters/async-storage.ts',
+    index: "src/index.ts",
+    "adapters/memory": "src/adapters/memory.ts",
+    "adapters/localstorage": "src/adapters/localstorage.ts",
+    "adapters/node-fs": "src/adapters/node-fs.ts",
+    "adapters/async-storage": "src/adapters/async-storage.ts",
   },
-  format: ['esm', 'cjs'],
+  format: ["esm", "cjs"],
   dts: true,
   sourcemap: true,
   clean: true,
-})
+});
 ```
 
 ### `package.json` exports
@@ -368,6 +377,7 @@ Use **vitest**. All tests use the memory adapter. No mocking of crypto — use r
 ### Required test coverage
 
 **`crypto.test.ts`**
+
 - `encrypt` + `decrypt` round-trip returns original string
 - `decrypt` with wrong key throws `EchidnaJsError` with code `WRONG_KEY`
 - `decrypt` with truncated blob throws `EchidnaJsError` with code `CORRUPT_BLOB`
@@ -375,12 +385,14 @@ Use **vitest**. All tests use the memory adapter. No mocking of crypto — use r
 - Version byte is `0x01`
 
 **`kdf.test.ts`**
+
 - scrypt derives a 32-byte key deterministically (same passphrase + salt = same key)
 - PBKDF2 derives a 32-byte key deterministically
 - Different salts produce different keys
 - Different passphrases produce different keys
 
 **`store.test.ts`**
+
 - `createEncryptedStore` creates vault/salt and vault/kdf on first call
 - `createEncryptedStore` reuses existing salt on second call (same key derived)
 - `set` + `get` round-trip returns original text
@@ -396,6 +408,7 @@ Use **vitest**. All tests use the memory adapter. No mocking of crypto — use r
 - `size` in DocMeta reflects the byte length of the UTF-8 plaintext
 
 **`adapters.test.ts`**
+
 - Memory adapter: set/get/delete/list work correctly
 - Node-fs adapter: set/get/delete/list work correctly, files created on disk
 

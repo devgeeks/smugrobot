@@ -1,14 +1,14 @@
-import nacl from "tweetnacl"
-import { EchidnaJsError } from "../types"
+import nacl from "tweetnacl";
+import { EchidnaJsError } from "../types";
 
 // Blob format version. 0x02 binds the document id into the authenticated
 // plaintext (see below). 0x01 omitted that binding; ordinary reads reject it
 // (surfaced as NEEDS_MIGRATION), and it is only decryptable via the migration
 // path (see decryptLegacyV1).
-const VERSION = 0x02
-const LEGACY_VERSION = 0x01
-const AAD_LENGTH_BYTES = 4
-const MIN_BLOB_LENGTH = 1 + nacl.secretbox.nonceLength + nacl.secretbox.overheadLength
+const VERSION = 0x02;
+const LEGACY_VERSION = 0x01;
+const AAD_LENGTH_BYTES = 4;
+const MIN_BLOB_LENGTH = 1 + nacl.secretbox.nonceLength + nacl.secretbox.overheadLength;
 
 /**
  * Returns the format version byte of a blob.
@@ -17,19 +17,19 @@ const MIN_BLOB_LENGTH = 1 + nacl.secretbox.nonceLength + nacl.secretbox.overhead
  */
 export function blobVersion(blob: Uint8Array): number {
   if (blob.length === 0) {
-    throw new EchidnaJsError("Blob is empty", "CORRUPT_BLOB")
+    throw new EchidnaJsError("Blob is empty", "CORRUPT_BLOB");
   }
-  return blob[0] as number
+  return blob[0] as number;
 }
 
 /** Generates a random 16-byte salt for use with KDF at vault creation. */
 export function generateSalt(): Uint8Array {
-  return nacl.randomBytes(16)
+  return nacl.randomBytes(16);
 }
 
 /** Generates a random 24-byte nonce for use with a single `nacl.secretbox` call. */
 function generateNonce(): Uint8Array {
-  return nacl.randomBytes(nacl.secretbox.nonceLength)
+  return nacl.randomBytes(nacl.secretbox.nonceLength);
 }
 
 /**
@@ -42,11 +42,11 @@ function generateNonce(): Uint8Array {
  * carries the original id and fails {@link decrypt}'s check.
  */
 function frameMessage(aadBytes: Uint8Array, plaintextBytes: Uint8Array): Uint8Array {
-  const message = new Uint8Array(AAD_LENGTH_BYTES + aadBytes.length + plaintextBytes.length)
-  new DataView(message.buffer).setUint32(0, aadBytes.length, false)
-  message.set(aadBytes, AAD_LENGTH_BYTES)
-  message.set(plaintextBytes, AAD_LENGTH_BYTES + aadBytes.length)
-  return message
+  const message = new Uint8Array(AAD_LENGTH_BYTES + aadBytes.length + plaintextBytes.length);
+  new DataView(message.buffer).setUint32(0, aadBytes.length, false);
+  message.set(aadBytes, AAD_LENGTH_BYTES);
+  message.set(plaintextBytes, AAD_LENGTH_BYTES + aadBytes.length);
+  return message;
 }
 
 /**
@@ -66,17 +66,17 @@ export function encrypt(plaintext: string, key: Uint8Array, aad: string): Uint8A
     throw new EchidnaJsError(
       `Key must be ${nacl.secretbox.keyLength} bytes, got ${key.length}`,
       "INVALID_KEY",
-    )
+    );
   }
-  const nonce = generateNonce()
-  const encoder = new TextEncoder()
-  const message = frameMessage(encoder.encode(aad), encoder.encode(plaintext))
-  const ciphertext = nacl.secretbox(message, nonce, key)
-  const blob = new Uint8Array(1 + nonce.length + ciphertext.length)
-  blob[0] = VERSION
-  blob.set(nonce, 1)
-  blob.set(ciphertext, 1 + nonce.length)
-  return blob
+  const nonce = generateNonce();
+  const encoder = new TextEncoder();
+  const message = frameMessage(encoder.encode(aad), encoder.encode(plaintext));
+  const ciphertext = nacl.secretbox(message, nonce, key);
+  const blob = new Uint8Array(1 + nonce.length + ciphertext.length);
+  blob[0] = VERSION;
+  blob.set(nonce, 1);
+  blob.set(ciphertext, 1 + nonce.length);
+  return blob;
 }
 
 /**
@@ -101,47 +101,48 @@ export function decrypt(blob: Uint8Array, key: Uint8Array, aad: string): string 
     throw new EchidnaJsError(
       `Key must be ${nacl.secretbox.keyLength} bytes, got ${key.length}`,
       "INVALID_KEY",
-    )
+    );
   }
   if (blob.length < MIN_BLOB_LENGTH) {
-    throw new EchidnaJsError("Blob too short to be valid", "CORRUPT_BLOB")
+    throw new EchidnaJsError("Blob too short to be valid", "CORRUPT_BLOB");
   }
-  const versionByte = blob[0]
+  const versionByte = blob[0];
   if (versionByte === LEGACY_VERSION) {
     throw new EchidnaJsError(
       "Legacy 0x01 blob predates document-id binding; run store.migrate() to upgrade it",
       "NEEDS_MIGRATION",
-    )
+    );
   }
   if (versionByte !== VERSION) {
-    throw new EchidnaJsError(`Unknown version byte: ${versionByte}`, "CORRUPT_BLOB")
+    throw new EchidnaJsError(`Unknown version byte: ${versionByte}`, "CORRUPT_BLOB");
   }
-  const nonce = blob.slice(1, 1 + nacl.secretbox.nonceLength)
-  const ciphertext = blob.slice(1 + nacl.secretbox.nonceLength)
-  const message = nacl.secretbox.open(ciphertext, nonce, key)
+  const nonce = blob.slice(1, 1 + nacl.secretbox.nonceLength);
+  const ciphertext = blob.slice(1 + nacl.secretbox.nonceLength);
+  const message = nacl.secretbox.open(ciphertext, nonce, key);
   if (message === null) {
-    throw new EchidnaJsError("Decryption failed: wrong key or corrupted data", "WRONG_KEY")
+    throw new EchidnaJsError("Decryption failed: wrong key or corrupted data", "WRONG_KEY");
   }
   if (message.byteLength < AAD_LENGTH_BYTES) {
-    throw new EchidnaJsError("Authenticated message is truncated", "CORRUPT_BLOB")
+    throw new EchidnaJsError("Authenticated message is truncated", "CORRUPT_BLOB");
   }
-  const aadLength = new DataView(
-    message.buffer,
-    message.byteOffset,
-    message.byteLength,
-  ).getUint32(0, false)
+  const aadLength = new DataView(message.buffer, message.byteOffset, message.byteLength).getUint32(
+    0,
+    false,
+  );
   if (AAD_LENGTH_BYTES + aadLength > message.byteLength) {
-    throw new EchidnaJsError("Authenticated message has an invalid aad length", "CORRUPT_BLOB")
+    throw new EchidnaJsError("Authenticated message has an invalid aad length", "CORRUPT_BLOB");
   }
-  const decoder = new TextDecoder()
-  const embeddedAad = decoder.decode(message.subarray(AAD_LENGTH_BYTES, AAD_LENGTH_BYTES + aadLength))
+  const decoder = new TextDecoder();
+  const embeddedAad = decoder.decode(
+    message.subarray(AAD_LENGTH_BYTES, AAD_LENGTH_BYTES + aadLength),
+  );
   if (embeddedAad !== aad) {
     throw new EchidnaJsError(
       `Body is bound to a different document (expected "${aad}", found "${embeddedAad}")`,
       "TAMPERED",
-    )
+    );
   }
-  return decoder.decode(message.subarray(AAD_LENGTH_BYTES + aadLength))
+  return decoder.decode(message.subarray(AAD_LENGTH_BYTES + aadLength));
 }
 
 /**
@@ -165,19 +166,19 @@ export function decryptLegacyV1(blob: Uint8Array, key: Uint8Array): string {
     throw new EchidnaJsError(
       `Key must be ${nacl.secretbox.keyLength} bytes, got ${key.length}`,
       "INVALID_KEY",
-    )
+    );
   }
   if (blob.length < MIN_BLOB_LENGTH) {
-    throw new EchidnaJsError("Blob too short to be valid", "CORRUPT_BLOB")
+    throw new EchidnaJsError("Blob too short to be valid", "CORRUPT_BLOB");
   }
   if (blob[0] !== LEGACY_VERSION) {
-    throw new EchidnaJsError(`Not a legacy 0x01 blob: version ${blob[0]}`, "CORRUPT_BLOB")
+    throw new EchidnaJsError(`Not a legacy 0x01 blob: version ${blob[0]}`, "CORRUPT_BLOB");
   }
-  const nonce = blob.slice(1, 1 + nacl.secretbox.nonceLength)
-  const ciphertext = blob.slice(1 + nacl.secretbox.nonceLength)
-  const plaintext = nacl.secretbox.open(ciphertext, nonce, key)
+  const nonce = blob.slice(1, 1 + nacl.secretbox.nonceLength);
+  const ciphertext = blob.slice(1 + nacl.secretbox.nonceLength);
+  const plaintext = nacl.secretbox.open(ciphertext, nonce, key);
   if (plaintext === null) {
-    throw new EchidnaJsError("Decryption failed: wrong key or corrupted data", "WRONG_KEY")
+    throw new EchidnaJsError("Decryption failed: wrong key or corrupted data", "WRONG_KEY");
   }
-  return new TextDecoder().decode(plaintext)
+  return new TextDecoder().decode(plaintext);
 }

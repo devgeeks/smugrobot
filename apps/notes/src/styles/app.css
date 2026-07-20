@@ -656,7 +656,7 @@ body {
 }
 
 .milkdown-host .ProseMirror li[data-item-type="task"]::before {
-  content: '';
+  content: "";
   flex-shrink: 0;
   width: 16px;
   height: 16px;

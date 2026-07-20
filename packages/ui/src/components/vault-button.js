@@ -1,7 +1,7 @@
-import { TOKEN_BRIDGE } from './token-bridge.js';
+import { TOKEN_BRIDGE } from "./token-bridge.js";
 
 class VaultButton extends HTMLElement {
-  static observedAttributes = ['variant', 'size', 'disabled', 'loading'];
+  static observedAttributes = ["variant", "size", "disabled", "loading"];
 
   connectedCallback() {
     if (!this.shadowRoot) this.#render();
@@ -12,10 +12,10 @@ class VaultButton extends HTMLElement {
   }
 
   #render() {
-    const variant  = this.getAttribute('variant') || 'primary';
-    const size     = this.getAttribute('size')    || 'md';
-    const disabled = this.hasAttribute('disabled');
-    const loading  = this.hasAttribute('loading');
+    const variant = this.getAttribute("variant") || "primary";
+    const size = this.getAttribute("size") || "md";
+    const disabled = this.hasAttribute("disabled");
+    const loading = this.hasAttribute("loading");
 
     const sizeStyles = {
       sm: `padding: var(--sp-1) var(--sp-3); font-size: var(--text-xs); gap: var(--sp-1);`,
@@ -24,22 +24,24 @@ class VaultButton extends HTMLElement {
     };
 
     const variantStyles = {
-      primary:   `background: var(--cipher); color: var(--ink-950); border-color: var(--cipher);`,
+      primary: `background: var(--cipher); color: var(--ink-950); border-color: var(--cipher);`,
       secondary: `background: transparent; color: var(--text-primary); border-color: var(--surface-border);`,
-      ghost:     `background: transparent; color: var(--text-primary); border-color: transparent;`,
-      danger:    `background: var(--danger-fill); color: var(--ink-50); border-color: var(--danger-fill);`,
+      ghost: `background: transparent; color: var(--text-primary); border-color: transparent;`,
+      danger: `background: var(--danger-fill); color: var(--ink-50); border-color: var(--danger-fill);`,
     };
 
     const hoverStyles = {
-      primary:   `background: var(--cipher-dim); border-color: var(--cipher-dim);`,
+      primary: `background: var(--cipher-dim); border-color: var(--cipher-dim);`,
       secondary: `background: var(--surface-hover); border-color: var(--ink-400);`,
-      ghost:     `background: var(--surface-hover); border-color: transparent;`,
-      danger:    `background: var(--danger-dim); border-color: var(--danger-dim);`,
+      ghost: `background: var(--surface-hover); border-color: transparent;`,
+      danger: `background: var(--danger-dim); border-color: var(--danger-dim);`,
     };
 
-    if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    if (!this.shadowRoot) this.attachShadow({ mode: "open" });
 
-    this.shadowRoot.innerHTML = TOKEN_BRIDGE + `
+    this.shadowRoot.innerHTML =
+      TOKEN_BRIDGE +
+      `
       <style>
         :host { display: inline-block; cursor: pointer; }
         :host([disabled]) { cursor: not-allowed; }
@@ -97,14 +99,14 @@ class VaultButton extends HTMLElement {
           .spinner { animation: none; border-top-color: currentColor; opacity: 0.5; }
         }
       </style>
-      <button ${disabled || loading ? 'disabled' : ''} aria-busy="${loading}">
-        ${loading ? '<span class="spinner" aria-hidden="true"></span>' : ''}
+      <button ${disabled || loading ? "disabled" : ""} aria-busy="${loading}">
+        ${loading ? '<span class="spinner" aria-hidden="true"></span>' : ""}
         <slot></slot>
       </button>
     `;
   }
 }
 
-customElements.define('vault-button', VaultButton);
+customElements.define("vault-button", VaultButton);
 
 export { VaultButton };

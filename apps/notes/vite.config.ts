@@ -1,44 +1,49 @@
-import { defineConfig } from 'vite'
-import path from 'path'
-import { fileURLToPath } from 'url'
-import { readFileSync } from 'fs'
-import { VitePWA } from 'vite-plugin-pwa'
+import { defineConfig } from "vite";
+import path from "path";
+import { fileURLToPath } from "url";
+import { readFileSync } from "fs";
+import { VitePWA } from "vite-plugin-pwa";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const pkg = JSON.parse(readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8'))
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(readFileSync(path.resolve(__dirname, "package.json"), "utf-8"));
 
 export default defineConfig(({ mode }) => {
-  const suffix = mode === 'development' ? '-dev' : mode === 'preview' ? '-preview' : ''
+  const suffix = mode === "development" ? "-dev" : mode === "preview" ? "-preview" : "";
 
   return {
-    base: '/notes/',
+    base: "/notes/",
     define: {
       __APP_VERSION__: JSON.stringify(pkg.version + suffix),
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     plugins: [
       VitePWA({
-        registerType: 'autoUpdate',
+        registerType: "autoUpdate",
         workbox: {
-          globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+          globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2}"],
           clientsClaim: true,
           skipWaiting: true,
         },
         manifest: {
-          name: 'Notes',
-          short_name: 'Notes',
-          description: 'Private encrypted notes',
-          display: 'standalone',
+          name: "Notes",
+          short_name: "Notes",
+          description: "Private encrypted notes",
+          display: "standalone",
           // keep in sync with vault-ui's --ink-950 / --surface-base (packages/ui/src/tokens/tokens.css)
-          background_color: '#121413',
-          theme_color: '#121413',
-          start_url: '/notes/',
-          scope: '/notes/',
+          background_color: "#121413",
+          theme_color: "#121413",
+          start_url: "/notes/",
+          scope: "/notes/",
           icons: [
-            { src: 'pwa-64x64.png',            sizes: '64x64',   type: 'image/png' },
-            { src: 'pwa-192x192.png',           sizes: '192x192', type: 'image/png' },
-            { src: 'pwa-512x512.png',           sizes: '512x512', type: 'image/png' },
-            { src: 'maskable-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+            { src: "pwa-64x64.png", sizes: "64x64", type: "image/png" },
+            { src: "pwa-192x192.png", sizes: "192x192", type: "image/png" },
+            { src: "pwa-512x512.png", sizes: "512x512", type: "image/png" },
+            {
+              src: "maskable-icon-512x512.png",
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "maskable",
+            },
           ],
         },
       }) as any,
@@ -47,24 +52,24 @@ export default defineConfig(({ mode }) => {
       alias: [
         {
           find: /^echidna\.js\/adapters\/(.+)$/,
-          replacement: path.resolve(__dirname, '../../packages/echidna/src/adapters/$1.ts'),
+          replacement: path.resolve(__dirname, "../../packages/echidna/src/adapters/$1.ts"),
         },
         {
-          find: 'echidna.js',
-          replacement: path.resolve(__dirname, '../../packages/echidna/src/index.ts'),
+          find: "echidna.js",
+          replacement: path.resolve(__dirname, "../../packages/echidna/src/index.ts"),
         },
       ],
     },
     optimizeDeps: {
       include: [
-        '@milkdown/core',
-        '@milkdown/ctx',
-        '@milkdown/preset-commonmark',
-        '@milkdown/plugin-listener',
-        '@milkdown/utils',
-        '@milkdown/transformer',
+        "@milkdown/core",
+        "@milkdown/ctx",
+        "@milkdown/preset-commonmark",
+        "@milkdown/plugin-listener",
+        "@milkdown/utils",
+        "@milkdown/transformer",
       ],
-      exclude: ['echidna.js', '@smugrobot/ui'],
+      exclude: ["echidna.js", "@smugrobot/ui"],
     },
-  }
-})
+  };
+});

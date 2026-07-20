@@ -19,27 +19,27 @@ npm install echidna.js
 ## Quick start
 
 ```ts
-import { createEncryptedStore } from 'echidna.js'
-import { memoryAdapter } from 'echidna.js/adapters/memory'
+import { createEncryptedStore } from "echidna.js";
+import { memoryAdapter } from "echidna.js/adapters/memory";
 
 const store = await createEncryptedStore({
   adapter: memoryAdapter(),
-  keySource: { type: 'passphrase', passphrase: 'my secret passphrase' },
-})
+  keySource: { type: "passphrase", passphrase: "my secret passphrase" },
+});
 
 // Write
-await store.set('note-1', 'This is stored encrypted.', {
-  title: 'My first note',
-  tags: ['personal'],
-})
+await store.set("note-1", "This is stored encrypted.", {
+  title: "My first note",
+  tags: ["personal"],
+});
 
 // Read
-const body = await store.get('note-1')         // decrypted string
-const meta = await store.getMeta('note-1')     // plaintext metadata, no decryption
+const body = await store.get("note-1"); // decrypted string
+const meta = await store.getMeta("note-1"); // plaintext metadata, no decryption
 
 // List without decrypting
-const all = await store.list()
-const work = await store.list({ tags: ['work'] })
+const all = await store.list();
+const work = await store.list({ tags: ["work"] });
 ```
 
 ---
@@ -53,9 +53,9 @@ Import only the adapter you need — each is a separate bundle entry so unused a
 No dependencies. Works everywhere. Primarily useful for testing.
 
 ```ts
-import { memoryAdapter } from 'echidna.js/adapters/memory'
+import { memoryAdapter } from "echidna.js/adapters/memory";
 
-const adapter = memoryAdapter()
+const adapter = memoryAdapter();
 ```
 
 ### Node.js filesystem
@@ -63,18 +63,18 @@ const adapter = memoryAdapter()
 Stores each key as a file under a root directory. No extra dependencies.
 
 ```ts
-import { nodeFsAdapter } from 'echidna.js/adapters/node-fs'
+import { nodeFsAdapter } from "echidna.js/adapters/node-fs";
 
-const adapter = nodeFsAdapter('./my-vault')
+const adapter = nodeFsAdapter("./my-vault");
 ```
 
 ### Browser (`localStorage`)
 
 ```ts
-import { localStorageAdapter } from 'echidna.js/adapters/localstorage'
+import { localStorageAdapter } from "echidna.js/adapters/localstorage";
 
-const adapter = localStorageAdapter()               // prefix defaults to 'echidna:'
-const adapter = localStorageAdapter('myapp:vault:') // custom prefix
+const adapter = localStorageAdapter(); // prefix defaults to 'echidna:'
+const adapter = localStorageAdapter("myapp:vault:"); // custom prefix
 ```
 
 Like the IndexedDB adapter below, this requests [persistent storage](https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/persist) on init — see that section for details.
@@ -84,10 +84,10 @@ Like the IndexedDB adapter below, this requests [persistent storage](https://dev
 Async, binary-native storage with much higher quotas than `localStorage` (typically up to ~60% of available disk). Requires no encoding overhead — `Uint8Array` values are stored directly.
 
 ```ts
-import { indexedDbAdapter } from 'echidna.js/adapters/indexeddb'
+import { indexedDbAdapter } from "echidna.js/adapters/indexeddb";
 
-const adapter = await indexedDbAdapter()                        // db 'echidna', store 'vault'
-const adapter = await indexedDbAdapter('myapp', 'documents')   // custom db and store names
+const adapter = await indexedDbAdapter(); // db 'echidna', store 'vault'
+const adapter = await indexedDbAdapter("myapp", "documents"); // custom db and store names
 ```
 
 On init, the adapter calls [`navigator.storage.persist()`](https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/persist) to request exemption from the browser's automatic "best-effort" storage eviction (which can otherwise clear IndexedDB data under disk pressure — Safari is particularly aggressive here). This is best-effort: the call is skipped where unsupported (e.g. Safari doesn't implement the API) and never throws if the browser declines the request. It does **not** protect against a user explicitly clearing site data or uninstalling the app.
@@ -97,10 +97,10 @@ On init, the adapter calls [`navigator.storage.persist()`](https://developer.moz
 Binary-native filesystem storage for Expo apps. No size constraints beyond device storage, and no base64 overhead — `Uint8Array` values are written directly to disk. Requires `expo-file-system` v17+ as a peer dependency.
 
 ```ts
-import { expoFileSystemAdapter } from 'echidna.js/adapters/expo-file-system'
-import * as FileSystem from 'expo-file-system'
+import { expoFileSystemAdapter } from "echidna.js/adapters/expo-file-system";
+import * as FileSystem from "expo-file-system";
 
-const adapter = expoFileSystemAdapter(FileSystem.documentDirectory + 'vault/')
+const adapter = expoFileSystemAdapter(FileSystem.documentDirectory + "vault/");
 ```
 
 ### Dropbox (PWA / cross-device sync)
@@ -118,48 +118,48 @@ import {
   getDropboxAuthUrl,
   exchangeDropboxCode,
   refreshDropboxToken,
-} from 'echidna.js/adapters/dropbox'
-import { createEncryptedStore } from 'echidna.js'
+} from "echidna.js/adapters/dropbox";
+import { createEncryptedStore } from "echidna.js";
 
 // Step 1 — redirect the user to Dropbox for authorization (run once)
-const { verifier, challenge } = await generatePkce()
-sessionStorage.setItem('pkce_verifier', verifier)
+const { verifier, challenge } = await generatePkce();
+sessionStorage.setItem("pkce_verifier", verifier);
 
 const authUrl = getDropboxAuthUrl({
-  clientId: 'YOUR_APP_KEY',
-  redirectUri: 'https://yourapp.example.com/callback',
+  clientId: "YOUR_APP_KEY",
+  redirectUri: "https://yourapp.example.com/callback",
   codeChallenge: challenge,
   state: crypto.randomUUID(), // optional CSRF token
-})
-window.location.href = authUrl
+});
+window.location.href = authUrl;
 
 // Step 2 — handle the redirect callback
-const params = new URLSearchParams(window.location.search)
+const params = new URLSearchParams(window.location.search);
 const tokens = await exchangeDropboxCode({
-  clientId: 'YOUR_APP_KEY',
-  redirectUri: 'https://yourapp.example.com/callback',
-  code: params.get('code')!,
-  codeVerifier: sessionStorage.getItem('pkce_verifier')!,
-})
+  clientId: "YOUR_APP_KEY",
+  redirectUri: "https://yourapp.example.com/callback",
+  code: params.get("code")!,
+  codeVerifier: sessionStorage.getItem("pkce_verifier")!,
+});
 // Persist tokens.accessToken and tokens.refreshToken in your app
 
 // Step 3 — open the vault
 const store = await createEncryptedStore({
   adapter: dropboxAdapter({
     accessToken: tokens.accessToken,
-    rootPath: '/MyApp',        // created inside the Dropbox app folder
+    rootPath: "/MyApp", // created inside the Dropbox app folder
   }),
-  keySource: { type: 'passphrase', passphrase: userPassphrase },
-})
+  keySource: { type: "passphrase", passphrase: userPassphrase },
+});
 ```
 
 To refresh an expired access token:
 
 ```ts
 const fresh = await refreshDropboxToken({
-  clientId: 'YOUR_APP_KEY',
+  clientId: "YOUR_APP_KEY",
   refreshToken: tokens.refreshToken!,
-})
+});
 ```
 
 No SDK dependency — the adapter uses `fetch` and `crypto.subtle` directly.
@@ -174,25 +174,25 @@ In browsers, `pouchdb-browser` is typically backed by IndexedDB, so this adapter
 
 > **Note:** echidna.js only implements local storage through this adapter. Remote sync — the CouchDB URL, auth, live replication, retry policy — is your app's responsibility, driven directly against the same PouchDB instance you pass in.
 
-> **Privacy warning:** syncing does not make document metadata private. `docs/{id}/meta` (title, tags, timestamps, size, and any custom fields) is always stored as plaintext JSON — by design, so lists can be filtered without decrypting bodies — and it is unauthenticated, so a malicious or compromised CouchDB server can read *and silently rewrite* it. Only `docs/{id}/body` is encrypted and MAC-protected; tampering with a body fails loudly (`WRONG_KEY`), and moving one document's body onto another id is caught by the id binding (`TAMPERED`). What is **not** protected: a hostile server operator can see attachment sizes and write timing, can withhold documents, and can roll a body (and its metadata) back to an *earlier version of the same document* undetectably — there is no vault-level integrity check or version anchor across the whole sync. Don't put anything sensitive in `title`, `tags`, or custom metadata fields if you don't trust the CouchDB server operator.
+> **Privacy warning:** syncing does not make document metadata private. `docs/{id}/meta` (title, tags, timestamps, size, and any custom fields) is always stored as plaintext JSON — by design, so lists can be filtered without decrypting bodies — and it is unauthenticated, so a malicious or compromised CouchDB server can read _and silently rewrite_ it. Only `docs/{id}/body` is encrypted and MAC-protected; tampering with a body fails loudly (`WRONG_KEY`), and moving one document's body onto another id is caught by the id binding (`TAMPERED`). What is **not** protected: a hostile server operator can see attachment sizes and write timing, can withhold documents, and can roll a body (and its metadata) back to an _earlier version of the same document_ undetectably — there is no vault-level integrity check or version anchor across the whole sync. Don't put anything sensitive in `title`, `tags`, or custom metadata fields if you don't trust the CouchDB server operator.
 
 ```ts
-import PouchDB from 'pouchdb'
-import { pouchDbAdapter } from 'echidna.js/adapters/pouchdb'
-import { createEncryptedStore } from 'echidna.js'
+import PouchDB from "pouchdb";
+import { pouchDbAdapter } from "echidna.js/adapters/pouchdb";
+import { createEncryptedStore } from "echidna.js";
 
-const db = new PouchDB('my-vault')
+const db = new PouchDB("my-vault");
 
 const store = await createEncryptedStore({
   adapter: pouchDbAdapter(db),
-  keySource: { type: 'passphrase', passphrase: userPassphrase },
-})
+  keySource: { type: "passphrase", passphrase: userPassphrase },
+});
 
 // Not part of echidna.js — wire up sync yourself against the same `db`.
-const remote = new PouchDB('https://couchdb.example.com/my-vault', {
-  auth: { username: 'user', password: 'pass' },
-})
-db.sync(remote, { live: true, retry: true })
+const remote = new PouchDB("https://couchdb.example.com/my-vault", {
+  auth: { username: "user", password: "pass" },
+});
+db.sync(remote, { live: true, retry: true });
 ```
 
 ### React Native (`@react-native-async-storage/async-storage`)
@@ -200,9 +200,9 @@ db.sync(remote, { live: true, retry: true })
 `@react-native-async-storage/async-storage` is a **peer dependency** — install it separately in your app.
 
 ```ts
-import { asyncStorageAdapter } from 'echidna.js/adapters/async-storage'
+import { asyncStorageAdapter } from "echidna.js/adapters/async-storage";
 
-const adapter = asyncStorageAdapter()
+const adapter = asyncStorageAdapter();
 ```
 
 ---
@@ -241,9 +241,9 @@ Creates or opens a vault. If the adapter already contains a vault, it is opened 
 
 ```ts
 const store = await createEncryptedStore({
-  adapter: nodeFsAdapter('./vault'),
-  keySource: { type: 'passphrase', passphrase: 'hunter2' },
-})
+  adapter: nodeFsAdapter("./vault"),
+  keySource: { type: "passphrase", passphrase: "hunter2" },
+});
 ```
 
 ### `store.set(id, body, meta?)`
@@ -258,12 +258,12 @@ or `..`. Invalid ids throw `EchidnaJsError('INVALID_ID')` (from every id-taking
 method). Use opaque ids such as UUIDs; keep any human-readable label in `title`.
 
 ```ts
-const meta = await store.set('doc-id', 'plaintext body', {
-  title: 'My document',
-  tags: ['work', 'draft'],
+const meta = await store.set("doc-id", "plaintext body", {
+  title: "My document",
+  tags: ["work", "draft"],
   // any extra fields are stored in metadata
-  priority: 'high',
-})
+  priority: "high",
+});
 ```
 
 ### `store.get(id)`
@@ -273,7 +273,7 @@ Decrypts and returns the document body, or `null` if the id does not exist.
 Throws `EchidnaJsError` with code `WRONG_KEY` if decryption fails.
 
 ```ts
-const body = await store.get('doc-id') // string | null
+const body = await store.get("doc-id"); // string | null
 ```
 
 ### `store.getMeta(id)`
@@ -281,7 +281,7 @@ const body = await store.get('doc-id') // string | null
 Returns plaintext metadata without decrypting the body, or `null` if the id does not exist.
 
 ```ts
-const meta = await store.getMeta('doc-id') // DocMeta | null
+const meta = await store.getMeta("doc-id"); // DocMeta | null
 ```
 
 ### `store.updateMeta(id, fields)`
@@ -289,7 +289,7 @@ const meta = await store.getMeta('doc-id') // DocMeta | null
 Updates metadata fields without re-encrypting the body. The body blob is untouched.
 
 ```ts
-await store.updateMeta('doc-id', { title: 'New title', tags: ['archived'] })
+await store.updateMeta("doc-id", { title: "New title", tags: ["archived"] });
 ```
 
 ### `store.delete(id)`
@@ -297,7 +297,7 @@ await store.updateMeta('doc-id', { title: 'New title', tags: ['archived'] })
 Deletes both the encrypted body and the plaintext metadata.
 
 ```ts
-await store.delete('doc-id')
+await store.delete("doc-id");
 ```
 
 ### `store.list(options?)`
@@ -305,10 +305,10 @@ await store.delete('doc-id')
 Returns all `DocMeta` records, optionally filtered. Never decrypts any body.
 
 ```ts
-const all   = await store.list()
-const work  = await store.list({ tags: ['work'] })
-const today = await store.list({ since: Date.now() - 86_400_000 })
-const range = await store.list({ since: startMs, until: endMs })
+const all = await store.list();
+const work = await store.list({ tags: ["work"] });
+const today = await store.list({ since: Date.now() - 86_400_000 });
+const range = await store.list({ since: startMs, until: endMs });
 ```
 
 ### `store.destroy()`
@@ -316,7 +316,7 @@ const range = await store.list({ since: startMs, until: endMs })
 Permanently deletes all documents and vault keys from the adapter. Irreversible.
 
 ```ts
-await store.destroy()
+await store.destroy();
 ```
 
 ### `store.needsMigration()`
@@ -325,7 +325,7 @@ Returns `true` if the vault predates the current on-disk format and should be
 upgraded with `migrate()`. Cheap — a single `vault/version` read.
 
 ```ts
-if (await store.needsMigration()) await store.migrate()
+if (await store.needsMigration()) await store.migrate();
 ```
 
 ### `store.migrate()`
@@ -335,7 +335,7 @@ Upgrades legacy `0x01` document bodies to the current `0x02` format (see
 counts of bodies `scanned` and `upgraded`.
 
 ```ts
-const { scanned, upgraded } = await store.migrate()
+const { scanned, upgraded } = await store.migrate();
 ```
 
 ---
@@ -351,10 +351,10 @@ one-time re-encryption — no passphrase re-entry or key derivation.
 Run it once, right after opening the vault:
 
 ```ts
-const store = await createEncryptedStore({ adapter, keySource })
+const store = await createEncryptedStore({ adapter, keySource });
 if (await store.needsMigration()) {
-  const { upgraded } = await store.migrate()
-  console.log(`Upgraded ${upgraded} document(s) to the 0x02 format`)
+  const { upgraded } = await store.migrate();
+  console.log(`Upgraded ${upgraded} document(s) to the 0x02 format`);
 }
 ```
 
@@ -375,19 +375,19 @@ interrupted — the `vault/version` marker is only advanced after a full pass.
 
 ```ts
 interface DocMeta {
-  id: string
-  title: string
-  createdAt: number        // Unix ms
-  updatedAt: number        // Unix ms
-  tags?: string[]
-  size?: number            // byte length of plaintext UTF-8
-  [key: string]: unknown   // caller-defined fields
+  id: string;
+  title: string;
+  createdAt: number; // Unix ms
+  updatedAt: number; // Unix ms
+  tags?: string[];
+  size?: number; // byte length of plaintext UTF-8
+  [key: string]: unknown; // caller-defined fields
 }
 
 interface ListOptions {
-  tags?: string[]
-  since?: number           // createdAt >= since
-  until?: number           // createdAt <= until
+  tags?: string[];
+  since?: number; // createdAt >= since
+  until?: number; // createdAt <= until
 }
 ```
 
@@ -398,27 +398,27 @@ interface ListOptions {
 All errors thrown by echidna.js are instances of `EchidnaJsError`:
 
 ```ts
-import { EchidnaJsError } from 'echidna.js'
+import { EchidnaJsError } from "echidna.js";
 
 try {
-  await store.get('doc-id')
+  await store.get("doc-id");
 } catch (e) {
   if (e instanceof EchidnaJsError) {
-    console.error(e.code) // 'WRONG_KEY' | 'CORRUPT_BLOB' | 'NOT_FOUND' | ...
+    console.error(e.code); // 'WRONG_KEY' | 'CORRUPT_BLOB' | 'NOT_FOUND' | ...
   }
 }
 ```
 
-| Code | When |
-|---|---|
-| `WRONG_KEY` | Decryption failed — wrong key or corrupted ciphertext |
-| `CORRUPT_BLOB` | Encrypted blob is malformed or has an unknown version byte |
-| `TAMPERED` | Blob decrypted cleanly but is bound to a different document id (body substituted from another document) |
-| `NEEDS_MIGRATION` | Body is a legacy `0x01` blob — call `store.migrate()` to upgrade the vault |
-| `INVALID_ID` | Document id is empty, contains `/` or a control character, or is `.`/`..` |
-| `NOT_FOUND` | Document id does not exist (only from `updateMeta`) |
-| `KDF_FAILED` | Key derivation threw an unexpected error |
-| `VAULT_NOT_FOUND` | Adapter has no vault initialised |
+| Code              | When                                                                                                    |
+| ----------------- | ------------------------------------------------------------------------------------------------------- |
+| `WRONG_KEY`       | Decryption failed — wrong key or corrupted ciphertext                                                   |
+| `CORRUPT_BLOB`    | Encrypted blob is malformed or has an unknown version byte                                              |
+| `TAMPERED`        | Blob decrypted cleanly but is bound to a different document id (body substituted from another document) |
+| `NEEDS_MIGRATION` | Body is a legacy `0x01` blob — call `store.migrate()` to upgrade the vault                              |
+| `INVALID_ID`      | Document id is empty, contains `/` or a control character, or is `.`/`..`                               |
+| `NOT_FOUND`       | Document id does not exist (only from `updateMeta`)                                                     |
+| `KDF_FAILED`      | Key derivation threw an unexpected error                                                                |
+| `VAULT_NOT_FOUND` | Adapter has no vault initialised                                                                        |
 
 ---
 
@@ -428,7 +428,7 @@ try {
 - **Key derivation:** scrypt (`N=131072, r=8, p=1`) or PBKDF2 (`600,000 iterations, SHA-256`)
 - **Salt:** 16 random bytes, generated once at vault creation, stored plaintext
 - **Nonce:** 24 random bytes, generated fresh on every write, prepended to the ciphertext blob
-- **Document binding:** each body is encrypted with its document id as additional authenticated data (see blob format). A body moved or relabelled to another document — e.g. by a compromised storage backend swapping two blobs — decrypts under the vault key but fails its id check, surfaced as `EchidnaJsError('TAMPERED')`. This does **not** prevent rolling a body back to an *earlier version of the same document* (there is no trusted version anchor).
+- **Document binding:** each body is encrypted with its document id as additional authenticated data (see blob format). A body moved or relabelled to another document — e.g. by a compromised storage backend swapping two blobs — decrypts under the vault key but fails its id check, surfaced as `EchidnaJsError('TAMPERED')`. This does **not** prevent rolling a body back to an _earlier version of the same document_ (there is no trusted version anchor).
 - **Wrong key detection:** `nacl.secretbox.open` returns `null` — surfaced as `EchidnaJsError('WRONG_KEY')`. Garbage is never returned.
 - **What is never stored:** the key, the passphrase, or any derivative that would allow offline verification
 

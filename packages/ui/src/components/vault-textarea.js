@@ -1,7 +1,16 @@
-import { TOKEN_BRIDGE } from './token-bridge.js';
+import { TOKEN_BRIDGE } from "./token-bridge.js";
 
 class VaultTextarea extends HTMLElement {
-  static observedAttributes = ['label', 'aria-label', 'value', 'rows', 'maxlength', 'resize', 'error', 'hint'];
+  static observedAttributes = [
+    "label",
+    "aria-label",
+    "value",
+    "rows",
+    "maxlength",
+    "resize",
+    "error",
+    "hint",
+  ];
 
   connectedCallback() {
     if (!this.shadowRoot) this.#render();
@@ -9,53 +18,61 @@ class VaultTextarea extends HTMLElement {
 
   attributeChangedCallback(name, _oldVal, newVal) {
     if (!this.shadowRoot) return;
-    const ta = this.shadowRoot.querySelector('textarea');
-    if (name === 'value') {
-      if (ta && ta.value !== newVal) { ta.value = newVal ?? ''; this.#autoResize(ta); }
+    const ta = this.shadowRoot.querySelector("textarea");
+    if (name === "value") {
+      if (ta && ta.value !== newVal) {
+        ta.value = newVal ?? "";
+        this.#autoResize(ta);
+      }
       return;
     }
     const hadFocus = ta && this.shadowRoot.activeElement === ta;
     const selStart = hadFocus ? ta.selectionStart : null;
-    const selEnd   = hadFocus ? ta.selectionEnd   : null;
+    const selEnd = hadFocus ? ta.selectionEnd : null;
     this.#render();
     if (hadFocus) {
-      const newTa = this.shadowRoot.querySelector('textarea');
+      const newTa = this.shadowRoot.querySelector("textarea");
       newTa.focus();
       newTa.setSelectionRange(selStart, selEnd);
     }
   }
 
   get value() {
-    return this.shadowRoot?.querySelector('textarea')?.value ?? this.getAttribute('value') ?? '';
+    return this.shadowRoot?.querySelector("textarea")?.value ?? this.getAttribute("value") ?? "";
   }
 
   set value(v) {
-    this.setAttribute('value', v);
-    const ta = this.shadowRoot?.querySelector('textarea');
-    if (ta) { ta.value = v; this.#autoResize(ta); }
+    this.setAttribute("value", v);
+    const ta = this.shadowRoot?.querySelector("textarea");
+    if (ta) {
+      ta.value = v;
+      this.#autoResize(ta);
+    }
   }
 
   #autoResize(ta) {
-    ta.style.height = 'auto';
-    ta.style.height = ta.scrollHeight + 'px';
+    ta.style.height = "auto";
+    ta.style.height = ta.scrollHeight + "px";
   }
 
   #render() {
-    const label     = this.getAttribute('label')     || '';
-    const ariaLabel = this.getAttribute('aria-label') || '';
-    const value     = this.getAttribute('value')     || '';
-    const rows      = this.getAttribute('rows')      || '4';
-    const maxlength = this.getAttribute('maxlength') || '';
-    const resize    = this.getAttribute('resize')    || 'vertical';
-    const error     = this.getAttribute('error')     || '';
-    const hint      = this.getAttribute('hint')      || '';
+    const label = this.getAttribute("label") || "";
+    const ariaLabel = this.getAttribute("aria-label") || "";
+    const value = this.getAttribute("value") || "";
+    const rows = this.getAttribute("rows") || "4";
+    const maxlength = this.getAttribute("maxlength") || "";
+    const resize = this.getAttribute("resize") || "vertical";
+    const error = this.getAttribute("error") || "";
+    const hint = this.getAttribute("hint") || "";
 
-    const resizeCss = resize === 'none' ? 'none' : resize === 'auto' ? 'none' : 'vertical';
+    const resizeCss = resize === "none" ? "none" : resize === "auto" ? "none" : "vertical";
     const uid = `vta-${Math.random().toString(36).slice(2)}`;
 
-    if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    if (!this.shadowRoot) this.attachShadow({ mode: "open" });
 
-    this.shadowRoot.innerHTML = TOKEN_BRIDGE + `
+    this.shadowRoot.innerHTML =
+      TOKEN_BRIDGE +
+      `
       <style>
         :host { display: block; }
         .field { display: flex; flex-direction: column; gap: var(--sp-1); }
@@ -70,7 +87,7 @@ class VaultTextarea extends HTMLElement {
           display: block;
           width: 100%;
           background: var(--surface-overlay);
-          border: 1.5px solid ${error ? 'var(--danger)' : 'var(--surface-border)'};
+          border: 1.5px solid ${error ? "var(--danger)" : "var(--surface-border)"};
           border-radius: var(--radius-md);
           color: var(--text-primary);
           font-family: var(--font-body);
@@ -83,40 +100,42 @@ class VaultTextarea extends HTMLElement {
         }
         textarea::placeholder { color: var(--text-muted); }
         textarea:focus {
-          border-color: ${error ? 'var(--danger)' : 'var(--cipher)'};
-          box-shadow: ${error ? '0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent)' : '0 0 0 2px color-mix(in srgb, var(--cipher) 15%, transparent)'};
+          border-color: ${error ? "var(--danger)" : "var(--cipher)"};
+          box-shadow: ${error ? "0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent)" : "0 0 0 2px color-mix(in srgb, var(--cipher) 15%, transparent)"};
         }
         textarea:focus-visible { outline: none; }
         .hint-text {
           font-family: var(--font-body);
           font-size: var(--text-xs);
-          color: ${error ? 'var(--danger-text)' : 'var(--text-muted)'};
+          color: ${error ? "var(--danger-text)" : "var(--text-muted)"};
         }
         .footer { display: flex; justify-content: space-between; align-items: baseline; }
         .counter { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-muted); }
       </style>
       <div class="field">
-        ${label ? `<label for="${uid}">${label}</label>` : ''}
+        ${label ? `<label for="${uid}">${label}</label>` : ""}
         <textarea
           id="${uid}"
           rows="${rows}"
-          ${maxlength ? `maxlength="${maxlength}"` : ''}
-          ${error ? `aria-invalid="true" aria-describedby="${uid}-hint"` : ''}
-          ${!label && ariaLabel ? `aria-label="${ariaLabel.replace(/"/g, '&quot;')}"` : ''}
-        >${value.replace(/</g, '&lt;')}</textarea>
+          ${maxlength ? `maxlength="${maxlength}"` : ""}
+          ${error ? `aria-invalid="true" aria-describedby="${uid}-hint"` : ""}
+          ${!label && ariaLabel ? `aria-label="${ariaLabel.replace(/"/g, "&quot;")}"` : ""}
+        >${value.replace(/</g, "&lt;")}</textarea>
         <div class="footer">
-          ${error || hint ? `<span class="hint-text" id="${uid}-hint">${error || hint}</span>` : '<span></span>'}
-          ${maxlength ? `<span class="counter" aria-live="polite"></span>` : ''}
+          ${error || hint ? `<span class="hint-text" id="${uid}-hint">${error || hint}</span>` : "<span></span>"}
+          ${maxlength ? `<span class="counter" aria-live="polite"></span>` : ""}
         </div>
       </div>
     `;
 
     if (!label && !ariaLabel) {
-      console.warn('[vault-textarea] Missing accessible name — set a `label` or `aria-label` attribute.');
+      console.warn(
+        "[vault-textarea] Missing accessible name — set a `label` or `aria-label` attribute.",
+      );
     }
 
-    const ta      = this.shadowRoot.querySelector('textarea');
-    const counter = this.shadowRoot.querySelector('.counter');
+    const ta = this.shadowRoot.querySelector("textarea");
+    const counter = this.shadowRoot.querySelector(".counter");
 
     const updateCounter = () => {
       if (counter && maxlength) {
@@ -124,26 +143,32 @@ class VaultTextarea extends HTMLElement {
       }
     };
 
-    if (resize === 'auto') this.#autoResize(ta);
+    if (resize === "auto") this.#autoResize(ta);
     updateCounter();
 
-    ta.addEventListener('input', () => {
-      if (resize === 'auto') this.#autoResize(ta);
+    ta.addEventListener("input", () => {
+      if (resize === "auto") this.#autoResize(ta);
       updateCounter();
-      this.dispatchEvent(new CustomEvent('vault-input', {
-        detail: { value: ta.value },
-        bubbles: true, composed: true,
-      }));
+      this.dispatchEvent(
+        new CustomEvent("vault-input", {
+          detail: { value: ta.value },
+          bubbles: true,
+          composed: true,
+        }),
+      );
     });
-    ta.addEventListener('change', () => {
-      this.dispatchEvent(new CustomEvent('vault-change', {
-        detail: { value: ta.value },
-        bubbles: true, composed: true,
-      }));
+    ta.addEventListener("change", () => {
+      this.dispatchEvent(
+        new CustomEvent("vault-change", {
+          detail: { value: ta.value },
+          bubbles: true,
+          composed: true,
+        }),
+      );
     });
   }
 }
 
-customElements.define('vault-textarea', VaultTextarea);
+customElements.define("vault-textarea", VaultTextarea);
 
 export { VaultTextarea };

@@ -3,4 +3,4 @@
 //   import '@smugrobot/ui/tokens/tokens.css'
 //   import '@smugrobot/ui/tokens/base.css'
 //   import { VaultTheme } from '@smugrobot/ui/components/vault.js'
-export type {} from './components/vault-ui.js';
+export type {} from "./components/vault-ui.js";

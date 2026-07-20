@@ -1,6 +1,6 @@
-import { encrypt, decrypt, decryptLegacyV1, generateSalt, blobVersion } from "./core/crypto"
-import { deriveKey, defaultKdfParams } from "./core/kdf"
-import { EchidnaJsError } from "./types"
+import { encrypt, decrypt, decryptLegacyV1, generateSalt, blobVersion } from "./core/crypto";
+import { deriveKey, defaultKdfParams } from "./core/kdf";
+import { EchidnaJsError } from "./types";
 import type {
   StorageAdapter,
   DocMeta,
@@ -9,10 +9,10 @@ import type {
   ListOptions,
   SetMetaOptions,
   CreateStoreOptions,
-} from "./types"
+} from "./types";
 
-const encoder = new TextEncoder()
-const decoder = new TextDecoder()
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
 
 /**
  * Current vault format version, stored plaintext at `vault/version`. Bumped
@@ -20,7 +20,7 @@ const decoder = new TextDecoder()
  * with no `vault/version` key predates this marker (echidna ≤ 0.1.0) and its
  * bodies are legacy `0x01` blobs — see {@link DocStore.migrate}.
  */
-const CURRENT_VAULT_VERSION = 2
+const CURRENT_VAULT_VERSION = 2;
 
 /**
  * Serializes a value to UTF-8 encoded JSON bytes, for plaintext storage keys
@@ -30,7 +30,7 @@ const CURRENT_VAULT_VERSION = 2
  * @returns UTF-8 bytes of the JSON string
  */
 function encodeJson(value: unknown): Uint8Array {
-  return encoder.encode(JSON.stringify(value))
+  return encoder.encode(JSON.stringify(value));
 }
 
 /**
@@ -42,15 +42,15 @@ function encodeJson(value: unknown): Uint8Array {
  */
 function decodeJson<T>(bytes: Uint8Array): T {
   try {
-    return JSON.parse(decoder.decode(bytes)) as T
+    return JSON.parse(decoder.decode(bytes)) as T;
   } catch {
-    throw new EchidnaJsError("corrupt plaintext record", "CORRUPT_BLOB")
+    throw new EchidnaJsError("corrupt plaintext record", "CORRUPT_BLOB");
   }
 }
 
 // Control characters (C0 range + DEL) break file-path backends and are never
 // meaningful in a document id.
-const CONTROL_CHARS = /[\u0000-\u001f\u007f]/
+const CONTROL_CHARS = /[\u0000-\u001f\u007f]/;
 
 /**
  * Validates a document id before it is baked into a `docs/{id}/...` storage key.
@@ -67,16 +67,22 @@ const CONTROL_CHARS = /[\u0000-\u001f\u007f]/
  */
 function assertValidId(id: string): void {
   if (typeof id !== "string" || id.length === 0) {
-    throw new EchidnaJsError("Document id must be a non-empty string", "INVALID_ID")
+    throw new EchidnaJsError("Document id must be a non-empty string", "INVALID_ID");
   }
   if (id.includes("/")) {
-    throw new EchidnaJsError(`Document id must not contain "/": ${JSON.stringify(id)}`, "INVALID_ID")
+    throw new EchidnaJsError(
+      `Document id must not contain "/": ${JSON.stringify(id)}`,
+      "INVALID_ID",
+    );
   }
   if (id === "." || id === "..") {
-    throw new EchidnaJsError(`Document id must not be "." or "..": ${JSON.stringify(id)}`, "INVALID_ID")
+    throw new EchidnaJsError(
+      `Document id must not be "." or "..": ${JSON.stringify(id)}`,
+      "INVALID_ID",
+    );
   }
   if (CONTROL_CHARS.test(id)) {
-    throw new EchidnaJsError("Document id must not contain control characters", "INVALID_ID")
+    throw new EchidnaJsError("Document id must not contain control characters", "INVALID_ID");
   }
 }
 
@@ -93,8 +99,8 @@ async function resolveKey(
   salt: Uint8Array,
   kdfParams: KdfParams,
 ): Promise<Uint8Array> {
-  if (keySource.type === "raw") return keySource.key
-  return deriveKey(keySource.passphrase, salt, kdfParams)
+  if (keySource.type === "raw") return keySource.key;
+  return deriveKey(keySource.passphrase, salt, kdfParams);
 }
 
 /**
@@ -112,33 +118,33 @@ async function resolveKey(
  *   `vault/kdf` is missing
  */
 export async function createEncryptedStore(options: CreateStoreOptions): Promise<DocStore> {
-  const { adapter, keySource } = options
+  const { adapter, keySource } = options;
 
-  const existingSalt = await adapter.get("vault/salt")
+  const existingSalt = await adapter.get("vault/salt");
 
-  let salt: Uint8Array
-  let kdfParams: KdfParams
+  let salt: Uint8Array;
+  let kdfParams: KdfParams;
 
   if (existingSalt !== null) {
-    const kdfBytes = await adapter.get("vault/kdf")
+    const kdfBytes = await adapter.get("vault/kdf");
     if (kdfBytes === null) {
-      throw new EchidnaJsError("Vault salt found but KDF params missing", "VAULT_NOT_FOUND")
+      throw new EchidnaJsError("Vault salt found but KDF params missing", "VAULT_NOT_FOUND");
     }
-    salt = existingSalt
-    kdfParams = decodeJson<KdfParams>(kdfBytes)
+    salt = existingSalt;
+    kdfParams = decodeJson<KdfParams>(kdfBytes);
   } else {
-    salt = generateSalt()
-    const algo = keySource.type === "passphrase" ? (keySource.kdf ?? "scrypt") : "scrypt"
-    kdfParams = defaultKdfParams(algo)
-    await adapter.set("vault/salt", salt)
-    await adapter.set("vault/kdf", encodeJson(kdfParams))
+    salt = generateSalt();
+    const algo = keySource.type === "passphrase" ? (keySource.kdf ?? "scrypt") : "scrypt";
+    kdfParams = defaultKdfParams(algo);
+    await adapter.set("vault/salt", salt);
+    await adapter.set("vault/kdf", encodeJson(kdfParams));
     // Fresh vaults are born at the current format version. Existing vaults are
     // left untouched so a missing marker reliably signals a legacy vault.
-    await adapter.set("vault/version", encodeJson(CURRENT_VAULT_VERSION))
+    await adapter.set("vault/version", encodeJson(CURRENT_VAULT_VERSION));
   }
 
-  const key = await resolveKey(keySource, salt, kdfParams)
-  return new DocStore(adapter, key)
+  const key = await resolveKey(keySource, salt, kdfParams);
+  return new DocStore(adapter, key);
 }
 
 /**
@@ -146,16 +152,16 @@ export async function createEncryptedStore(options: CreateStoreOptions): Promise
  * adapter. Obtain an instance via {@link createEncryptedStore}.
  */
 export class DocStore {
-  #adapter: StorageAdapter
-  #key: Uint8Array
+  #adapter: StorageAdapter;
+  #key: Uint8Array;
 
   /**
    * @param adapter - Storage backend the vault reads/writes through
    * @param key - Resolved 32-byte secretbox key
    */
   constructor(adapter: StorageAdapter, key: Uint8Array) {
-    this.#adapter = adapter
-    this.#key = key
+    this.#adapter = adapter;
+    this.#key = key;
   }
 
   /**
@@ -170,11 +176,11 @@ export class DocStore {
    * @throws {EchidnaJsError} `INVALID_ID` if `id` is invalid
    */
   async set(id: string, body: string, meta?: SetMetaOptions): Promise<DocMeta> {
-    assertValidId(id)
-    const encrypted = encrypt(body, this.#key, id)
-    const now = Date.now()
-    const existingMeta = await this.getMeta(id)
-    const { title: metaTitle, tags: metaTags, ...extraMeta } = meta ?? {}
+    assertValidId(id);
+    const encrypted = encrypt(body, this.#key, id);
+    const now = Date.now();
+    const existingMeta = await this.getMeta(id);
+    const { title: metaTitle, tags: metaTags, ...extraMeta } = meta ?? {};
 
     const docMeta: DocMeta = {
       ...extraMeta,
@@ -183,13 +189,13 @@ export class DocStore {
       createdAt: existingMeta?.createdAt ?? now,
       updatedAt: now,
       size: encoder.encode(body).length,
-    }
-    const resolvedTags = metaTags ?? existingMeta?.tags
-    if (resolvedTags !== undefined) docMeta["tags"] = resolvedTags
+    };
+    const resolvedTags = metaTags ?? existingMeta?.tags;
+    if (resolvedTags !== undefined) docMeta["tags"] = resolvedTags;
 
-    await this.#adapter.set(`docs/${id}/body`, encrypted)
-    await this.#adapter.set(`docs/${id}/meta`, encodeJson(docMeta))
-    return docMeta
+    await this.#adapter.set(`docs/${id}/body`, encrypted);
+    await this.#adapter.set(`docs/${id}/meta`, encodeJson(docMeta));
+    return docMeta;
   }
 
   /**
@@ -203,10 +209,10 @@ export class DocStore {
    *   `NEEDS_MIGRATION` if the blob is a legacy `0x01` body
    */
   async get(id: string): Promise<string | null> {
-    assertValidId(id)
-    const blob = await this.#adapter.get(`docs/${id}/body`)
-    if (blob === null) return null
-    return decrypt(blob, this.#key, id)
+    assertValidId(id);
+    const blob = await this.#adapter.get(`docs/${id}/body`);
+    if (blob === null) return null;
+    return decrypt(blob, this.#key, id);
   }
 
   /**
@@ -218,10 +224,10 @@ export class DocStore {
    *   if the stored metadata is not valid JSON
    */
   async getMeta(id: string): Promise<DocMeta | null> {
-    assertValidId(id)
-    const bytes = await this.#adapter.get(`docs/${id}/meta`)
-    if (bytes === null) return null
-    return decodeJson<DocMeta>(bytes)
+    assertValidId(id);
+    const bytes = await this.#adapter.get(`docs/${id}/meta`);
+    if (bytes === null) return null;
+    return decodeJson<DocMeta>(bytes);
   }
 
   /**
@@ -235,14 +241,14 @@ export class DocStore {
    *   the document does not exist
    */
   async updateMeta(id: string, meta: SetMetaOptions): Promise<DocMeta> {
-    assertValidId(id)
-    const existing = await this.getMeta(id)
+    assertValidId(id);
+    const existing = await this.getMeta(id);
     if (existing === null) {
-      throw new EchidnaJsError(`Document not found: ${id}`, "NOT_FOUND")
+      throw new EchidnaJsError(`Document not found: ${id}`, "NOT_FOUND");
     }
-    const updated: DocMeta = { ...existing, ...meta, id, updatedAt: Date.now() }
-    await this.#adapter.set(`docs/${id}/meta`, encodeJson(updated))
-    return updated
+    const updated: DocMeta = { ...existing, ...meta, id, updatedAt: Date.now() };
+    await this.#adapter.set(`docs/${id}/meta`, encodeJson(updated));
+    return updated;
   }
 
   /**
@@ -253,9 +259,9 @@ export class DocStore {
    * @throws {EchidnaJsError} `INVALID_ID` if `id` is invalid
    */
   async delete(id: string): Promise<void> {
-    assertValidId(id)
-    await this.#adapter.delete(`docs/${id}/meta`)
-    await this.#adapter.delete(`docs/${id}/body`)
+    assertValidId(id);
+    await this.#adapter.delete(`docs/${id}/meta`);
+    await this.#adapter.delete(`docs/${id}/body`);
   }
 
   /**
@@ -272,21 +278,24 @@ export class DocStore {
     // Read each doc's plaintext meta record directly from its `docs/{id}/meta`
     // key. The id lives inside the meta JSON, so there is no need to recompose
     // it from the key path — which is what previously mis-parsed ids.
-    const keys = await this.#adapter.list("docs/")
-    const metas: DocMeta[] = []
+    const keys = await this.#adapter.list("docs/");
+    const metas: DocMeta[] = [];
     for (const key of keys) {
-      if (!key.endsWith("/meta")) continue
-      const bytes = await this.#adapter.get(key)
-      if (bytes !== null) metas.push(decodeJson<DocMeta>(bytes))
+      if (!key.endsWith("/meta")) continue;
+      const bytes = await this.#adapter.get(key);
+      if (bytes !== null) metas.push(decodeJson<DocMeta>(bytes));
     }
 
     return metas.filter((meta) => {
-      if (options?.tags && !options.tags.every((t) => (meta.tags as string[] | undefined)?.includes(t)))
-        return false
-      if (options?.since !== undefined && meta.createdAt < options.since) return false
-      if (options?.until !== undefined && meta.createdAt > options.until) return false
-      return true
-    })
+      if (
+        options?.tags &&
+        !options.tags.every((t) => (meta.tags as string[] | undefined)?.includes(t))
+      )
+        return false;
+      if (options?.since !== undefined && meta.createdAt < options.since) return false;
+      if (options?.until !== undefined && meta.createdAt > options.until) return false;
+      return true;
+    });
   }
 
   /**
@@ -295,8 +304,8 @@ export class DocStore {
    * `vault/version`). Irreversible — use with care.
    */
   async destroy(): Promise<void> {
-    const keys = await this.#adapter.list()
-    await Promise.all(keys.map((k) => this.#adapter.delete(k)))
+    const keys = await this.#adapter.list();
+    await Promise.all(keys.map((k) => this.#adapter.delete(k)));
   }
 
   /**
@@ -308,10 +317,10 @@ export class DocStore {
    * `NEEDS_MIGRATION` until migrated.
    */
   async needsMigration(): Promise<boolean> {
-    const bytes = await this.#adapter.get("vault/version")
-    if (bytes === null) return true
-    const version = decodeJson<number>(bytes)
-    return typeof version !== "number" || version < CURRENT_VAULT_VERSION
+    const bytes = await this.#adapter.get("vault/version");
+    if (bytes === null) return true;
+    const version = decodeJson<number>(bytes);
+    return typeof version !== "number" || version < CURRENT_VAULT_VERSION;
   }
 
   /**
@@ -337,23 +346,23 @@ export class DocStore {
    * @returns Counts of body blobs `scanned` and `upgraded`.
    */
   async migrate(): Promise<{ scanned: number; upgraded: number }> {
-    const bodyKeys = (await this.#adapter.list("docs/")).filter((k) => k.endsWith("/body"))
-    let upgraded = 0
+    const bodyKeys = (await this.#adapter.list("docs/")).filter((k) => k.endsWith("/body"));
+    let upgraded = 0;
 
     for (const bodyKey of bodyKeys) {
-      const blob = await this.#adapter.get(bodyKey)
+      const blob = await this.#adapter.get(bodyKey);
       // Leave already-migrated (0x02) or unknown blobs untouched.
-      if (blob === null || blob.length === 0 || blobVersion(blob) !== 0x01) continue
+      if (blob === null || blob.length === 0 || blobVersion(blob) !== 0x01) continue;
 
       // Recover the id from `docs/{id}/body` without splitting on "/", so ids
       // that themselves contain slashes bind to the same id get() will pass.
-      const id = bodyKey.slice("docs/".length, bodyKey.length - "/body".length)
-      const plaintext = decryptLegacyV1(blob, this.#key)
-      await this.#adapter.set(bodyKey, encrypt(plaintext, this.#key, id))
-      upgraded++
+      const id = bodyKey.slice("docs/".length, bodyKey.length - "/body".length);
+      const plaintext = decryptLegacyV1(blob, this.#key);
+      await this.#adapter.set(bodyKey, encrypt(plaintext, this.#key, id));
+      upgraded++;
     }
 
-    await this.#adapter.set("vault/version", encodeJson(CURRENT_VAULT_VERSION))
-    return { scanned: bodyKeys.length, upgraded }
+    await this.#adapter.set("vault/version", encodeJson(CURRENT_VAULT_VERSION));
+    return { scanned: bodyKeys.length, upgraded };
   }
 }

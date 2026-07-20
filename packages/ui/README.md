@@ -55,28 +55,27 @@ Load these four resources in order — sequence matters:
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <!-- 1. Fonts -->
-  <link rel="stylesheet" href="node_modules/@smugrobot/ui/src/tokens/fonts.css">
-  <!-- 2. Design tokens -->
-  <link rel="stylesheet" href="node_modules/@smugrobot/ui/src/tokens/tokens.css">
-  <!-- 3. Base reset + utilities -->
-  <link rel="stylesheet" href="node_modules/@smugrobot/ui/src/tokens/base.css">
-</head>
-<body>
+  <head>
+    <!-- 1. Fonts -->
+    <link rel="stylesheet" href="node_modules/@smugrobot/ui/src/tokens/fonts.css" />
+    <!-- 2. Design tokens -->
+    <link rel="stylesheet" href="node_modules/@smugrobot/ui/src/tokens/tokens.css" />
+    <!-- 3. Base reset + utilities -->
+    <link rel="stylesheet" href="node_modules/@smugrobot/ui/src/tokens/base.css" />
+  </head>
+  <body>
+    <vault-card border>
+      <vault-input label="Passphrase" type="password" required></vault-input>
+      <vault-button variant="primary">Unlock vault</vault-button>
+    </vault-card>
 
-  <vault-card border>
-    <vault-input label="Passphrase" type="password" required></vault-input>
-    <vault-button variant="primary">Unlock vault</vault-button>
-  </vault-card>
-
-  <!-- 4. Components (must be type="module") -->
-  <script type="module" src="node_modules/@smugrobot/ui/src/components/vault.js"></script>
-  <script type="module">
-    import { VaultTheme } from '@smugrobot/ui/components/vault.js';
-    VaultTheme.init(); // restore saved theme preference
-  </script>
-</body>
+    <!-- 4. Components (must be type="module") -->
+    <script type="module" src="node_modules/@smugrobot/ui/src/components/vault.js"></script>
+    <script type="module">
+      import { VaultTheme } from "@smugrobot/ui/components/vault.js";
+      VaultTheme.init(); // restore saved theme preference
+    </script>
+  </body>
 </html>
 ```
 
@@ -92,12 +91,12 @@ Theme is controlled by `data-theme="light"` on `<html>`. Default is dark.
 <vault-button variant="primary" size="md">Label</vault-button>
 ```
 
-| Attribute | Values | Default | Notes |
-|---|---|---|---|
-| `variant` | `primary` `secondary` `ghost` `danger` | `primary` | Use `danger` only for destructive, irreversible actions |
-| `size` | `sm` `md` `lg` | `md` | |
-| `disabled` | boolean | — | |
-| `loading` | boolean | — | Disables the button and shows a spinner |
+| Attribute  | Values                                 | Default   | Notes                                                   |
+| ---------- | -------------------------------------- | --------- | ------------------------------------------------------- |
+| `variant`  | `primary` `secondary` `ghost` `danger` | `primary` | Use `danger` only for destructive, irreversible actions |
+| `size`     | `sm` `md` `lg`                         | `md`      |                                                         |
+| `disabled` | boolean                                | —         |                                                         |
+| `loading`  | boolean                                | —         | Disables the button and shows a spinner                 |
 
 ```html
 <vault-button variant="primary">Unlock</vault-button>
@@ -115,21 +114,21 @@ Theme is controlled by `data-theme="light"` on `<html>`. Default is dark.
 <vault-input label="Email" type="email" required></vault-input>
 ```
 
-| Attribute | Notes |
-|---|---|
-| `label` | Rendered above the field in mono, sentence case, with letter-spacing |
-| `type` | Any native input type. Default: `text` |
-| `value` | Reflected to/from the inner `<input>` |
-| `error` | Shown instead of hint; turns border red; sets `aria-invalid` |
-| `hint` | Helper text. Hidden when `error` is set |
-| `prefix-icon` | Short text/character rendered before the cursor — e.g. `$`, `@`, `https://` |
-| `required` `disabled` `readonly` | Forwarded to the native input |
+| Attribute                        | Notes                                                                       |
+| -------------------------------- | --------------------------------------------------------------------------- |
+| `label`                          | Rendered above the field in mono, sentence case, with letter-spacing        |
+| `type`                           | Any native input type. Default: `text`                                      |
+| `value`                          | Reflected to/from the inner `<input>`                                       |
+| `error`                          | Shown instead of hint; turns border red; sets `aria-invalid`                |
+| `hint`                           | Helper text. Hidden when `error` is set                                     |
+| `prefix-icon`                    | Short text/character rendered before the cursor — e.g. `$`, `@`, `https://` |
+| `required` `disabled` `readonly` | Forwarded to the native input                                               |
 
 **Events**
 
-| Event | Detail | When |
-|---|---|---|
-| `vault-input` | `{ value: string }` | Every keystroke |
+| Event          | Detail              | When             |
+| -------------- | ------------------- | ---------------- |
+| `vault-input`  | `{ value: string }` | Every keystroke  |
 | `vault-change` | `{ value: string }` | On blur / commit |
 
 ```html
@@ -139,7 +138,7 @@ Theme is controlled by `data-theme="light"` on `<html>`. Default is dark.
 ```
 
 ```js
-document.querySelector('vault-input').addEventListener('vault-change', e => {
+document.querySelector("vault-input").addEventListener("vault-change", (e) => {
   console.log(e.detail.value);
 });
 ```
@@ -152,14 +151,14 @@ document.querySelector('vault-input').addEventListener('vault-change', e => {
 <vault-textarea label="Notes" rows="4"></vault-textarea>
 ```
 
-| Attribute | Notes |
-|---|---|
-| `label` | Rendered in mono, sentence case, with letter-spacing |
-| `value` | Reflected to/from the inner `<textarea>` |
-| `rows` | Initial visible row count. Default: `4` |
-| `maxlength` | Shows a live `n / max` counter when set |
-| `resize` | `none` `vertical` `auto`. Default: `vertical`. `auto` grows as the user types |
-| `error` `hint` | Same as `vault-input` |
+| Attribute      | Notes                                                                         |
+| -------------- | ----------------------------------------------------------------------------- |
+| `label`        | Rendered in mono, sentence case, with letter-spacing                          |
+| `value`        | Reflected to/from the inner `<textarea>`                                      |
+| `rows`         | Initial visible row count. Default: `4`                                       |
+| `maxlength`    | Shows a live `n / max` counter when set                                       |
+| `resize`       | `none` `vertical` `auto`. Default: `vertical`. `auto` grows as the user types |
+| `error` `hint` | Same as `vault-input`                                                         |
 
 Fires the same `vault-input` and `vault-change` events as `vault-input`.
 
@@ -178,10 +177,10 @@ Inline status label. Always pair color with a text label — never use color alo
 <vault-badge variant="success" dot>Encrypted</vault-badge>
 ```
 
-| Attribute | Values | Default |
-|---|---|---|
+| Attribute | Values                                     | Default   |
+| --------- | ------------------------------------------ | --------- |
 | `variant` | `default` `success` `warn` `danger` `info` | `default` |
-| `dot` | boolean — prepends a status dot | — |
+| `dot`     | boolean — prepends a status dot            | —         |
 
 ```html
 <vault-badge variant="default">Draft</vault-badge>
@@ -203,11 +202,11 @@ Layout container. Use as a surface for grouping related content.
 </vault-card>
 ```
 
-| Attribute | Values | Default | Notes |
-|---|---|---|---|
-| `padding` | `sm` `md` `lg` | `md` | 12 / 16 / 24px |
-| `border` | boolean | — | Add when the card sits on a raised surface |
-| `elevated` | boolean | — | Adds `--shadow-md`. Use for modal-like prominence |
+| Attribute  | Values         | Default | Notes                                             |
+| ---------- | -------------- | ------- | ------------------------------------------------- |
+| `padding`  | `sm` `md` `lg` | `md`    | 12 / 16 / 24px                                    |
+| `border`   | boolean        | —       | Add when the card sits on a raised surface        |
+| `elevated` | boolean        | —       | Adds `--shadow-md`. Use for modal-like prominence |
 
 ---
 
@@ -219,22 +218,22 @@ Boolean switch with ARIA `role="switch"`.
 <vault-toggle label="Auto-lock" hint="Lock after 15 minutes of inactivity" checked></vault-toggle>
 ```
 
-| Attribute | Values | Default |
-|---|---|---|
-| `label` | string | — |
-| `hint` | string — secondary description below the label | — |
-| `size` | `sm` `md` | `md` |
-| `checked` | boolean | — |
-| `disabled` | boolean | — |
+| Attribute  | Values                                         | Default |
+| ---------- | ---------------------------------------------- | ------- |
+| `label`    | string                                         | —       |
+| `hint`     | string — secondary description below the label | —       |
+| `size`     | `sm` `md`                                      | `md`    |
+| `checked`  | boolean                                        | —       |
+| `disabled` | boolean                                        | —       |
 
 **Events**
 
-| Event | Detail | When |
-|---|---|---|
+| Event          | Detail                 | When      |
+| -------------- | ---------------------- | --------- |
 | `vault-change` | `{ checked: boolean }` | On toggle |
 
 ```js
-document.querySelector('vault-toggle').addEventListener('vault-change', e => {
+document.querySelector("vault-toggle").addEventListener("vault-change", (e) => {
   console.log(e.detail.checked); // boolean
 });
 ```
@@ -252,19 +251,19 @@ Dropdown wrapping a native `<select>`. Children are plain `<option>` tags in the
 </vault-select>
 ```
 
-| Attribute | Notes |
-|---|---|
-| `label` | Rendered in mono, sentence case, with letter-spacing |
-| `value` | Currently selected value |
-| `error` `hint` | Same as `vault-input` |
-| `required` | Forwarded to the native `<select>` |
+| Attribute      | Notes                                                |
+| -------------- | ---------------------------------------------------- |
+| `label`        | Rendered in mono, sentence case, with letter-spacing |
+| `value`        | Currently selected value                             |
+| `error` `hint` | Same as `vault-input`                                |
+| `required`     | Forwarded to the native `<select>`                   |
 
 `<option>` children are synced via `MutationObserver` — add or remove them at any time.
 
 **Events**
 
-| Event | Detail | When |
-|---|---|---|
+| Event          | Detail              | When                |
+| -------------- | ------------------- | ------------------- |
 | `vault-change` | `{ value: string }` | On selection change |
 
 ---
@@ -279,16 +278,16 @@ Contextual message. Slides in on render. Always includes a visible icon alongsid
 </vault-alert>
 ```
 
-| Attribute | Values | Default |
-|---|---|---|
-| `variant` | `info` `success` `warn` `danger` | `info` |
-| `title` | string — bold heading line | — |
-| `dismissible` | boolean — adds a close button | — |
+| Attribute     | Values                           | Default |
+| ------------- | -------------------------------- | ------- |
+| `variant`     | `info` `success` `warn` `danger` | `info`  |
+| `title`       | string — bold heading line       | —       |
+| `dismissible` | boolean — adds a close button    | —       |
 
 Dismiss sets `[hidden]` on the element and fires `vault-dismiss`:
 
 ```js
-document.querySelector('vault-alert').addEventListener('vault-dismiss', () => {
+document.querySelector("vault-alert").addEventListener("vault-dismiss", () => {
   // element is now hidden
 });
 ```
@@ -303,10 +302,10 @@ Loading indicator with a screen-reader status announcement.
 <vault-spinner size="md" label="Unlocking vault…"></vault-spinner>
 ```
 
-| Attribute | Values | Default |
-|---|---|---|
-| `size` | `sm` (16px) `md` (24px) `lg` (40px) | `md` |
-| `label` | Screen-reader text (`role="status"`) | `Loading…` |
+| Attribute | Values                               | Default    |
+| --------- | ------------------------------------ | ---------- |
+| `size`    | `sm` (16px) `md` (24px) `lg` (40px)  | `md`       |
+| `label`   | Screen-reader text (`role="status"`) | `Loading…` |
 
 Animation is suppressed under `prefers-reduced-motion`.
 
@@ -321,12 +320,12 @@ User or entity avatar. Falls back to initials (max 2 chars) when no `src` is set
 <vault-avatar name="Ada Lovelace" src="/avatars/ada.jpg" size="lg"></vault-avatar>
 ```
 
-| Attribute | Values | Default |
-|---|---|---|
-| `name` | string — used for initials and `aria-label` | — |
-| `src` | image URL | — |
-| `size` | `sm` (32px) `md` (40px) `lg` (56px) | `md` |
-| `status` | `online` `offline` `away` `busy` | — |
+| Attribute | Values                                      | Default |
+| --------- | ------------------------------------------- | ------- |
+| `name`    | string — used for initials and `aria-label` | —       |
+| `src`     | image URL                                   | —       |
+| `size`    | `sm` (32px) `md` (40px) `lg` (56px)         | `md`    |
+| `status`  | `online` `offline` `away` `busy`            | —       |
 
 Status dot colors: `online` → cipher-green, `away` → warn, `busy` → danger, `offline` → muted. Shape also differs per status (filled circle, filled square, dashed ring, solid ring) so state doesn't depend on color perception alone.
 
@@ -343,10 +342,10 @@ Positioned panel anchored to a trigger element. Repositions on scroll/resize, cl
 </vault-popover>
 ```
 
-| Attribute | Values | Default | Notes |
-|---|---|---|---|
+| Attribute   | Values                                                           | Default        | Notes                                                        |
+| ----------- | ---------------------------------------------------------------- | -------------- | ------------------------------------------------------------ |
 | `placement` | `top` `bottom` `top-start` `top-end` `bottom-start` `bottom-end` | `bottom-start` | Flips to the opposite axis automatically if there isn't room |
-| `open` | boolean | — | Reflects open/closed state; toggle it or call `.close()` |
+| `open`      | boolean                                                          | —              | Reflects open/closed state; toggle it or call `.close()`     |
 
 Put the trigger element in `slot="trigger"`; everything else becomes the panel content.
 
@@ -354,14 +353,14 @@ The trigger gets `aria-haspopup`, `aria-controls`, and `aria-expanded` automatic
 
 **Events**
 
-| Event | Detail | When |
-|---|---|---|
-| `vault-open` | — | Panel opens |
-| `vault-close` | — | Panel closes (outside click, Escape, or `.close()`) |
+| Event         | Detail | When                                                |
+| ------------- | ------ | --------------------------------------------------- |
+| `vault-open`  | —      | Panel opens                                         |
+| `vault-close` | —      | Panel closes (outside click, Escape, or `.close()`) |
 
 ```js
-const popover = document.querySelector('vault-popover');
-popover.addEventListener('vault-close', () => {
+const popover = document.querySelector("vault-popover");
+popover.addEventListener("vault-close", () => {
   // panel is now closed
 });
 ```
@@ -379,13 +378,13 @@ Single-select listbox with full keyboard navigation (`role="listbox"`). Children
 </vault-listbox>
 ```
 
-| Attribute | Values | Default | Notes |
-|---|---|---|---|
-| `label` | string | — | Rendered as a heading above the list and set as `aria-label` |
-| `value` | string | — | Currently selected option's value |
-| `disabled` | boolean | — | Disables the whole listbox |
-| `selectable` | boolean | — | When present, clicking or keyboard-selecting an option updates `value` and sets `[selected]` on it |
-| `ghost` | boolean | — | Removes border, background, and border-radius so it sits flush in a pane or container |
+| Attribute    | Values  | Default | Notes                                                                                              |
+| ------------ | ------- | ------- | -------------------------------------------------------------------------------------------------- |
+| `label`      | string  | —       | Rendered as a heading above the list and set as `aria-label`                                       |
+| `value`      | string  | —       | Currently selected option's value                                                                  |
+| `disabled`   | boolean | —       | Disables the whole listbox                                                                         |
+| `selectable` | boolean | —       | When present, clicking or keyboard-selecting an option updates `value` and sets `[selected]` on it |
+| `ghost`      | boolean | —       | Removes border, background, and border-radius so it sits flush in a pane or container              |
 
 `<vault-listbox-option value="…" selected disabled>` — children support `selected` and `disabled` booleans directly.
 
@@ -393,8 +392,8 @@ Keyboard: Arrow Up/Down, Home, End move the active option; Enter/Space selects i
 
 **Events**
 
-| Event | Detail | When |
-|---|---|---|
+| Event          | Detail              | When                  |
+| -------------- | ------------------- | --------------------- |
 | `vault-change` | `{ value: string }` | An option is selected |
 
 ```html
@@ -447,9 +446,8 @@ var(--text-inverse)     /* text on --cipher backgrounds */
 4px base grid. All padding, margin, and gap must use these tokens.
 
 ```css
---sp-1: 4px    --sp-2: 8px    --sp-3: 12px   --sp-4: 16px
---sp-5: 20px   --sp-6: 24px   --sp-8: 32px   --sp-10: 40px
---sp-12: 48px  --sp-16: 64px
+--sp-1: 4px --sp-2: 8px --sp-3: 12px --sp-4: 16px --sp-5: 20px --sp-6: 24px --sp-8: 32px
+  --sp-10: 40px --sp-12: 48px --sp-16: 64px;
 ```
 
 ### Typography
@@ -481,13 +479,13 @@ var(--shadow-sm) var(--shadow-md) var(--shadow-lg) var(--shadow-accent)
 ## Theme switching
 
 ```js
-import { VaultTheme } from '@smugrobot/ui/components/vault.js';
+import { VaultTheme } from "@smugrobot/ui/components/vault.js";
 
-VaultTheme.init();        // call once on boot — restores saved preference
-VaultTheme.set('dark');   // force dark
-VaultTheme.set('light');  // force light
-VaultTheme.set(null);     // follow OS preference
-VaultTheme.get();         // returns 'dark' | 'light'
+VaultTheme.init(); // call once on boot — restores saved preference
+VaultTheme.set("dark"); // force dark
+VaultTheme.set("light"); // force light
+VaultTheme.set(null); // follow OS preference
+VaultTheme.get(); // returns 'dark' | 'light'
 ```
 
 Internally sets/removes `data-theme="light"` on `<html>` and persists to `localStorage`.
@@ -508,7 +506,7 @@ const TOKEN_BRIDGE = `
 `;
 
 class VaultMyThing extends HTMLElement {
-  static observedAttributes = ['label', 'value'];
+  static observedAttributes = ["label", "value"];
 
   connectedCallback() {
     if (!this.shadowRoot) this.#render();
@@ -519,9 +517,11 @@ class VaultMyThing extends HTMLElement {
   }
 
   #render() {
-    if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    if (!this.shadowRoot) this.attachShadow({ mode: "open" });
 
-    this.shadowRoot.innerHTML = TOKEN_BRIDGE + `
+    this.shadowRoot.innerHTML =
+      TOKEN_BRIDGE +
+      `
       <style>
         .my-thing {
           background:    var(--surface-raised);
@@ -551,20 +551,23 @@ class VaultMyThing extends HTMLElement {
     `;
 
     // Dispatch events with composed: true so they pierce shadow boundaries
-    this.shadowRoot.querySelector('.my-thing').addEventListener('click', () => {
-      this.dispatchEvent(new CustomEvent('vault-change', {
-        detail: { value: 'example' },
-        bubbles: true,
-        composed: true,
-      }));
+    this.shadowRoot.querySelector(".my-thing").addEventListener("click", () => {
+      this.dispatchEvent(
+        new CustomEvent("vault-change", {
+          detail: { value: "example" },
+          bubbles: true,
+          composed: true,
+        }),
+      );
     });
   }
 }
 
-customElements.define('vault-my-thing', VaultMyThing);
+customElements.define("vault-my-thing", VaultMyThing);
 ```
 
 **After adding a new component:**
+
 1. Create `src/components/vault-my-thing.js` with the class + `customElements.define`, then re-export it from the `vault.js` barrel
 2. Add the element interface and `HTMLElementTagNameMap` entry to `src/components/vault-ui.d.ts`
 3. Add a section to `style-guide.html` showing all variants
@@ -586,9 +589,7 @@ Or add to your `tsconfig.json`:
   "compilerOptions": {
     "types": []
   },
-  "files": [
-    "node_modules/@smugrobot/ui/src/components/vault-ui.d.ts"
-  ]
+  "files": ["node_modules/@smugrobot/ui/src/components/vault-ui.d.ts"]
 }
 ```
 

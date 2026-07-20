@@ -1,140 +1,140 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
-import { mkdtemp, rm } from "node:fs/promises"
-import { join } from "node:path"
-import { tmpdir } from "node:os"
-import { IDBFactory } from "fake-indexeddb"
-import PouchDB from "pouchdb"
-import { memoryAdapter } from "../src/adapters/memory"
-import { nodeFsAdapter } from "../src/adapters/node-fs"
-import { indexedDbAdapter } from "../src/adapters/indexeddb"
-import { pouchDbAdapter, type PouchDbLike } from "../src/adapters/pouchdb"
-import { localStorageAdapter } from "../src/adapters/localstorage"
-import type { StorageAdapter } from "../src/types"
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { mkdtemp, rm } from "node:fs/promises";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
+import { IDBFactory } from "fake-indexeddb";
+import PouchDB from "pouchdb";
+import { memoryAdapter } from "../src/adapters/memory";
+import { nodeFsAdapter } from "../src/adapters/node-fs";
+import { indexedDbAdapter } from "../src/adapters/indexeddb";
+import { pouchDbAdapter, type PouchDbLike } from "../src/adapters/pouchdb";
+import { localStorageAdapter } from "../src/adapters/localstorage";
+import type { StorageAdapter } from "../src/types";
 
 function mockNavigatorStorage(value: { persist: ReturnType<typeof vi.fn> } | undefined) {
-  Object.defineProperty(globalThis.navigator, "storage", { value, configurable: true })
+  Object.defineProperty(globalThis.navigator, "storage", { value, configurable: true });
 }
 
 function restoreNavigatorStorage() {
   Object.defineProperty(globalThis.navigator, "storage", {
     value: originalNavigatorStorage,
     configurable: true,
-  })
+  });
 }
 
-const originalNavigatorStorage = globalThis.navigator?.storage
+const originalNavigatorStorage = globalThis.navigator?.storage;
 
 /** Covers adapter constructors that fire-and-forget navigator.storage.persist() on init. */
 function persistenceRequestSuite(name: string, init: () => unknown) {
   describe(`${name} persistence request`, () => {
-    afterEach(restoreNavigatorStorage)
+    afterEach(restoreNavigatorStorage);
 
     it("requests persistent storage on init", async () => {
-      const persist = vi.fn().mockResolvedValue(true)
-      mockNavigatorStorage({ persist })
+      const persist = vi.fn().mockResolvedValue(true);
+      mockNavigatorStorage({ persist });
 
-      await init()
+      await init();
 
-      expect(persist).toHaveBeenCalledOnce()
-    })
+      expect(persist).toHaveBeenCalledOnce();
+    });
 
     it("does not throw when persist() rejects", async () => {
-      mockNavigatorStorage({ persist: vi.fn().mockRejectedValue(new Error("denied")) })
+      mockNavigatorStorage({ persist: vi.fn().mockRejectedValue(new Error("denied")) });
 
-      await expect(Promise.resolve(init())).resolves.toBeDefined()
-    })
+      await expect(Promise.resolve(init())).resolves.toBeDefined();
+    });
 
     it("does not throw when navigator.storage is unavailable", async () => {
-      mockNavigatorStorage(undefined)
+      mockNavigatorStorage(undefined);
 
-      await expect(Promise.resolve(init())).resolves.toBeDefined()
-    })
-  })
+      await expect(Promise.resolve(init())).resolves.toBeDefined();
+    });
+  });
 }
 
-type AdapterFactory = () => Promise<{ adapter: StorageAdapter; cleanup?: () => Promise<void> }>
+type AdapterFactory = () => Promise<{ adapter: StorageAdapter; cleanup?: () => Promise<void> }>;
 
 function adapterSuite(name: string, factory: AdapterFactory) {
   describe(name, () => {
-    let adapter: StorageAdapter
-    let cleanup: (() => Promise<void>) | undefined
+    let adapter: StorageAdapter;
+    let cleanup: (() => Promise<void>) | undefined;
 
     beforeEach(async () => {
-      const result = await factory()
-      adapter = result.adapter
-      cleanup = result.cleanup
-    })
+      const result = await factory();
+      adapter = result.adapter;
+      cleanup = result.cleanup;
+    });
 
     afterEach(async () => {
-      await cleanup?.()
-    })
+      await cleanup?.();
+    });
 
     it("set and get round-trip", async () => {
-      const data = new Uint8Array([1, 2, 3, 4])
-      await adapter.set("test/key", data)
-      expect(await adapter.get("test/key")).toEqual(data)
-    })
+      const data = new Uint8Array([1, 2, 3, 4]);
+      await adapter.set("test/key", data);
+      expect(await adapter.get("test/key")).toEqual(data);
+    });
 
     it("get returns null for missing key", async () => {
-      expect(await adapter.get("missing/key")).toBeNull()
-    })
+      expect(await adapter.get("missing/key")).toBeNull();
+    });
 
     it("delete removes a key", async () => {
-      await adapter.set("test/key", new Uint8Array([1]))
-      await adapter.delete("test/key")
-      expect(await adapter.get("test/key")).toBeNull()
-    })
+      await adapter.set("test/key", new Uint8Array([1]));
+      await adapter.delete("test/key");
+      expect(await adapter.get("test/key")).toBeNull();
+    });
 
     it("delete on missing key does not throw", async () => {
-      await expect(adapter.delete("nonexistent/key")).resolves.toBeUndefined()
-    })
+      await expect(adapter.delete("nonexistent/key")).resolves.toBeUndefined();
+    });
 
     it("list returns all keys", async () => {
-      await adapter.set("a/b", new Uint8Array([1]))
-      await adapter.set("a/c", new Uint8Array([2]))
-      await adapter.set("d/e", new Uint8Array([3]))
-      const keys = await adapter.list()
-      expect(keys).toContain("a/b")
-      expect(keys).toContain("a/c")
-      expect(keys).toContain("d/e")
-    })
+      await adapter.set("a/b", new Uint8Array([1]));
+      await adapter.set("a/c", new Uint8Array([2]));
+      await adapter.set("d/e", new Uint8Array([3]));
+      const keys = await adapter.list();
+      expect(keys).toContain("a/b");
+      expect(keys).toContain("a/c");
+      expect(keys).toContain("d/e");
+    });
 
     it("list filters by prefix", async () => {
-      await adapter.set("docs/1/meta", new Uint8Array([1]))
-      await adapter.set("docs/2/meta", new Uint8Array([2]))
-      await adapter.set("vault/salt", new Uint8Array([3]))
-      const keys = await adapter.list("docs/")
-      expect(keys).toContain("docs/1/meta")
-      expect(keys).toContain("docs/2/meta")
-      expect(keys).not.toContain("vault/salt")
-    })
-  })
+      await adapter.set("docs/1/meta", new Uint8Array([1]));
+      await adapter.set("docs/2/meta", new Uint8Array([2]));
+      await adapter.set("vault/salt", new Uint8Array([3]));
+      const keys = await adapter.list("docs/");
+      expect(keys).toContain("docs/1/meta");
+      expect(keys).toContain("docs/2/meta");
+      expect(keys).not.toContain("vault/salt");
+    });
+  });
 }
 
-adapterSuite("memory adapter", async () => ({ adapter: memoryAdapter() }))
+adapterSuite("memory adapter", async () => ({ adapter: memoryAdapter() }));
 
 adapterSuite("node-fs adapter", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "echidna-test-"))
+  const dir = await mkdtemp(join(tmpdir(), "echidna-test-"));
   return {
     adapter: nodeFsAdapter(dir),
     cleanup: async () => rm(dir, { recursive: true }),
-  }
-})
+  };
+});
 
 adapterSuite("indexeddb adapter", async () => {
   // Each suite run gets a fresh IDBFactory so tests are fully isolated
-  const idb = new IDBFactory()
-  globalThis.indexedDB = idb
-  const dbName = `echidna-test-${Math.random().toString(36).slice(2)}`
-  return { adapter: await indexedDbAdapter(dbName) }
-})
+  const idb = new IDBFactory();
+  globalThis.indexedDB = idb;
+  const dbName = `echidna-test-${Math.random().toString(36).slice(2)}`;
+  return { adapter: await indexedDbAdapter(dbName) };
+});
 
 persistenceRequestSuite("indexeddb adapter", () => {
-  globalThis.indexedDB = new IDBFactory()
-  return indexedDbAdapter(`echidna-test-${Math.random().toString(36).slice(2)}`)
-})
+  globalThis.indexedDB = new IDBFactory();
+  return indexedDbAdapter(`echidna-test-${Math.random().toString(36).slice(2)}`);
+});
 
-persistenceRequestSuite("localstorage adapter", () => localStorageAdapter())
+persistenceRequestSuite("localstorage adapter", () => localStorageAdapter());
 
 persistenceRequestSuite("pouchdb adapter", () => {
   const stubDb: PouchDbLike = {
@@ -142,18 +142,18 @@ persistenceRequestSuite("pouchdb adapter", () => {
     put: () => Promise.reject(new Error("unused in this test")),
     remove: () => Promise.reject(new Error("unused in this test")),
     allDocs: () => Promise.reject(new Error("unused in this test")),
-  }
-  return pouchDbAdapter(stubDb)
-})
+  };
+  return pouchDbAdapter(stubDb);
+});
 
 adapterSuite("pouchdb adapter", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "echidna-pouchdb-test-"))
-  const db = new PouchDB(join(dir, "db"))
+  const dir = await mkdtemp(join(tmpdir(), "echidna-pouchdb-test-"));
+  const db = new PouchDB(join(dir, "db"));
   return {
     adapter: pouchDbAdapter(db),
     cleanup: async () => {
-      await db.destroy()
-      await rm(dir, { recursive: true })
+      await db.destroy();
+      await rm(dir, { recursive: true });
     },
-  }
-})
+  };
+});

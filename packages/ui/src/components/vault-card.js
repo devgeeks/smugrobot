@@ -1,7 +1,7 @@
-import { TOKEN_BRIDGE } from './token-bridge.js';
+import { TOKEN_BRIDGE } from "./token-bridge.js";
 
 class VaultCard extends HTMLElement {
-  static observedAttributes = ['padding', 'border', 'elevated'];
+  static observedAttributes = ["padding", "border", "elevated"];
 
   connectedCallback() {
     if (!this.shadowRoot) this.#render();
@@ -12,27 +12,29 @@ class VaultCard extends HTMLElement {
   }
 
   #render() {
-    const padding  = this.getAttribute('padding') || 'md';
-    const border   = this.hasAttribute('border');
-    const elevated = this.hasAttribute('elevated');
+    const padding = this.getAttribute("padding") || "md";
+    const border = this.hasAttribute("border");
+    const elevated = this.hasAttribute("elevated");
 
     const paddings = {
-      sm: 'var(--sp-3)',
-      md: 'var(--sp-4)',
-      lg: 'var(--sp-6)',
+      sm: "var(--sp-3)",
+      md: "var(--sp-4)",
+      lg: "var(--sp-6)",
     };
 
-    if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    if (!this.shadowRoot) this.attachShadow({ mode: "open" });
 
-    this.shadowRoot.innerHTML = TOKEN_BRIDGE + `
+    this.shadowRoot.innerHTML =
+      TOKEN_BRIDGE +
+      `
       <style>
         :host { display: block; }
         .card {
           background: var(--surface-raised);
           border-radius: var(--radius-lg);
           padding: ${paddings[padding] || paddings.md};
-          ${border ? 'border: 1px solid var(--surface-border);' : 'border: 1px solid transparent;'}
-          ${elevated ? 'box-shadow: var(--shadow-md);' : ''}
+          ${border ? "border: 1px solid var(--surface-border);" : "border: 1px solid transparent;"}
+          ${elevated ? "box-shadow: var(--shadow-md);" : ""}
           transition: box-shadow var(--duration-normal) var(--ease-out);
         }
       </style>
@@ -43,6 +45,6 @@ class VaultCard extends HTMLElement {
   }
 }
 
-customElements.define('vault-card', VaultCard);
+customElements.define("vault-card", VaultCard);
 
 export { VaultCard };

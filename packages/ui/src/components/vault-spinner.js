@@ -1,7 +1,7 @@
-import { TOKEN_BRIDGE } from './token-bridge.js';
+import { TOKEN_BRIDGE } from "./token-bridge.js";
 
 class VaultSpinner extends HTMLElement {
-  static observedAttributes = ['size', 'label'];
+  static observedAttributes = ["size", "label"];
 
   connectedCallback() {
     if (!this.shadowRoot) this.#render();
@@ -12,17 +12,19 @@ class VaultSpinner extends HTMLElement {
   }
 
   #render() {
-    const size  = this.getAttribute('size')  || 'md';
-    const label = this.getAttribute('label') || 'Loading…';
+    const size = this.getAttribute("size") || "md";
+    const label = this.getAttribute("label") || "Loading…";
 
-    const sizes     = { sm: '16px', md: '24px', lg: '40px' };
-    const thickness = { sm: '2px',  md: '2.5px', lg: '3px' };
+    const sizes = { sm: "16px", md: "24px", lg: "40px" };
+    const thickness = { sm: "2px", md: "2.5px", lg: "3px" };
     const dim = sizes[size] || sizes.md;
-    const bw  = thickness[size] || thickness.md;
+    const bw = thickness[size] || thickness.md;
 
-    if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    if (!this.shadowRoot) this.attachShadow({ mode: "open" });
 
-    this.shadowRoot.innerHTML = TOKEN_BRIDGE + `
+    this.shadowRoot.innerHTML =
+      TOKEN_BRIDGE +
+      `
       <style>
         :host { display: inline-flex; align-items: center; justify-content: center; }
         .spinner {
@@ -45,6 +47,6 @@ class VaultSpinner extends HTMLElement {
   }
 }
 
-customElements.define('vault-spinner', VaultSpinner);
+customElements.define("vault-spinner", VaultSpinner);
 
 export { VaultSpinner };

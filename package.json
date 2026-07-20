@@ -10,9 +10,18 @@
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.1.0",
+    "prettier": "^3.9.5",
     "typescript": "^5.8.3"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,css,md}": "prettier --write"
   }
 }

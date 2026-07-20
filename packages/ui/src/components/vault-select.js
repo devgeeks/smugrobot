@@ -1,7 +1,7 @@
-import { TOKEN_BRIDGE } from './token-bridge.js';
+import { TOKEN_BRIDGE } from "./token-bridge.js";
 
 class VaultSelect extends HTMLElement {
-  static observedAttributes = ['label', 'aria-label', 'value', 'error', 'hint', 'required'];
+  static observedAttributes = ["label", "aria-label", "value", "error", "hint", "required"];
 
   #select = null;
   #observer = null;
@@ -17,8 +17,8 @@ class VaultSelect extends HTMLElement {
 
   attributeChangedCallback(name, _oldVal, newVal) {
     if (!this.shadowRoot) return;
-    if (name === 'value') {
-      if (this.#select) this.#select.value = newVal ?? '';
+    if (name === "value") {
+      if (this.#select) this.#select.value = newVal ?? "";
       return;
     }
     const hadFocus = this.#select && this.shadowRoot.activeElement === this.#select;
@@ -27,9 +27,11 @@ class VaultSelect extends HTMLElement {
     if (hadFocus) this.#select.focus();
   }
 
-  get value() { return this.#select?.value ?? this.getAttribute('value') ?? ''; }
+  get value() {
+    return this.#select?.value ?? this.getAttribute("value") ?? "";
+  }
   set value(v) {
-    this.setAttribute('value', v);
+    this.setAttribute("value", v);
     if (this.#select) this.#select.value = v;
   }
 
@@ -41,27 +43,29 @@ class VaultSelect extends HTMLElement {
 
   #syncOptions() {
     if (!this.#select) return;
-    const opts = [...this.querySelectorAll('option')];
+    const opts = [...this.querySelectorAll("option")];
     const current = this.#select.value;
-    this.#select.innerHTML = '';
+    this.#select.innerHTML = "";
     for (const opt of opts) {
       this.#select.appendChild(opt.cloneNode(true));
     }
-    this.#select.value = this.getAttribute('value') ?? current;
+    this.#select.value = this.getAttribute("value") ?? current;
   }
 
   #render() {
-    const label    = this.getAttribute('label')    || '';
-    const ariaLabel = this.getAttribute('aria-label') || '';
-    const error    = this.getAttribute('error')    || '';
-    const hint     = this.getAttribute('hint')     || '';
-    const required = this.hasAttribute('required');
+    const label = this.getAttribute("label") || "";
+    const ariaLabel = this.getAttribute("aria-label") || "";
+    const error = this.getAttribute("error") || "";
+    const hint = this.getAttribute("hint") || "";
+    const required = this.hasAttribute("required");
 
     const uid = `vs-${Math.random().toString(36).slice(2)}`;
 
-    if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    if (!this.shadowRoot) this.attachShadow({ mode: "open" });
 
-    this.shadowRoot.innerHTML = TOKEN_BRIDGE + `
+    this.shadowRoot.innerHTML =
+      TOKEN_BRIDGE +
+      `
       <style>
         :host { display: block; cursor: pointer; }
         .field { display: flex; flex-direction: column; gap: var(--sp-1); }
@@ -82,7 +86,7 @@ class VaultSelect extends HTMLElement {
           width: 100%;
           appearance: none;
           background: var(--surface-overlay);
-          border: 1.5px solid ${error ? 'var(--danger)' : 'var(--surface-border)'};
+          border: 1.5px solid ${error ? "var(--danger)" : "var(--surface-border)"};
           border-radius: var(--radius-md);
           color: var(--text-primary);
           font-family: var(--font-body);
@@ -93,8 +97,8 @@ class VaultSelect extends HTMLElement {
           transition: border-color var(--duration-normal) var(--ease-out), box-shadow var(--duration-normal) var(--ease-out);
         }
         select:focus {
-          border-color: ${error ? 'var(--danger)' : 'var(--cipher)'};
-          box-shadow: ${error ? '0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent)' : '0 0 0 2px color-mix(in srgb, var(--cipher) 15%, transparent)'};
+          border-color: ${error ? "var(--danger)" : "var(--cipher)"};
+          box-shadow: ${error ? "0 0 0 2px color-mix(in srgb, var(--danger) 25%, transparent)" : "0 0 0 2px color-mix(in srgb, var(--cipher) 15%, transparent)"};
         }
         select:focus-visible { outline: none; }
         select option { background: var(--surface-overlay); color: var(--text-primary); }
@@ -108,35 +112,40 @@ class VaultSelect extends HTMLElement {
         .hint-text {
           font-family: var(--font-body);
           font-size: var(--text-xs);
-          color: ${error ? 'var(--danger-text)' : 'var(--text-muted)'};
+          color: ${error ? "var(--danger-text)" : "var(--text-muted)"};
         }
       </style>
       <div class="field">
-        ${label ? `<label for="${uid}">${label}${required ? '<span class="required" aria-hidden="true">*</span>' : ''}</label>` : ''}
+        ${label ? `<label for="${uid}">${label}${required ? '<span class="required" aria-hidden="true">*</span>' : ""}</label>` : ""}
         <div class="wrap">
-          <select id="${uid}" ${required ? 'required' : ''} ${error ? `aria-invalid="true" aria-describedby="${uid}-hint"` : ''} ${!label && ariaLabel ? `aria-label="${ariaLabel.replace(/"/g, '&quot;')}"` : ''}>
+          <select id="${uid}" ${required ? "required" : ""} ${error ? `aria-invalid="true" aria-describedby="${uid}-hint"` : ""} ${!label && ariaLabel ? `aria-label="${ariaLabel.replace(/"/g, "&quot;")}"` : ""}>
           </select>
           <span class="chevron" aria-hidden="true">▼</span>
         </div>
-        ${error || hint ? `<span class="hint-text" id="${uid}-hint">${error || hint}</span>` : ''}
+        ${error || hint ? `<span class="hint-text" id="${uid}-hint">${error || hint}</span>` : ""}
       </div>
     `;
 
     if (!label && !ariaLabel) {
-      console.warn('[vault-select] Missing accessible name — set a `label` or `aria-label` attribute.');
+      console.warn(
+        "[vault-select] Missing accessible name — set a `label` or `aria-label` attribute.",
+      );
     }
 
-    this.#select = this.shadowRoot.querySelector('select');
-    this.#select.addEventListener('change', () => {
-      this.setAttribute('value', this.#select.value);
-      this.dispatchEvent(new CustomEvent('vault-change', {
-        detail: { value: this.#select.value },
-        bubbles: true, composed: true,
-      }));
+    this.#select = this.shadowRoot.querySelector("select");
+    this.#select.addEventListener("change", () => {
+      this.setAttribute("value", this.#select.value);
+      this.dispatchEvent(
+        new CustomEvent("vault-change", {
+          detail: { value: this.#select.value },
+          bubbles: true,
+          composed: true,
+        }),
+      );
     });
   }
 }
 
-customElements.define('vault-select', VaultSelect);
+customElements.define("vault-select", VaultSelect);
 
 export { VaultSelect };

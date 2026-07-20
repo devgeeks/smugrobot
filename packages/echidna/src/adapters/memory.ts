@@ -1,19 +1,19 @@
-import type { StorageAdapter } from "../types"
+import type { StorageAdapter } from "../types";
 
 export function memoryAdapter(): StorageAdapter {
-  const store = new Map<string, Uint8Array>()
+  const store = new Map<string, Uint8Array>();
   return {
     async get(key: string): Promise<Uint8Array | null> {
-      return store.get(key) ?? null
+      return store.get(key) ?? null;
     },
     async set(key: string, value: Uint8Array): Promise<void> {
-      store.set(key, value)
+      store.set(key, value);
     },
     async delete(key: string): Promise<void> {
-      store.delete(key)
+      store.delete(key);
     },
     async list(prefix = ""): Promise<string[]> {
-      return [...store.keys()].filter((k) => k.startsWith(prefix))
+      return [...store.keys()].filter((k) => k.startsWith(prefix));
     },
-  }
+  };
 }

@@ -1,7 +1,7 @@
-import { TOKEN_BRIDGE } from './token-bridge.js';
+import { TOKEN_BRIDGE } from "./token-bridge.js";
 
 class VaultAlert extends HTMLElement {
-  static observedAttributes = ['variant', 'title', 'dismissible'];
+  static observedAttributes = ["variant", "title", "dismissible"];
 
   connectedCallback() {
     if (!this.shadowRoot) this.#render();
@@ -12,21 +12,23 @@ class VaultAlert extends HTMLElement {
   }
 
   #render() {
-    const variant     = this.getAttribute('variant')     || 'info';
-    const title       = this.getAttribute('title')       || '';
-    const dismissible = this.hasAttribute('dismissible');
+    const variant = this.getAttribute("variant") || "info";
+    const title = this.getAttribute("title") || "";
+    const dismissible = this.hasAttribute("dismissible");
 
-    const icons = { info: 'ℹ', success: '✓', warn: '⚠', danger: '✕' };
+    const icons = { info: "ℹ", success: "✓", warn: "⚠", danger: "✕" };
     const styles = {
-      info:    `color: var(--info-text);    background: color-mix(in srgb, var(--info) 8%, transparent);    border-color: color-mix(in srgb, var(--info) 30%, transparent);`,
+      info: `color: var(--info-text);    background: color-mix(in srgb, var(--info) 8%, transparent);    border-color: color-mix(in srgb, var(--info) 30%, transparent);`,
       success: `color: var(--cipher-text);  background: color-mix(in srgb, var(--cipher) 8%, transparent);  border-color: color-mix(in srgb, var(--cipher) 30%, transparent);`,
-      warn:    `color: var(--warn-text);    background: color-mix(in srgb, var(--warn) 8%, transparent);    border-color: color-mix(in srgb, var(--warn) 30%, transparent);`,
-      danger:  `color: var(--danger-text);  background: color-mix(in srgb, var(--danger) 8%, transparent);  border-color: color-mix(in srgb, var(--danger) 30%, transparent);`,
+      warn: `color: var(--warn-text);    background: color-mix(in srgb, var(--warn) 8%, transparent);    border-color: color-mix(in srgb, var(--warn) 30%, transparent);`,
+      danger: `color: var(--danger-text);  background: color-mix(in srgb, var(--danger) 8%, transparent);  border-color: color-mix(in srgb, var(--danger) 30%, transparent);`,
     };
 
-    if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
+    if (!this.shadowRoot) this.attachShadow({ mode: "open" });
 
-    this.shadowRoot.innerHTML = TOKEN_BRIDGE + `
+    this.shadowRoot.innerHTML =
+      TOKEN_BRIDGE +
+      `
       <style>
         :host { display: block; }
         :host([hidden]) { display: none; }
@@ -78,22 +80,22 @@ class VaultAlert extends HTMLElement {
       <div class="alert" role="alert">
         <span class="icon" aria-hidden="true">${icons[variant] || icons.info}</span>
         <div class="body">
-          ${title ? `<span class="title">${title}</span>` : ''}
+          ${title ? `<span class="title">${title}</span>` : ""}
           <span class="message"><slot></slot></span>
         </div>
-        ${dismissible ? `<button class="dismiss" aria-label="Dismiss">✕</button>` : ''}
+        ${dismissible ? `<button class="dismiss" aria-label="Dismiss">✕</button>` : ""}
       </div>
     `;
 
     if (dismissible) {
-      this.shadowRoot.querySelector('.dismiss').addEventListener('click', () => {
-        this.setAttribute('hidden', '');
-        this.dispatchEvent(new CustomEvent('vault-dismiss', { bubbles: true, composed: true }));
+      this.shadowRoot.querySelector(".dismiss").addEventListener("click", () => {
+        this.setAttribute("hidden", "");
+        this.dispatchEvent(new CustomEvent("vault-dismiss", { bubbles: true, composed: true }));
       });
     }
   }
 }
 
-customElements.define('vault-alert', VaultAlert);
+customElements.define("vault-alert", VaultAlert);
 
 export { VaultAlert };
