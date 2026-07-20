@@ -1,6 +1,7 @@
 import { $prose } from "@milkdown/utils";
 import { Plugin, PluginKey } from "@milkdown/prose/state";
 import type { EditorView } from "@milkdown/prose/view";
+import { sanitizeHref } from "./url.js";
 
 const key = new PluginKey("link-tooltip");
 
@@ -54,6 +55,7 @@ export const linkTooltip = $prose(() => {
     currentHref = href;
     linkRange = { from, to };
     input!.value = href;
+    input!.classList.remove("link-tooltip-input-error");
 
     const coords = view.coordsAtPos(from);
     t.style.display = "flex";
@@ -92,11 +94,18 @@ export const linkTooltip = $prose(() => {
       // Remove the link mark if URL cleared
       const tr = state.tr.removeMark(linkRange.from, linkRange.to, linkType);
       view.dispatch(tr);
-    } else if (newHref !== currentHref) {
-      const tr = state.tr
-        .removeMark(linkRange.from, linkRange.to, linkType)
-        .addMark(linkRange.from, linkRange.to, linkType.create({ href: newHref }));
-      view.dispatch(tr);
+    } else {
+      const safeHref = sanitizeHref(newHref);
+      if (!safeHref) {
+        input!.classList.add("link-tooltip-input-error");
+        return;
+      }
+      if (safeHref !== currentHref) {
+        const tr = state.tr
+          .removeMark(linkRange.from, linkRange.to, linkType)
+          .addMark(linkRange.from, linkRange.to, linkType.create({ href: safeHref }));
+        view.dispatch(tr);
+      }
     }
     hide();
     view.focus();
@@ -104,6 +113,23 @@ export const linkTooltip = $prose(() => {
 
   return new Plugin({
     key,
+
+    appendTransaction(transactions, _oldState, newState) {
+      if (!transactions.some((tr) => tr.docChanged)) return null;
+
+      const linkType = newState.schema.marks["link"];
+      if (!linkType) return null;
+
+      let tr: typeof newState.tr | null = null;
+      newState.doc.descendants((node, pos) => {
+        const mark = node.marks.find((m) => m.type === linkType);
+        if (!mark) return;
+        const href = mark.attrs["href"] as string;
+        if (sanitizeHref(href)) return;
+        tr = (tr ?? newState.tr).removeMark(pos, pos + node.nodeSize, linkType);
+      });
+      return tr;
+    },
 
     props: {
       handleKeyDown(view, event) {

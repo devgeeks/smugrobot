@@ -401,6 +401,10 @@ body {
   border-color: var(--cipher);
 }
 
+.link-tooltip-input-error {
+  border-color: var(--danger);
+}
+
 .note-menu-panel {
   padding: var(--sp-1) 0;
 }

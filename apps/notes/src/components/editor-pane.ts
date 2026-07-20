@@ -1,4 +1,3 @@
-import escapeHtml from "escape-html";
 import {
   Editor,
   rootCtx,
@@ -267,7 +266,7 @@ export class EditorPane {
 async function confirmDeleteNote(note: NoteMeta): Promise<boolean> {
   const ok = await confirmDialog({
     title: "Delete note?",
-    body: `"${escapeHtml(note.title)}" will be permanently deleted.`,
+    body: `"${note.title}" will be permanently deleted.`,
     confirmLabel: "Delete",
     danger: true,
   });

@@ -1,3 +1,5 @@
+import escapeHtml from "escape-html";
+
 /** vault-button/vault-input's native control lives in shadow DOM; the host isn't focusable directly. */
 function focusVaultButton(el: Element): void {
   (el as HTMLElement & { shadowRoot: ShadowRoot | null }).shadowRoot
@@ -55,7 +57,7 @@ export function confirmDialog(opts: {
     const overlay = createOverlay(
       titleId,
       opts.title,
-      `<p class="dialog-body">${opts.body}</p>`,
+      `<p class="dialog-body">${escapeHtml(opts.body)}</p>`,
       opts.confirmLabel,
       opts.cancelLabel ?? "Cancel",
       opts.danger ?? false,

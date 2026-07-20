@@ -1,4 +1,3 @@
-import escapeHtml from "escape-html";
 import type { AppState, FolderMeta } from "../state/types.js";
 import { dispatch, getState } from "../state/store.js";
 import { loadFolders, loadNotes } from "../screens/app-screen.js";
@@ -143,7 +142,7 @@ export class FolderPane {
   private async deleteFolder(folder: FolderMeta): Promise<void> {
     const ok = await confirmDialog({
       title: "Delete folder?",
-      body: `"${escapeHtml(folder.title)}" will be deleted. Notes inside it will move to "All notes".`,
+      body: `"${folder.title}" will be deleted. Notes inside it will move to "All notes".`,
       confirmLabel: "Delete",
       danger: true,
     });
