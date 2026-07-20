@@ -1,4 +1,4 @@
-import { encrypt, decrypt, decryptLegacyV1, generateSalt } from "./core/crypto"
+import { encrypt, decrypt, decryptLegacyV1, generateSalt, blobVersion } from "./core/crypto"
 import { deriveKey, defaultKdfParams } from "./core/kdf"
 import { EchidnaJsError } from "./types"
 import type {
@@ -22,12 +22,30 @@ const decoder = new TextDecoder()
  */
 const CURRENT_VAULT_VERSION = 2
 
+/**
+ * Serializes a value to UTF-8 encoded JSON bytes, for plaintext storage keys
+ * (`vault/kdf`, `vault/version`, `docs/{id}/meta`).
+ *
+ * @param value - The value to serialize
+ * @returns UTF-8 bytes of the JSON string
+ */
 function encodeJson(value: unknown): Uint8Array {
   return encoder.encode(JSON.stringify(value))
 }
 
+/**
+ * Decodes and parses UTF-8 JSON bytes previously written by {@link encodeJson}.
+ *
+ * @param bytes - UTF-8 encoded JSON bytes
+ * @returns The parsed value
+ * @throws {EchidnaJsError} `CORRUPT_BLOB` if `bytes` is not valid JSON
+ */
 function decodeJson<T>(bytes: Uint8Array): T {
-  return JSON.parse(decoder.decode(bytes)) as T
+  try {
+    return JSON.parse(decoder.decode(bytes)) as T
+  } catch {
+    throw new EchidnaJsError("corrupt plaintext record", "CORRUPT_BLOB")
+  }
 }
 
 // Control characters (C0 range + DEL) break file-path backends and are never
@@ -62,6 +80,14 @@ function assertValidId(id: string): void {
   }
 }
 
+/**
+ * Resolve a `KeySource` to a raw 32-byte secretbox key.
+ *
+ * @param keySource - Either a raw key or a passphrase to derive from
+ * @param salt - Vault salt, used only when deriving from a passphrase
+ * @param kdfParams - KDF algorithm/params, used only when deriving from a passphrase
+ * @returns The 32-byte key
+ */
 async function resolveKey(
   keySource: KeySource,
   salt: Uint8Array,
@@ -71,6 +97,20 @@ async function resolveKey(
   return deriveKey(keySource.passphrase, salt, kdfParams)
 }
 
+/**
+ * Creates or opens an encrypted document vault on the given storage adapter.
+ *
+ * If `vault/salt` already exists, the existing salt and KDF params are reused
+ * so the same key is derived (or the raw key is used as-is); otherwise a
+ * fresh vault is initialised with a new salt, default KDF params for the
+ * chosen algorithm, and the current vault format version. Idempotent per
+ * adapter: safe to call on both a fresh and an existing vault.
+ *
+ * @param options - Storage adapter and key source (passphrase or raw key)
+ * @returns A {@link DocStore} bound to the derived/raw key
+ * @throws {EchidnaJsError} `VAULT_NOT_FOUND` if `vault/salt` exists but
+ *   `vault/kdf` is missing
+ */
 export async function createEncryptedStore(options: CreateStoreOptions): Promise<DocStore> {
   const { adapter, keySource } = options
 
@@ -101,15 +141,34 @@ export async function createEncryptedStore(options: CreateStoreOptions): Promise
   return new DocStore(adapter, key)
 }
 
+/**
+ * An open encrypted document vault, bound to a resolved key and storage
+ * adapter. Obtain an instance via {@link createEncryptedStore}.
+ */
 export class DocStore {
   #adapter: StorageAdapter
   #key: Uint8Array
 
+  /**
+   * @param adapter - Storage backend the vault reads/writes through
+   * @param key - Resolved 32-byte secretbox key
+   */
   constructor(adapter: StorageAdapter, key: Uint8Array) {
     this.#adapter = adapter
     this.#key = key
   }
 
+  /**
+   * Writes or overwrites a document's encrypted body and plaintext metadata.
+   * Generates a fresh nonce on every write. Preserves `createdAt` and any
+   * existing `title`/`tags` not overridden by `meta` on an overwrite.
+   *
+   * @param id - Document id
+   * @param body - Plaintext document body
+   * @param meta - Optional metadata overrides (title, tags, custom fields)
+   * @returns The resulting `DocMeta`
+   * @throws {EchidnaJsError} `INVALID_ID` if `id` is invalid
+   */
   async set(id: string, body: string, meta?: SetMetaOptions): Promise<DocMeta> {
     assertValidId(id)
     const encrypted = encrypt(body, this.#key, id)
@@ -133,6 +192,16 @@ export class DocStore {
     return docMeta
   }
 
+  /**
+   * Decrypts and returns a document's body text.
+   *
+   * @param id - Document id
+   * @returns The plaintext body, or `null` if `id` does not exist
+   * @throws {EchidnaJsError} `INVALID_ID` if `id` is invalid; `WRONG_KEY` if
+   *   the vault key cannot decrypt the blob; `CORRUPT_BLOB` if the blob is
+   *   malformed; `TAMPERED` if the blob is bound to a different id;
+   *   `NEEDS_MIGRATION` if the blob is a legacy `0x01` body
+   */
   async get(id: string): Promise<string | null> {
     assertValidId(id)
     const blob = await this.#adapter.get(`docs/${id}/body`)
@@ -140,6 +209,14 @@ export class DocStore {
     return decrypt(blob, this.#key, id)
   }
 
+  /**
+   * Returns a document's plaintext metadata without decrypting its body.
+   *
+   * @param id - Document id
+   * @returns The `DocMeta`, or `null` if `id` does not exist
+   * @throws {EchidnaJsError} `INVALID_ID` if `id` is invalid; `CORRUPT_BLOB`
+   *   if the stored metadata is not valid JSON
+   */
   async getMeta(id: string): Promise<DocMeta | null> {
     assertValidId(id)
     const bytes = await this.#adapter.get(`docs/${id}/meta`)
@@ -147,6 +224,16 @@ export class DocStore {
     return decodeJson<DocMeta>(bytes)
   }
 
+  /**
+   * Updates metadata fields for an existing document without touching or
+   * re-encrypting its body. Always refreshes `updatedAt`.
+   *
+   * @param id - Document id
+   * @param meta - Metadata fields to merge into the existing record
+   * @returns The updated `DocMeta`
+   * @throws {EchidnaJsError} `INVALID_ID` if `id` is invalid; `NOT_FOUND` if
+   *   the document does not exist
+   */
   async updateMeta(id: string, meta: SetMetaOptions): Promise<DocMeta> {
     assertValidId(id)
     const existing = await this.getMeta(id)
@@ -158,12 +245,29 @@ export class DocStore {
     return updated
   }
 
+  /**
+   * Deletes both the metadata and body for a document id. A no-op key layout
+   * (no existence check) — deleting a nonexistent id is not an error.
+   *
+   * @param id - Document id
+   * @throws {EchidnaJsError} `INVALID_ID` if `id` is invalid
+   */
   async delete(id: string): Promise<void> {
     assertValidId(id)
     await this.#adapter.delete(`docs/${id}/meta`)
     await this.#adapter.delete(`docs/${id}/body`)
   }
 
+  /**
+   * Returns all document metadata records, optionally filtered by tags or
+   * creation date range. Reads only `docs/{id}/meta` keys — bodies are never
+   * decrypted.
+   *
+   * @param options - Optional tag/date filters
+   * @returns Matching `DocMeta` records
+   * @throws {EchidnaJsError} `CORRUPT_BLOB` if any stored metadata is not
+   *   valid JSON
+   */
   async list(options?: ListOptions): Promise<DocMeta[]> {
     // Read each doc's plaintext meta record directly from its `docs/{id}/meta`
     // key. The id lives inside the meta JSON, so there is no need to recompose
@@ -185,6 +289,11 @@ export class DocStore {
     })
   }
 
+  /**
+   * Permanently destroys the vault: deletes every key the adapter holds
+   * (all document bodies/metadata plus `vault/salt`, `vault/kdf`,
+   * `vault/version`). Irreversible — use with care.
+   */
   async destroy(): Promise<void> {
     const keys = await this.#adapter.list()
     await Promise.all(keys.map((k) => this.#adapter.delete(k)))
@@ -234,7 +343,7 @@ export class DocStore {
     for (const bodyKey of bodyKeys) {
       const blob = await this.#adapter.get(bodyKey)
       // Leave already-migrated (0x02) or unknown blobs untouched.
-      if (blob === null || blob.length === 0 || blob[0] !== 0x01) continue
+      if (blob === null || blob.length === 0 || blobVersion(blob) !== 0x01) continue
 
       // Recover the id from `docs/{id}/body` without splitting on "/", so ids
       // that themselves contain slashes bind to the same id get() will pass.
