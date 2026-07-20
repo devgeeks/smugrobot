@@ -10,9 +10,10 @@ echidna.js is a TypeScript library for storing arbitrary text documents encrypte
 - Key derivation: scrypt-js or PBKDF2 from a user passphrase, or a raw 32-byte key
 - Salt: 16 random bytes, generated once at vault creation, stored plaintext at `vault/salt`
 - Nonce: 24 random bytes, generated fresh per write, prepended to the ciphertext blob
-- Document binding: the document id is bound into the authenticated message as additional authenticated data (secretbox has no AAD parameter, so it is prepended, length-framed, inside the MAC-protected plaintext). A blob transplanted to another id decrypts under the vault key but fails the id check — surface this as a typed `TAMPERED` error. This does not defend against same-document rollback (no trusted version anchor).
-- Wrong key signal: `nacl.secretbox.open` returns `null` — surface this as a typed error, never return garbage
+- Document binding: the document id is bound into the authenticated message as additional authenticated data (secretbox has no AAD parameter, so it is prepended, length-framed, inside the MAC-protected plaintext). A blob transplanted to another id decrypts under the vault key but fails the id check — surfaced as a typed `TAMPERED` error. This does not defend against same-document rollback (no trusted version anchor).
+- Wrong key signal: `nacl.secretbox.open` returns `null` — surfaced as a typed error, never return garbage
 - The salt is not secret — it exists only to prevent precomputation attacks across vaults
+- **Metadata is untrusted input by design:** `DocMeta` fields (`title`, `tags`, custom fields) are plaintext and unauthenticated, so `list()`/`getMeta()` can work without decrypting bodies. When a vault syncs through a backend the app doesn't fully trust (Dropbox, CouchDB), that backend can read and rewrite every metadata field arbitrarily. Consuming UIs must treat metadata fields as attacker-controllable, unescaped input — never pass them to `innerHTML` or an equivalent unescaped-HTML sink. See the Dropbox and PouchDB adapter sections below for adapter-specific privacy warnings.
 
 ---
 
@@ -40,7 +41,7 @@ of key paths.
 [ version: 1 byte ][ nonce: 24 bytes ][ ciphertext: N bytes ]
 ```
 
-- `version` is currently `0x02`. `0x01` (which omitted the id binding below) is no longer readable and surfaces as `CORRUPT_BLOB`
+- `version` is currently `0x02`. Legacy `0x01` blobs (which omitted the id binding below) are rejected by ordinary reads with `NEEDS_MIGRATION`; only `store.migrate()` can decrypt them (via `decryptLegacyV1`), to re-encrypt as `0x02`
 - `nonce` is stored with the blob so each write is independently decryptable
 - `ciphertext` is `nacl.secretbox(message, nonce, key)`, where `message` is the authenticated framing `[ uint32BE(idLen) ][ id ][ plaintextBytes ]` — the id (additional authenticated data) is verified on decrypt and must match the id being read
 
@@ -118,6 +119,7 @@ export type EchidnaJsErrorCode =
   | "CORRUPT_BLOB" // blob too short, bad version byte, or malformed authenticated message
   | "TAMPERED" // blob authenticated but is bound to a different document id
   | "NEEDS_MIGRATION" // legacy 0x01 body; run store.migrate() to upgrade
+  | "INVALID_KEY" // key passed to encrypt/decrypt is not 32 bytes
   | "INVALID_ID" // doc id is empty, contains "/" or a control char, or is "."/".."
   | "NOT_FOUND" // doc id does not exist
   | "KDF_FAILED" // key derivation threw
@@ -127,7 +129,7 @@ export type EchidnaJsErrorCode =
 
 ---
 
-## Public API (`src/store.ts`)
+## Public API (`src/store.ts`, re-exported from `src/index.ts`)
 
 Consumers import as:
 
@@ -142,22 +144,25 @@ export async function createEncryptedStore(options: CreateStoreOptions): Promise
 
 export class DocStore {
   // Write or overwrite a document. Generates new nonce on every write.
+  // On overwrite, createdAt is preserved and updatedAt is bumped.
   async set(id: string, body: string, meta?: SetMetaOptions): Promise<DocMeta>;
 
   // Decrypt and return body text, or null if id does not exist.
-  // Throws EchidnaError('WRONG_KEY') if decryption fails.
+  // Throws EchidnaJsError('WRONG_KEY') if decryption fails.
+  // Throws EchidnaJsError('NEEDS_MIGRATION') if the body is a legacy 0x01 blob.
   async get(id: string): Promise<string | null>;
 
   // Return plaintext metadata without decrypting the body.
   async getMeta(id: string): Promise<DocMeta | null>;
 
   // Update metadata fields only (no re-encryption of body needed).
+  // Throws EchidnaJsError('NOT_FOUND') if the id does not exist.
   async updateMeta(id: string, meta: SetMetaOptions): Promise<DocMeta>;
 
   // Delete both meta and body for a doc id.
   async delete(id: string): Promise<void>;
 
-  // Return all DocMeta records, optionally filtered.
+  // Return all DocMeta records, optionally filtered. Never decrypts any body.
   async list(options?: ListOptions): Promise<DocMeta[]>;
 
   // Permanently destroy the vault (all docs + vault keys). Use with care.
@@ -173,15 +178,18 @@ export class DocStore {
 }
 ```
 
+Every id-taking method validates `id` and throws `EchidnaJsError('INVALID_ID')`
+on failure (empty, contains `/` or a control character, or is `.`/`..`).
+
 ---
 
 ## Key Derivation (`src/core/kdf.ts`)
 
-- **scrypt**: use the `scrypt-js` npm package. Default params: `N=131072, r=8, p=1, dkLen=32`.
-- **PBKDF2**: use the Web Crypto API (`crypto.subtle.deriveBits`) where available, fall back to Node's `crypto` module. Default params: `iterations=600_000, hash='SHA-256', dkLen=32`.
+- **scrypt**: uses the `scrypt-js` npm package. Default params: `N=131072, r=8, p=1, dkLen=32`.
+- **PBKDF2**: uses the Web Crypto API (`crypto.subtle.deriveBits`) where available, falls back to Node's `crypto` module. Default params: `iterations=600_000, hash='SHA-256', dkLen=32`.
 - Both return a `Uint8Array(32)` suitable for passing directly to `nacl.secretbox`.
 - KDF params used at vault creation are stored at `vault/kdf` so the same params are always used when reopening.
-- Expose a `deriveKey(passphrase: string, salt: Uint8Array, params: KdfParams): Promise<Uint8Array>` function.
+- Exposes `deriveKey(passphrase: string, salt: Uint8Array, params: KdfParams): Promise<Uint8Array>`.
 
 ---
 
@@ -191,12 +199,14 @@ export class DocStore {
 export function encrypt(plaintext: string, key: Uint8Array, aad: string): Uint8Array;
 // aad is the document id, bound into the authenticated message.
 // Returns: [0x02][nonce(24)][ secretbox( [uint32BE(idLen)][id][plaintext] ) ]
+// Throws EchidnaJsError('INVALID_KEY') if key is not 32 bytes.
 
 export function decrypt(blob: Uint8Array, key: Uint8Array, aad: string): string;
+// Throws EchidnaJsError('INVALID_KEY') if key is not 32 bytes
+// Throws EchidnaJsError('NEEDS_MIGRATION') on a legacy 0x01 blob
 // Throws EchidnaJsError('CORRUPT_BLOB') if blob/message is malformed
 // Throws EchidnaJsError('WRONG_KEY') if secretbox.open returns null
 // Throws EchidnaJsError('TAMPERED') if the embedded id !== aad
-// Throws EchidnaJsError('NEEDS_MIGRATION') on a legacy 0x01 blob
 
 export function decryptLegacyV1(blob: Uint8Array, key: Uint8Array): string;
 // Decrypts a legacy 0x01 blob (no id binding). Used ONLY by store.migrate();
@@ -223,7 +233,7 @@ Each adapter is a separate file and a separate package.json `exports` entry so c
 
 - Uses `window.localStorage`
 - Encodes `Uint8Array` as base64 strings for storage
-- Guard against `localStorage` being unavailable (SSR)
+- Guards against `localStorage` being unavailable (SSR)
 - On init, calls `navigator.storage.persist()` (same guarded, fire-and-forget pattern as the IndexedDB adapter — see below) since this origin's storage is otherwise subject to the same best-effort eviction
 
 ### `src/adapters/node-fs.ts`
@@ -231,6 +241,7 @@ Each adapter is a separate file and a separate package.json `exports` entry so c
 - Stores each key as a file under a root directory
 - Key `docs/abc/meta` → `{rootDir}/docs/abc/meta` (mkdir -p as needed)
 - Uses `node:fs/promises` — no extra dependencies
+- `keyToPath()` resolves the joined path and checks it's `root` or starts with `root + sep` before use — an independent path-traversal guard even if a caller bypassed id validation upstream
 
 ### `src/adapters/indexeddb.ts`
 
@@ -244,13 +255,22 @@ Each adapter is a separate file and a separate package.json `exports` entry so c
 - That package is a **peer dependency** — not installed by echidna
 - Encodes `Uint8Array` as base64 strings
 
+### `src/adapters/dropbox.ts`
+
+- Stores the encrypted vault as files in a Dropbox app folder for multi-device sync; the vault is encrypted before it leaves the device, so Dropbox only ever sees opaque blobs and plaintext `DocMeta` JSON
+- No SDK dependency — uses `fetch` and `crypto.subtle` directly (PKCE OAuth flow: `generatePkce`, `getDropboxAuthUrl`, `exchangeDropboxCode`, `refreshDropboxToken`)
+- Dropbox is case-insensitive — document ids that differ only by case will collide
+- `list()` recovers keys by slicing `entry.path_display` against the configured `rootPath` prefix
+- **Privacy:** metadata is plaintext and unauthenticated — a compromised Dropbox account can read and rewrite `title`/`tags`/custom fields arbitrarily. See the Security Model section above.
+
 ### `src/adapters/pouchdb.ts`
 
 - Wraps a caller-supplied PouchDB instance (`pouchDbAdapter(db)`) — does not construct its own, so the same `db` can be used for `.sync()` against a remote CouchDB by the consumer
 - Stores each value as a CouchDB attachment (base64-transported, binary at rest) rather than an inline JSON field
 - `set`/`delete` read the current `_rev` before writing and retry on 409 conflicts; `delete` on a missing key is a no-op
-- `pouchdb` is a **peer dependency** — not installed by echidna; only its structural shape is relied on (no `@types/pouchdb-core` needed)
+- `pouchdb` is a **peer dependency** — not installed by echidna; only its structural shape is relied on
 - On init, calls `navigator.storage.persist()` (same guarded, fire-and-forget pattern as the IndexedDB adapter) since browser PouchDB builds are typically IndexedDB-backed
+- **Privacy:** syncing does not make metadata private — `docs/{id}/meta` is always plaintext and unauthenticated, so a malicious or compromised CouchDB server can read and silently rewrite it (and roll a document back to an earlier version undetectably — there is no vault-level integrity check across the whole sync). Only `docs/{id}/body` is encrypted and MAC-protected. See the Security Model section above.
 
 ---
 
@@ -266,7 +286,10 @@ echidna.js/
       memory.ts
       localstorage.ts
       node-fs.ts
+      indexeddb.ts
       async-storage.ts
+      dropbox.ts
+      pouchdb.ts
     store.ts
     types.ts
     index.ts
@@ -274,10 +297,15 @@ echidna.js/
     crypto.test.ts
     kdf.test.ts
     store.test.ts
+    migrate.test.ts
     adapters.test.ts
+    dropbox.test.ts
+    pouchdb.test.ts
+    helpers.ts
   package.json
   tsconfig.json
   tsup.config.ts
+  README.md
   CLAUDE.md
 ```
 
@@ -285,160 +313,34 @@ echidna.js/
 
 ## Build Configuration
 
-Use **tsup** for building. Output both ESM and CJS with `.d.ts` declarations.
+Built with **tsup**, one entry per public module (core + each adapter) so consumers only bundle what they import. Output both ESM and CJS with `.d.ts`/`.d.cts` declarations. `@react-native-async-storage/async-storage` is marked `external` since it's a peer dependency that must not be bundled.
 
-### `tsup.config.ts`
+Dependencies: `tweetnacl`, `scrypt-js`. Peer dependencies (both optional): `@react-native-async-storage/async-storage`, `pouchdb`.
 
-```ts
-import { defineConfig } from "tsup";
-
-export default defineConfig({
-  entry: {
-    index: "src/index.ts",
-    "adapters/memory": "src/adapters/memory.ts",
-    "adapters/localstorage": "src/adapters/localstorage.ts",
-    "adapters/node-fs": "src/adapters/node-fs.ts",
-    "adapters/async-storage": "src/adapters/async-storage.ts",
-  },
-  format: ["esm", "cjs"],
-  dts: true,
-  sourcemap: true,
-  clean: true,
-});
-```
-
-### `package.json` exports
-
-```json
-{
-  "name": "echidna.js",
-  "version": "0.1.0",
-  "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
-    },
-    "./adapters/memory": {
-      "import": "./dist/adapters/memory.mjs",
-      "require": "./dist/adapters/memory.cjs",
-      "types": "./dist/adapters/memory.d.ts"
-    },
-    "./adapters/localstorage": {
-      "import": "./dist/adapters/localstorage.mjs",
-      "require": "./dist/adapters/localstorage.cjs",
-      "types": "./dist/adapters/localstorage.d.ts"
-    },
-    "./adapters/node-fs": {
-      "import": "./dist/adapters/node-fs.mjs",
-      "require": "./dist/adapters/node-fs.cjs",
-      "types": "./dist/adapters/node-fs.d.ts"
-    },
-    "./adapters/async-storage": {
-      "import": "./dist/adapters/async-storage.mjs",
-      "require": "./dist/adapters/async-storage.cjs",
-      "types": "./dist/adapters/async-storage.d.ts"
-    }
-  },
-  "dependencies": {
-    "tweetnacl": "^1.0.3",
-    "scrypt-js": "^3.0.1"
-  },
-  "peerDependencies": {
-    "@react-native-async-storage/async-storage": ">=1.0.0"
-  },
-  "peerDependenciesMeta": {
-    "@react-native-async-storage/async-storage": {
-      "optional": true
-    }
-  },
-  "devDependencies": {
-    "tsup": "^8.0.0",
-    "typescript": "^5.0.0",
-    "vitest": "^1.0.0",
-    "@types/node": "^20.0.0"
-  },
-  "scripts": {
-    "build": "tsup",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
-  }
-}
-```
+See `tsup.config.ts` and `package.json` `exports` for the exact entry/module map — keep both in sync whenever an adapter is added or removed.
 
 ---
 
 ## Tests
 
-Use **vitest**. All tests use the memory adapter. No mocking of crypto — use real nacl operations.
+Uses **vitest**. Most tests use the memory adapter. No mocking of crypto — use real nacl operations.
 
-### Required test coverage
-
-**`crypto.test.ts`**
-
-- `encrypt` + `decrypt` round-trip returns original string
-- `decrypt` with wrong key throws `EchidnaJsError` with code `WRONG_KEY`
-- `decrypt` with truncated blob throws `EchidnaJsError` with code `CORRUPT_BLOB`
-- Each call to `encrypt` produces a different nonce (blobs differ even for same input)
-- Version byte is `0x01`
-
-**`kdf.test.ts`**
-
-- scrypt derives a 32-byte key deterministically (same passphrase + salt = same key)
-- PBKDF2 derives a 32-byte key deterministically
-- Different salts produce different keys
-- Different passphrases produce different keys
-
-**`store.test.ts`**
-
-- `createEncryptedStore` creates vault/salt and vault/kdf on first call
-- `createEncryptedStore` reuses existing salt on second call (same key derived)
-- `set` + `get` round-trip returns original text
-- `get` on missing id returns `null`
-- `getMeta` returns plaintext metadata without decrypting body
-- `updateMeta` updates title/tags without re-encrypting body
-- `delete` removes both meta and body; subsequent `get` returns `null`
-- `list()` returns all DocMeta records
-- `list({ tags: ['work'] })` returns only docs with that tag
-- `list({ since, until })` filters by createdAt
-- Opening the same vault with a wrong passphrase and calling `get` throws `WRONG_KEY` (`EchidnaJsError`)
-- `set` updates `updatedAt` but not `createdAt` on overwrite
-- `size` in DocMeta reflects the byte length of the UTF-8 plaintext
-
-**`adapters.test.ts`**
-
-- Memory adapter: set/get/delete/list work correctly
-- Node-fs adapter: set/get/delete/list work correctly, files created on disk
+- **`crypto.test.ts`** — encrypt/decrypt round-trip, wrong-key/truncated-blob/tampered-id error codes, nonce uniqueness, legacy `0x01` handling
+- **`kdf.test.ts`** — scrypt/PBKDF2 determinism, salt/passphrase sensitivity
+- **`store.test.ts`** — vault creation/reopen, set/get/getMeta/updateMeta/delete round-trips, `list()` filtering (`tags`, `since`/`until`), wrong-passphrase handling, `createdAt`/`updatedAt`/`size` semantics
+- **`migrate.test.ts`** — `needsMigration()`/`migrate()` behavior on legacy `0x01` vaults: idempotency, resumability, meta preservation
+- **`adapters.test.ts`** — memory, node-fs (including path-traversal guard), localstorage, indexeddb adapters: set/get/delete/list correctness
+- **`dropbox.test.ts`** — PKCE flow, token exchange/refresh, adapter get/set/delete/list against a mocked Dropbox API
+- **`pouchdb.test.ts`** — adapter get/set/delete/list against PouchDB, including `_rev`/409-conflict handling
 
 ---
 
 ## Implementation Notes
 
-- Use `nacl.randomBytes` for all random generation — do not use `Math.random`
-- Use `TextEncoder` / `TextDecoder` for UTF-8 conversion — available in all target environments
-- The `list` adapter method should accept an optional prefix string to avoid fetching all keys when only `docs/` keys are needed
-- The async-storage adapter should never be imported in Node or browser builds — its import of `@react-native-async-storage/async-storage` will fail outside React Native. This is fine because it's a separate exports entry.
+- Use `nacl.randomBytes` for all random generation — never `Math.random`
+- Use `TextEncoder`/`TextDecoder` for UTF-8 conversion — available in all target environments
+- The `list` adapter method accepts an optional prefix string to avoid fetching all keys when only `docs/` keys are needed
+- The async-storage adapter must never be imported in Node or browser builds — its import of `@react-native-async-storage/async-storage` fails outside React Native. This is fine because it's a separate exports entry.
 - Do not store any representation of the key or passphrase — not even a hash for verification. Wrong-key detection comes entirely from `secretbox.open` returning `null`, surfaced as `EchidnaJsError` with code `WRONG_KEY`.
-- `createEncryptedStore` should be idempotent: calling it on an existing vault opens it; calling it on a fresh adapter initialises it.
-
----
-
-## What to Build
-
-1. Scaffold the project structure and `package.json`
-2. Install dependencies: `npm install`
-3. Write `src/types.ts`
-4. Write `src/core/crypto.ts`
-5. Write `src/core/kdf.ts`
-6. Write `src/adapters/memory.ts`
-7. Write `src/adapters/localstorage.ts`
-8. Write `src/adapters/node-fs.ts`
-9. Write `src/adapters/async-storage.ts`
-10. Write `src/store.ts`
-11. Write `src/index.ts` (re-export everything public)
-12. Write all tests
-13. Run `npm test` — all tests must pass
-14. Run `npm run build` — build must succeed with no type errors
-15. Run `npm run typecheck` — must be clean
+- `createEncryptedStore` is idempotent: calling it on an existing vault opens it; calling it on a fresh adapter initialises it.
+- `DocMeta`/`SetMetaOptions` have an open `[key: string]: unknown` index signature — metadata merges use object spread (`{...existing, ...meta, id}`), which is safe against prototype pollution since spread uses `CreateDataProperty` semantics. If metadata merging is ever refactored to a recursive/deep-merge utility, re-audit for prototype pollution since `meta` is directly caller-controlled and unvalidated for key names.
