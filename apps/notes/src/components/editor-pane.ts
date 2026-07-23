@@ -190,7 +190,7 @@ export class EditorPane {
       dispatch({ type: "NOTE_SAVE_DONE", meta: meta as NoteMeta });
     } catch (err) {
       dispatch({ type: "NOTE_SAVE_FAILED" });
-      showToast("Failed to save note. Your changes may be lost.", "danger");
+      showToast("Save failed — copy your text as a backup, just in case.", "danger");
       console.error("Note save failed:", err);
     }
   }

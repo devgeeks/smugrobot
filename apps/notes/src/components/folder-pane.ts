@@ -154,14 +154,21 @@ export class FolderPane {
     const notesToMove = all.filter(
       (m) => m["type"] === "note" && (m["folderId"] ?? null) === folder.id,
     );
+    let movedCount = 0;
     try {
       for (const noteMeta of notesToMove) {
         await store.updateMeta(noteMeta.id, { folderId: null });
+        movedCount++;
       }
       await store.delete(folder.id);
     } catch (err) {
-      showToast("Failed to delete folder. Notes may not have been moved.", "danger");
       console.error("Folder delete failed:", err);
+      const remaining = notesToMove.length - movedCount;
+      const message =
+        remaining > 0
+          ? `Couldn't delete "${folder.title}" — ${movedCount} of ${notesToMove.length} note(s) were moved to "All notes". Click delete again to finish.`
+          : `"${folder.title}"'s notes were moved, but the folder itself couldn't be deleted. Click delete again to remove it.`;
+      showToast(message, "danger");
       return;
     }
 

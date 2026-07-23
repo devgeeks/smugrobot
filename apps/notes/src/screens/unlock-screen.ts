@@ -3,6 +3,75 @@ import { createVault, openVault, saveKeyToSession } from "../db/vault.js";
 import { EchidnaJsError } from "echidna.js";
 import { showToast } from "../utils/toast.js";
 
+function describeUnlockFailure(err: unknown): { message: string; wrongPassphrase: boolean } {
+  if (err instanceof EchidnaJsError) {
+    switch (err.code) {
+      case "WRONG_KEY":
+        return { message: "Wrong passphrase. Please try again.", wrongPassphrase: true };
+      case "CORRUPT_BLOB":
+      case "TAMPERED":
+        return {
+          message:
+            "Your vault's data appears to be corrupted, not a passphrase problem — retrying won't help. Restore from a backup if you have one.",
+          wrongPassphrase: false,
+        };
+      case "NEEDS_MIGRATION":
+        return {
+          message: "Your vault needs to finish an internal upgrade. Reload the page and try again.",
+          wrongPassphrase: false,
+        };
+      case "VAULT_NOT_FOUND":
+        return {
+          message: "Your vault's setup data is missing or incomplete. Try reloading the page.",
+          wrongPassphrase: false,
+        };
+      default:
+        return {
+          message: "Couldn't open your vault. Try again, or reload the page if it keeps happening.",
+          wrongPassphrase: false,
+        };
+    }
+  }
+  if (err instanceof Error && err.message === "Vault not found") {
+    return {
+      message:
+        "No vault was found in this browser's storage — it may have been cleared. Try reloading the page.",
+      wrongPassphrase: false,
+    };
+  }
+  if (err instanceof Error && err.message === "No adapter") {
+    return {
+      message: "Something went wrong starting the app. Please reload the page.",
+      wrongPassphrase: false,
+    };
+  }
+  if (typeof DOMException !== "undefined" && err instanceof DOMException) {
+    if (err.name === "QuotaExceededError") {
+      return {
+        message:
+          "Your browser's storage is full, so the vault can't be opened. Free up space and try again.",
+        wrongPassphrase: false,
+      };
+    }
+    if (err.name === "VersionError" || err.name === "InvalidStateError") {
+      return {
+        message:
+          "Access to your vault's storage was blocked. Close other tabs with this app open and try again.",
+        wrongPassphrase: false,
+      };
+    }
+    return {
+      message:
+        "A browser storage error occurred while opening your vault. Reloading the page may help.",
+      wrongPassphrase: false,
+    };
+  }
+  return {
+    message: "Couldn't open your vault due to an unexpected error. Try again, or reload the page.",
+    wrongPassphrase: false,
+  };
+}
+
 export function mountUnlockScreen(root: HTMLElement): () => void {
   const state = getState();
   root.innerHTML = "";
@@ -146,12 +215,10 @@ export function mountUnlockScreen(root: HTMLElement): () => void {
       }
       dispatch({ type: "UNLOCKED", store });
     } catch (err) {
-      if (err instanceof EchidnaJsError && err.code === "WRONG_KEY") {
-        setInputError(passphraseInput, "Wrong passphrase.");
-        showToast("Wrong passphrase. Please try again.", "danger");
-      } else {
-        showToast("Failed to open vault. Please try again.", "danger");
-      }
+      console.error("Vault unlock failed:", err);
+      const { message, wrongPassphrase } = describeUnlockFailure(err);
+      if (wrongPassphrase) setInputError(passphraseInput, "Wrong passphrase.");
+      showToast(message, "danger");
     } finally {
       btn.removeAttribute("loading");
       btn.removeAttribute("disabled");

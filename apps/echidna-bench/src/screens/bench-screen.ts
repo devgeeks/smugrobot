@@ -4,7 +4,30 @@ import { ConfigPanel } from "../components/config-panel.js";
 import { ResultsTable } from "../components/results-table.js";
 import { ResultsChart } from "../components/results-chart.js";
 import { showToast } from "../utils/toast.js";
+import { EchidnaJsError } from "echidna.js";
 import type { BenchConfig } from "../state/types.js";
+
+function describeBenchFailure(err: unknown): string {
+  if (err instanceof EchidnaJsError) {
+    if (err.code === "KDF_FAILED") {
+      return "Key derivation failed while preparing the benchmark. This is usually a transient WebCrypto issue — try again.";
+    }
+    return `Benchmark failed: unexpected echidna.js error (${err.code}). Check the browser console for details.`;
+  }
+  if (typeof DOMException !== "undefined" && err instanceof DOMException) {
+    if (err.name === "QuotaExceededError") {
+      return "Benchmark failed: browser storage quota exceeded. Try smaller sizes, fewer iterations, or the in-memory adapter.";
+    }
+    if (err.name === "VersionError" || err.name === "InvalidStateError") {
+      return "Benchmark failed: IndexedDB is blocked. Close other tabs running this app and try again.";
+    }
+    return `Benchmark failed: browser storage error (${err.name}). Check the browser console for details.`;
+  }
+  if (err instanceof Error) {
+    return `Benchmark failed: ${err.message}`;
+  }
+  return "Benchmark failed for an unknown reason. Check the browser console for details.";
+}
 
 export function mountBenchScreen(root: HTMLElement): () => void {
   root.innerHTML = "";
@@ -41,7 +64,8 @@ export function mountBenchScreen(root: HTMLElement): () => void {
         }
         dispatch({ type: "RUN_COMPLETE" });
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Benchmark run failed.";
+        console.error("Benchmark run failed:", err);
+        const message = describeBenchFailure(err);
         dispatch({ type: "RUN_FAILED", message });
         showToast(message, "danger");
       }
