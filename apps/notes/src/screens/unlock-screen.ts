@@ -73,7 +73,7 @@ export function mountUnlockScreen(root: HTMLElement): () => void {
   // vault-input re-renders on any attribute change, resetting the native input value
   // to the 'value' attribute. Sync 'value' first so the typed text is preserved.
   const setInputError = (el: HTMLElement & { value: string }, msg: string) => {
-    el.setAttribute("value", el.value);
+    el.value = el.value;
     el.setAttribute("error", msg);
   };
 

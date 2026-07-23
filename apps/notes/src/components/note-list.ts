@@ -48,7 +48,7 @@ export class NoteList {
 
     this.prevSelected = state.selectedNoteId;
     const onMobile = window.matchMedia("(max-width: 1024px)").matches;
-    listbox.setAttribute("value", onMobile ? "" : (state.selectedNoteId ?? ""));
+    listbox.value = onMobile ? "" : (state.selectedNoteId ?? "");
   }
 
   refreshTimestamps(): void {
