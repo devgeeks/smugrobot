@@ -2,24 +2,6 @@
 
 Privacy-focused component library. Zero dependencies. Pure Web Components + CSS custom properties.
 
-## File structure
-
-```
-vault-ui/
-├── src/
-│   ├── tokens/
-│   │   ├── tokens.css       ← all design tokens (CSS custom properties)
-│   │   ├── base.css         ← reset, typography, utility classes
-│   │   └── fonts.css        ← @font-face declarations
-│   └── components/
-│       ├── vault.js         ← barrel — re-exports every component + VaultTheme
-│       ├── token-bridge.js  ← shared shadow-DOM box-sizing/display reset
-│       ├── vault-theme.js   ← VaultTheme (light/dark persistence)
-│       ├── vault-ui.d.ts    ← TypeScript declarations
-│       └── vault-*.js       ← one file per component (vault-button.js, vault-input.js, …)
-└── CLAUDE.md
-```
-
 Every app using this library must import in this order:
 
 1. `src/tokens/fonts.css`

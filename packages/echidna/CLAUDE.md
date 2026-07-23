@@ -280,43 +280,6 @@ Each adapter is a separate file and a separate package.json `exports` entry so c
 
 ---
 
-## Project Structure
-
-```
-echidna.js/
-  src/
-    core/
-      crypto.ts
-      kdf.ts
-    adapters/
-      memory.ts
-      localstorage.ts
-      node-fs.ts
-      indexeddb.ts
-      async-storage.ts
-      dropbox.ts
-      pouchdb.ts
-    store.ts
-    types.ts
-    index.ts
-  tests/
-    crypto.test.ts
-    kdf.test.ts
-    store.test.ts
-    migrate.test.ts
-    adapters.test.ts
-    dropbox.test.ts
-    pouchdb.test.ts
-    helpers.ts
-  package.json
-  tsconfig.json
-  tsup.config.ts
-  README.md
-  CLAUDE.md
-```
-
----
-
 ## Build Configuration
 
 Built with **tsup**, one entry per public module (core + each adapter) so consumers only bundle what they import. Output both ESM and CJS with `.d.ts`/`.d.cts` declarations. `@react-native-async-storage/async-storage` is marked `external` since it's a peer dependency that must not be bundled.
