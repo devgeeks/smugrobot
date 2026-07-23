@@ -7,7 +7,7 @@
     "dev": "vite --host",
     "build": "tsc --noEmit && vite build",
     "preview": "vite build --mode preview && vite preview",
-    "deploy": "npm run build && rsync -avz -e \"ssh\" dist/* tommy@smugrobot.com:/home/tommy/apache-vhosts/smugrobot.com/public_html/notes",
+    "deploy": "npm run build && rsync -avz --delete -e \"ssh\" dist/* tommy@smugrobot.com:/home/tommy/apache-vhosts/smugrobot.com/public_html/notes",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
