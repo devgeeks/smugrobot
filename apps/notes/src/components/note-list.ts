@@ -39,7 +39,7 @@ export class NoteList {
 
     if (state.notes === this.prevNotes && state.selectedNoteId === this.prevSelected) return;
 
-    const listbox = this.el.querySelector("vault-listbox")! as HTMLElement;
+    const listbox = this.el.querySelector("vault-listbox")!;
 
     if (state.notes !== this.prevNotes) {
       this.prevNotes = state.notes;
@@ -73,7 +73,7 @@ export class NoteList {
 
   private renderRow(note: NoteMeta): HTMLElement {
     const option = document.createElement("vault-listbox-option");
-    option.setAttribute("value", note.id);
+    option.value = note.id;
 
     const content = document.createElement("div");
     content.className = "note-row-content";

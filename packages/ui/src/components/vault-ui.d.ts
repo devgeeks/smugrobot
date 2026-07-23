@@ -142,7 +142,8 @@ interface VaultAvatarElement extends HTMLElement {
 }
 
 interface VaultListboxOptionElement extends HTMLElement {
-  // value, selected, disabled: attribute-only — see file header.
+  value: string;
+  // selected, disabled: attribute-only — see file header.
 }
 
 interface VaultListboxElement extends HTMLElement {

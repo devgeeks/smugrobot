@@ -17,6 +17,13 @@ class VaultListboxOption extends HTMLElement {
     if (!this.shadowRoot) this.#render(); // markup/styles are attribute-independent; :host([...]) selectors handle the rest
   }
 
+  get value() {
+    return this.getAttribute("value") ?? "";
+  }
+  set value(v) {
+    this.setAttribute("value", v);
+  }
+
   #syncAria() {
     this.setAttribute("aria-selected", this.hasAttribute("selected") ? "true" : "false");
     if (this.hasAttribute("disabled")) {

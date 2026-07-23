@@ -58,7 +58,7 @@ export class FolderPane {
     const activeValue = selectedId ?? "__all__";
 
     const allOpt = document.createElement("vault-listbox-option");
-    allOpt.setAttribute("value", "__all__");
+    allOpt.value = "__all__";
     if (activeValue === "__all__") allOpt.setAttribute("active", "");
     const allLabel = document.createElement("span");
     allLabel.className = "folder-label";
@@ -83,7 +83,7 @@ export class FolderPane {
 
   private renderFolderRow(folder: FolderMeta, active: boolean, empty: boolean): HTMLElement {
     const opt = document.createElement("vault-listbox-option");
-    opt.setAttribute("value", folder.id);
+    opt.value = folder.id;
     if (active) opt.setAttribute("active", "");
     if (empty) opt.setAttribute("data-empty", "");
 
