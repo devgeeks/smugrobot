@@ -9,6 +9,7 @@ import { commonmark } from "@milkdown/preset-commonmark";
 import { gfm } from "@milkdown/preset-gfm";
 import { listener, listenerCtx } from "@milkdown/plugin-listener";
 import { clipboard } from "@milkdown/plugin-clipboard";
+import { history } from "@milkdown/plugin-history";
 import { getMarkdown, replaceAll } from "@milkdown/utils";
 import { linkTooltip } from "../utils/link-tooltip.js";
 import type { AppState } from "../state/types.js";
@@ -99,6 +100,7 @@ export class EditorPane {
       .use(gfm)
       .use(listener)
       .use(clipboard)
+      .use(history)
       .use(linkTooltip)
       .create();
 
@@ -145,13 +147,16 @@ export class EditorPane {
     // Reset dirty tracking for the newly loaded note
     this.dirty = false;
     this.pendingSaveNoteId = null;
-    this.editor?.action(replaceAll(md));
+    // flush=true rebuilds the EditorState from scratch instead of dispatching a
+    // transaction, resetting the undo/redo history so Cmd+Z can't pull in a
+    // previous note's content after switching notes.
+    this.editor?.action(replaceAll(md, true));
   }
 
   clearNote(): void {
     this.currentNoteId = null;
     this.pendingMarkdown = "";
-    this.editor?.action(replaceAll(""));
+    this.editor?.action(replaceAll("", true)); // flush=true — see loadNote()
   }
 
   private scheduleAutoSave(markdown: string): void {
@@ -244,7 +249,7 @@ export class EditorPane {
     // selectedNoteId is still the old value.
     dispatch({ type: "NOTE_SELECTED", noteId: id });
     dispatch({ type: "NOTES_LOADED", notes, noteCounts: updatedCounts });
-    this.editor?.action(replaceAll(defaultContent));
+    this.editor?.action(replaceAll(defaultContent, true)); // flush=true — see loadNote()
     this.editor?.action((ctx) => ctx.get(editorViewCtx).focus());
   }
 
