@@ -61,6 +61,7 @@ export type EchidnaJsErrorCode =
   | "INVALID_ID"
   | "NOT_FOUND"
   | "KDF_FAILED"
+  | "INVALID_KDF_PARAMS"
   | "VAULT_EXISTS"
   | "VAULT_NOT_FOUND";
 

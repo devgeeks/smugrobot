@@ -26,6 +26,82 @@ export function defaultKdfParams(algo: KdfAlgo = "scrypt"): KdfParams {
   return algo === "scrypt" ? DEFAULT_SCRYPT_PARAMS : DEFAULT_PBKDF2_PARAMS;
 }
 
+// Bounds for KDF params read from untrusted storage (`vault/kdf`). These are
+// deliberately generous multiples of the defaults above — not a policy on
+// "acceptable" security levels — but they cap worst-case scrypt memory/time
+// and PBKDF2 iteration count to a small constant multiple of today's
+// defaults instead of leaving them unbounded.
+const MIN_SCRYPT_N = 2;
+const MAX_SCRYPT_N = 1 << 20; // 1,048,576 — 8x the OWASP-recommended default
+const MAX_SCRYPT_R = 16; // 2x the default
+const MAX_SCRYPT_P = 16; // 16x the default
+const MAX_PBKDF2_ITERATIONS = 2_000_000; // ~3x the OWASP-recommended default
+
+function isPowerOfTwo(n: unknown): n is number {
+  return typeof n === "number" && Number.isInteger(n) && n > 0 && (n & (n - 1)) === 0;
+}
+
+function isBoundedInt(n: unknown, min: number, max: number): n is number {
+  return typeof n === "number" && Number.isInteger(n) && n >= min && n <= max;
+}
+
+/**
+ * Validates the shape and bounds of {@link KdfParams} before they are used
+ * to derive a key.
+ *
+ * `vault/kdf` is plaintext, unauthenticated storage, so a corrupted or
+ * hostile backend can return arbitrary JSON here. Without this check, a
+ * huge `N`/`p`/`iterations` would hang or OOM the caller, and a
+ * non-power-of-two `N` would crash inside `scrypt-js` — both only after
+ * expensive work had already started. This rejects all of that up front.
+ *
+ * @throws {EchidnaJsError} `INVALID_KDF_PARAMS` if `params` has an unknown
+ *   `algo` or any field is missing, malformed, or out of bounds.
+ */
+function validateKdfParams(params: KdfParams): void {
+  if (params === null || typeof params !== "object") {
+    throw new EchidnaJsError("KDF params must be an object", "INVALID_KDF_PARAMS");
+  }
+  if (params.algo === "scrypt") {
+    if (!isPowerOfTwo(params.N) || params.N < MIN_SCRYPT_N || params.N > MAX_SCRYPT_N) {
+      throw new EchidnaJsError(
+        `scrypt N must be a power of two in [${MIN_SCRYPT_N}, ${MAX_SCRYPT_N}], got ${params.N}`,
+        "INVALID_KDF_PARAMS",
+      );
+    }
+    if (!isBoundedInt(params.r, 1, MAX_SCRYPT_R)) {
+      throw new EchidnaJsError(
+        `scrypt r must be an integer in [1, ${MAX_SCRYPT_R}], got ${params.r}`,
+        "INVALID_KDF_PARAMS",
+      );
+    }
+    if (!isBoundedInt(params.p, 1, MAX_SCRYPT_P)) {
+      throw new EchidnaJsError(
+        `scrypt p must be an integer in [1, ${MAX_SCRYPT_P}], got ${params.p}`,
+        "INVALID_KDF_PARAMS",
+      );
+    }
+  } else if (params.algo === "pbkdf2") {
+    if (!isBoundedInt(params.iterations, 1, MAX_PBKDF2_ITERATIONS)) {
+      throw new EchidnaJsError(
+        `pbkdf2 iterations must be an integer in [1, ${MAX_PBKDF2_ITERATIONS}], got ${params.iterations}`,
+        "INVALID_KDF_PARAMS",
+      );
+    }
+    if (params.hash !== "SHA-256") {
+      throw new EchidnaJsError(
+        `Unsupported pbkdf2 hash: ${String(params.hash)}`,
+        "INVALID_KDF_PARAMS",
+      );
+    }
+  } else {
+    throw new EchidnaJsError(
+      `Unknown KDF algorithm: ${String((params as { algo?: unknown }).algo)}`,
+      "INVALID_KDF_PARAMS",
+    );
+  }
+}
+
 /**
  * Resolves a `SubtleCrypto` instance across environments.
  * Uses `globalThis.crypto.subtle` in browsers and modern Node.js (≥19),
@@ -49,13 +125,16 @@ async function getSubtle(): Promise<SubtleCrypto> {
  * @param salt - The vault's 16-byte random salt (stored plaintext at `vault/salt`).
  * @param params - KDF algorithm and parameters (stored plaintext at `vault/kdf`).
  * @returns A 32-byte `Uint8Array` suitable for use directly with `nacl.secretbox`.
- * @throws {EchidnaJsError} `KDF_FAILED` if key derivation throws an unexpected error.
+ * @throws {EchidnaJsError} `INVALID_KDF_PARAMS` if `params` is malformed or
+ *   out of the allowed bounds (see {@link validateKdfParams}); `KDF_FAILED`
+ *   if key derivation throws an unexpected error.
  */
 export async function deriveKey(
   passphrase: string,
   salt: Uint8Array,
   params: KdfParams,
 ): Promise<Uint8Array> {
+  validateKdfParams(params);
   try {
     if (params.algo === "scrypt") {
       const passwordBytes = new TextEncoder().encode(passphrase);

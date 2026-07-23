@@ -129,6 +129,7 @@ export type EchidnaJsErrorCode =
   | "INVALID_ID" // doc id is empty, contains "/" or a control char, or is "."/".."
   | "NOT_FOUND" // doc id does not exist
   | "KDF_FAILED" // key derivation threw
+  | "INVALID_KDF_PARAMS" // KDF params (from vault/kdf) malformed or out of bounds
   | "VAULT_EXISTS" // tried to init an already-initialised vault
   | "VAULT_NOT_FOUND"; // tried to open a vault with no salt stored
 ```
@@ -196,6 +197,7 @@ on failure (empty, contains `/` or a control character, or is `.`/`..`).
 - Both return a `Uint8Array(32)` suitable for passing directly to `nacl.secretbox`.
 - KDF params used at vault creation are stored at `vault/kdf` so the same params are always used when reopening.
 - Exposes `deriveKey(passphrase: string, salt: Uint8Array, params: KdfParams): Promise<Uint8Array>`.
+- `vault/kdf` is plaintext, unauthenticated storage, so `deriveKey` validates `params`' shape and bounds before deriving (power-of-two scrypt `N` in `[2, 2^20]`, `r`/`p` capped at 16, PBKDF2 `iterations` capped at 2,000,000, `hash` must be `"SHA-256"`) and throws `EchidnaJsError('INVALID_KDF_PARAMS')` otherwise — a corrupted or hostile backend must not be able to hang/OOM the caller or crash `scrypt-js` with pathological params.
 
 ---
 
