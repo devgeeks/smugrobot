@@ -32,7 +32,6 @@ export const linkTooltip = $prose(() => {
   let input: HTMLInputElement | null = null;
   let currentHref = "";
   let linkRange: { from: number; to: number } | null = null;
-  let closeMenuListener: ((e: Event) => void) | null = null;
 
   function getTooltip(): HTMLDivElement {
     if (tooltip) return tooltip;
@@ -72,10 +71,6 @@ export const linkTooltip = $prose(() => {
 
   function hide(): void {
     if (tooltip) tooltip.style.display = "none";
-    if (closeMenuListener) {
-      document.removeEventListener("click", closeMenuListener);
-      closeMenuListener = null;
-    }
     linkRange = null;
     currentHref = "";
   }

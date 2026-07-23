@@ -19,7 +19,7 @@ import { showToast } from "../utils/toast.js";
 import { confirmDialog } from "../utils/dialog.js";
 import { closeMenuAfterTap } from "../utils/menu.js";
 import { generateId } from "../utils/id.js";
-import { computeNoteList, computeNoteCounts } from "../screens/app-screen.js";
+import { computeNoteList, computeNoteCounts } from "../utils/notes.js";
 import type { NoteMeta } from "../state/types.js";
 
 export class EditorPane {
@@ -230,27 +230,32 @@ export class EditorPane {
     if (!state.store) return;
     const id = generateId("note");
     const defaultContent = "# Untitled\n\n";
-    await state.store.set(id, defaultContent, {
-      title: "Untitled",
-      type: "note",
-      folderId: state.selectedFolderId,
-    });
-    // reload notes then select the new one
-    const all = await state.store.list();
-    const notes = computeNoteList(all, state.selectedFolderId);
-    const updatedCounts = computeNoteCounts(all);
-    this.currentNoteId = id;
-    this.pendingMarkdown = defaultContent;
-    this.lastSavedMarkdown = defaultContent;
-    // NOTE_SELECTED first: app-screen's subscribe callback compares
-    // selectedNoteId against editorPane.currentNoteId (already `id` above) on
-    // every dispatch, so selecting before the NOTES_LOADED dispatch keeps
-    // them in sync throughout instead of racing an intermediate state where
-    // selectedNoteId is still the old value.
-    dispatch({ type: "NOTE_SELECTED", noteId: id });
-    dispatch({ type: "NOTES_LOADED", notes, noteCounts: updatedCounts });
-    this.editor?.action(replaceAll(defaultContent, true)); // flush=true — see loadNote()
-    this.editor?.action((ctx) => ctx.get(editorViewCtx).focus());
+    try {
+      await state.store.set(id, defaultContent, {
+        title: "Untitled",
+        type: "note",
+        folderId: state.selectedFolderId,
+      });
+      // reload notes then select the new one
+      const all = await state.store.list();
+      const notes = computeNoteList(all, state.selectedFolderId);
+      const updatedCounts = computeNoteCounts(all);
+      this.currentNoteId = id;
+      this.pendingMarkdown = defaultContent;
+      this.lastSavedMarkdown = defaultContent;
+      // NOTE_SELECTED first: app-screen's subscribe callback compares
+      // selectedNoteId against editorPane.currentNoteId (already `id` above) on
+      // every dispatch, so selecting before the NOTES_LOADED dispatch keeps
+      // them in sync throughout instead of racing an intermediate state where
+      // selectedNoteId is still the old value.
+      dispatch({ type: "NOTE_SELECTED", noteId: id });
+      dispatch({ type: "NOTES_LOADED", notes, noteCounts: updatedCounts });
+      this.editor?.action(replaceAll(defaultContent, true)); // flush=true — see loadNote()
+      this.editor?.action((ctx) => ctx.get(editorViewCtx).focus());
+    } catch (err) {
+      console.error("Note create failed:", err);
+      showToast("Couldn't create a new note — try again.", "danger");
+    }
   }
 
   getCurrentMarkdown(): string {
@@ -278,7 +283,13 @@ async function confirmDeleteNote(note: NoteMeta): Promise<boolean> {
   if (!ok) return false;
   const store = getState().store;
   if (!store) return false;
-  await store.delete(note.id);
+  try {
+    await store.delete(note.id);
+  } catch (err) {
+    console.error("Note delete failed:", err);
+    showToast(`Couldn't delete "${note.title}" — try again.`, "danger");
+    return false;
+  }
   dispatch({ type: "NOTE_DELETED", noteId: note.id });
   showToast(`"${note.title}" was deleted.`, "info");
   return true;

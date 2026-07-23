@@ -194,16 +194,21 @@ export class FolderPane {
       if (!name) return;
       const store = getState().store;
       if (!store) return;
-      const id = generateId("folder");
-      const meta = await store.set(id, "", {
-        title: name,
-        type: "folder",
-        parentId: null,
-      });
-      dispatch({
-        type: "FOLDER_CREATED",
-        folder: meta as FolderMeta,
-      });
+      try {
+        const id = generateId("folder");
+        const meta = await store.set(id, "", {
+          title: name,
+          type: "folder",
+          parentId: null,
+        });
+        dispatch({
+          type: "FOLDER_CREATED",
+          folder: meta as FolderMeta,
+        });
+      } catch (err) {
+        console.error("Folder create failed:", err);
+        showToast(`Couldn't create "${name}" — try again.`, "danger");
+      }
     };
 
     vaultInput.addEventListener("vault-input", (e) => {
