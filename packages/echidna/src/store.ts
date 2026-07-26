@@ -335,13 +335,16 @@ export class DocStore {
    * Only body blobs are rewritten; metadata (including `createdAt` /
    * `updatedAt`) is left untouched.
    *
-   * Security note: migration establishes the id binding going forward but
-   * cannot audit the past — it re-binds whatever plaintext currently sits at
-   * `docs/{id}/body` to `id`. If storage was tampered while bodies were still
-   * unbound `0x01` (e.g. two were swapped), that is laundered into an
-   * authenticated `0x02` blob. Run migration while the vault is on trusted
-   * storage, before syncing to an untrusted backend. It is also read-then-write
-   * per body, so run it single-flight before other writers touch the vault.
+   * Security note: the format version byte lives outside the MAC, so an
+   * untrusted backend can flip a genuine `0x02` body to `0x01`. Migration
+   * detects this — such a blob still decrypts as its id-bound `0x02` frame once
+   * the byte is restored — and repairs it in place rather than re-framing it
+   * (which would corrupt the body under a fresh, valid MAC). What migration
+   * still cannot audit is tampering from while a body was *genuinely* unbound
+   * `0x01`: if two legacy bodies were swapped, each is bound to whatever id it
+   * now sits under. Run migration while the vault is on trusted storage, before
+   * syncing to an untrusted backend. It is also read-then-write per body, so
+   * run it single-flight before other writers touch the vault.
    *
    * @returns Counts of body blobs `scanned` and `upgraded`.
    */
@@ -357,8 +360,38 @@ export class DocStore {
       // Recover the id from `docs/{id}/body` without splitting on "/", so ids
       // that themselves contain slashes bind to the same id get() will pass.
       const id = bodyKey.slice("docs/".length, bodyKey.length - "/body".length);
-      const plaintext = decryptLegacyV1(blob, this.#key);
-      await this.#adapter.set(bodyKey, encrypt(plaintext, this.#key, id));
+
+      // The version byte sits outside the MAC, so an untrusted backend can flip
+      // a genuine 0x02 body's byte to 0x01 for free. Feeding such a blob to the
+      // legacy path would return the *framed* plaintext ([len][id][body]) and
+      // re-encrypt that as a fresh, MAC-valid 0x02 blob — silently corrupting
+      // the body. Guard against it: a real 0x02 body still decrypts as its
+      // id-bound frame once the byte is restored (the MAC covers the frame, not
+      // the version byte), so try that first and only treat the blob as legacy
+      // when it genuinely is not an id-bound 0x02 frame.
+      const restored = new Uint8Array(blob);
+      restored[0] = 0x02;
+      let upgradedBlob: Uint8Array;
+      try {
+        decrypt(restored, this.#key, id);
+        // Decrypts cleanly as this id's 0x02 frame: it was a real 0x02 body
+        // with a flipped version byte, not legacy. Restore the byte in place;
+        // do not re-frame (which would double-wrap the plaintext).
+        upgradedBlob = restored;
+      } catch (err) {
+        if (
+          err instanceof EchidnaJsError &&
+          (err.code === "CORRUPT_BLOB" || err.code === "TAMPERED")
+        ) {
+          // Not an id-bound 0x02 frame → a genuine legacy 0x01 body. Bind it.
+          upgradedBlob = encrypt(decryptLegacyV1(blob, this.#key), this.#key, id);
+        } else {
+          // WRONG_KEY or anything unexpected means the ciphertext itself is
+          // damaged; surface it rather than writing back garbage.
+          throw err;
+        }
+      }
+      await this.#adapter.set(bodyKey, upgradedBlob);
       upgraded++;
     }
 

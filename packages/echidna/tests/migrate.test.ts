@@ -92,6 +92,34 @@ describe("migrate", () => {
     expect(await adapter.get("docs/doc1/body")).toEqual(before);
   });
 
+  it("migrate repairs a version-flipped 0x02 body instead of laundering it into corruption", async () => {
+    const adapter = memoryAdapter();
+    const store = await createEncryptedStore({
+      adapter,
+      keySource: { type: "raw", key: nacl.randomBytes(32) },
+    });
+    await store.set("doc1", "genuine 0x02 body");
+
+    // An untrusted backend flips the (unauthenticated) version byte 0x02 -> 0x01.
+    const original = (await adapter.get("docs/doc1/body"))!;
+    const flipped = new Uint8Array(original);
+    flipped[0] = 0x01;
+    await adapter.set("docs/doc1/body", flipped);
+
+    // The flip alone denies reads — decrypt dispatches on the wire version byte.
+    await expect(store.get("doc1")).rejects.toThrow(
+      expect.objectContaining({ code: "NEEDS_MIGRATION" }),
+    );
+
+    // migrate must recognise this as a real 0x02 body and restore it, NOT push
+    // it through the legacy path (which would re-frame [len][id][body] into a
+    // valid-MAC but corrupted blob and return that garbage from get()).
+    await store.migrate();
+
+    expect((await adapter.get("docs/doc1/body"))?.[0]).toBe(0x02);
+    expect(await store.get("doc1")).toBe("genuine 0x02 body");
+  });
+
   it("a legacy vault with no docs still gets its version marker set", async () => {
     const adapter = memoryAdapter();
     const store = await createEncryptedStore({
