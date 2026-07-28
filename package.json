@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "engines": {
-    "node": "26.x"
+    "node": "24.x"
   },
   "scripts": {
     "build": "npm run build --workspaces --if-present",
