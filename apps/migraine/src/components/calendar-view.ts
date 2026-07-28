@@ -1,18 +1,7 @@
 import escapeHtml from "escape-html";
 import type { Episode } from "../db/episodes.js";
 import { dayKey, dayKeyFromParts, parseDayKey, formatDateTime } from "../utils/time.js";
-
-function intensityColor(intensity: number): string {
-  if (intensity >= 8) return "var(--danger)";
-  if (intensity >= 5) return "var(--warn)";
-  return "var(--cipher)";
-}
-
-function intensityBadgeVariant(intensity: number): string {
-  if (intensity >= 8) return "danger";
-  if (intensity >= 5) return "warn";
-  return "default";
-}
+import { intensityColor, intensityBadgeVariant } from "../utils/intensity.js";
 
 const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -93,9 +82,9 @@ export class CalendarView {
     this.el.innerHTML = `
       <div class="calendar-header">
         <h1 class="pane-title">Calendar</h1>
-        <div class="calendar-nav">
+        <div class="pane-nav">
           <vault-button variant="ghost" size="sm" id="cal-prev" aria-label="Previous month">←</vault-button>
-          <span class="calendar-month-label">${escapeHtml(monthLabel)}</span>
+          <span class="pane-nav-label">${escapeHtml(monthLabel)}</span>
           <vault-button variant="ghost" size="sm" id="cal-next" aria-label="Next month">→</vault-button>
         </div>
       </div>

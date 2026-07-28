@@ -67,10 +67,6 @@ export class StatsPanel {
 
     const chartSection = document.createElement("div");
     chartSection.className = "stats-chart-section";
-    const chartTitle = document.createElement("h2");
-    chartTitle.className = "stats-chart-title";
-    chartTitle.textContent = "Episodes per week";
-    chartSection.appendChild(chartTitle);
     chartSection.appendChild(this.#trendChart.el);
     this.el.appendChild(chartSection);
 

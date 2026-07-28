@@ -7,8 +7,10 @@ export class FabButton {
     this.el = document.createElement("button");
     this.el.setAttribute("type", "button");
     this.el.className = "fab-button";
-    this.el.setAttribute("aria-label", "Log a migraine");
-    this.el.innerHTML = `<span aria-hidden="true">+</span>`;
+    // Matches the visible desktop label exactly so the accessible name
+    // doesn't diverge from on-screen text (WCAG 2.5.3, Label in Name).
+    this.el.setAttribute("aria-label", "Log episode");
+    this.el.innerHTML = `<span class="fab-icon" aria-hidden="true">+</span><span class="fab-label">Log episode</span>`;
     this.el.addEventListener("click", () => this.onClick?.());
   }
 }

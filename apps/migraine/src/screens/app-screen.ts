@@ -123,6 +123,10 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
     const state = getState();
     main.innerHTML = "";
     main.classList.toggle("is-logging", state.isLogging);
+    // Also drives the desktop layout: the sidebar nav steps aside entirely
+    // during the full-screen log-form takeover (see app.css's desktop
+    // media query).
+    root.classList.toggle("is-logging", state.isLogging);
 
     if (state.isLogging) {
       // Full-screen takeover: no tab bar, no FAB — just the header (still
@@ -160,4 +164,8 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
 export function unmountAppScreen(): void {
   unsub?.();
   unsub = null;
+  // Guard against a stale desktop sidebar-collapse if the vault is locked
+  // mid-log (the Lock button in the header is reachable during the
+  // full-screen log-form takeover).
+  document.getElementById("app")?.classList.remove("is-logging");
 }

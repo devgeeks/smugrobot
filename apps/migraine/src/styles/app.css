@@ -1,21 +1,19 @@
 /* ── Shared bottom-of-screen spacing budget ─────────────────
-   Every fixed/sticky bottom element (FAB, toasts, version badge, scroll
-   padding) derives its offset from these so they can't collide. ── */
+   Fixed/sticky bottom elements each derive their own offset from the tab
+   bar's height — they're independent, not chained off one another. Toasts
+   are transient overlays (solid background, high z-index) and are allowed
+   to visually overlap the FAB; they don't reserve permanent space for it,
+   and the FAB doesn't dodge them. ── */
 
 :root {
+  --sidebar-width: 240px; /* desktop: tab bar becomes a left sidebar */
   --tab-bar-height: calc(var(--sp-12) + env(safe-area-inset-bottom));
-  --toast-gap: var(--sp-2); /* clearance between the tab bar and the toast area */
-  --toast-height: var(
-    --sp-12
-  ); /* single-line toast height budget, 48px — only one toast shows at a time */
-  --toast-clearance: calc(
-    var(--tab-bar-height) + var(--toast-gap) + var(--toast-height)
-  ); /* full vertical footprint of the toast area above the tab bar */
+  --toast-gap: var(--sp-3); /* clearance between the tab bar and a toast */
   --fab-size: calc(var(--sp-12) + var(--sp-2)); /* 56px — Material's standard FAB size */
-  --fab-gap: var(--sp-4); /* clearance between the toast area and the FAB */
+  --fab-gap: var(--sp-4); /* clearance between the FAB and the tab bar */
   --fab-clearance: calc(
-    var(--toast-clearance) + var(--fab-gap) + var(--fab-size) + var(--sp-4)
-  ); /* full vertical footprint of the toast area + FAB, plus a margin above it */
+    var(--tab-bar-height) + var(--fab-gap) + var(--fab-size) + var(--sp-4)
+  ); /* scroll padding so content never sits under the FAB */
 }
 
 /* ── Layout ─────────────────────────────────────────────── */
@@ -28,14 +26,22 @@ body {
 
 #app {
   height: 100dvh;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "header"
+    "main"
+    "tabbar";
   background: var(--surface-base);
   color: var(--text-primary);
 }
 
 .app-loading {
-  flex: 1;
+  /* Rendered as the sole child of #app, before header/main/tabbar exist —
+     span the whole grid rather than auto-placing into just the header row. */
+  grid-row: 1 / -1;
+  grid-column: 1 / -1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -44,7 +50,10 @@ body {
 /* ── Unlock screen ──────────────────────────────────────── */
 
 .unlock-wrap {
-  flex: 1;
+  /* Same reasoning as .app-loading — this is the sole child of #app while
+     locked, so it needs to span the whole grid, not just the header row. */
+  grid-row: 1 / -1;
+  grid-column: 1 / -1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -141,6 +150,7 @@ body {
 /* ── Global app header ──────────────────────────────────── */
 
 .app-header {
+  grid-area: header;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -170,7 +180,7 @@ body {
 /* ── Main content ────────────────────────────────────────── */
 
 .app-main {
-  flex: 1;
+  grid-area: main;
   overflow-y: auto;
   padding: var(--sp-4);
   padding-bottom: var(--fab-clearance);
@@ -180,29 +190,69 @@ body {
   box-sizing: border-box;
 }
 
+/* Full-screen log-form takeover: the form owns its own internal scroll
+   region + a footer action bar that's a normal flex sibling (not sticky),
+   so it can never detach from the bottom and leave a gap beneath it. */
 .app-main.is-logging {
-  /* No tab bar/FAB while logging — the sticky action bar reserves its own space. */
-  padding-bottom: var(--sp-8);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  max-width: none;
+}
+
+.log-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.log-form-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--sp-4);
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .pane-title {
   font-family: var(--font-mono);
-  font-size: var(--text-xl);
+  font-size: var(--text-2xl);
   font-weight: 500;
   color: var(--text-primary);
-  margin: 0 0 var(--sp-4) 0;
+  margin: 0 0 var(--sp-5) 0;
+  letter-spacing: -0.01em;
 }
 
 .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-16) var(--sp-4);
   font-family: var(--font-body);
+  font-size: var(--text-sm);
+  line-height: 1.5;
   color: var(--text-muted);
-  padding: var(--sp-8) 0;
   text-align: center;
+}
+
+.empty-state::before {
+  content: "";
+  width: var(--sp-10);
+  height: var(--sp-10);
+  border: 1.5px dashed var(--surface-border);
+  border-radius: var(--radius-full);
 }
 
 /* ── Bottom tab bar ──────────────────────────────────────── */
 
 .tab-bar {
+  grid-area: tabbar;
   display: flex;
   border-top: 1px solid var(--surface-border);
   background: var(--surface-raised);
@@ -247,14 +297,15 @@ body {
 }
 
 .log-form-actions {
-  position: sticky;
-  bottom: 0;
-  z-index: 15;
+  flex-shrink: 0;
   display: flex;
   gap: var(--sp-3);
-  margin: var(--sp-6) calc(-1 * var(--sp-4)) 0;
   padding: var(--sp-4);
   padding-bottom: calc(var(--sp-4) + env(safe-area-inset-bottom));
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
   background: var(--surface-base);
   border-top: 1px solid var(--surface-border);
 }
@@ -268,7 +319,7 @@ body {
 .fab-button {
   position: fixed;
   right: var(--sp-6);
-  bottom: calc(var(--toast-clearance) + var(--fab-gap));
+  bottom: calc(var(--tab-bar-height) + var(--fab-gap));
   z-index: 20;
   width: var(--fab-size);
   height: var(--fab-size);
@@ -282,6 +333,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: var(--sp-2);
   cursor: pointer;
   box-shadow: var(--shadow-md);
   transition:
@@ -302,6 +354,14 @@ body {
   box-shadow: var(--focus-ring);
 }
 
+.fab-label {
+  /* Visible only in the desktop sidebar treatment — see the desktop
+     media query below. The circular mobile FAB stays icon-only. */
+  display: none;
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
 /* ── History list ────────────────────────────────────────── */
 
 .history-rows {
@@ -310,7 +370,7 @@ body {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: var(--sp-3);
 }
 
 .history-row {
@@ -320,6 +380,11 @@ body {
   border-radius: var(--radius-md);
   background: var(--surface-raised);
   overflow: hidden;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.history-row:has(.history-row-edit:hover) {
+  border-color: var(--ink-400);
 }
 
 .history-row-edit {
@@ -399,13 +464,14 @@ body {
   margin: 0;
 }
 
-.calendar-nav {
+/* Shared by the calendar's month nav and the trend chart's week nav. */
+.pane-nav {
   display: flex;
   align-items: center;
   gap: var(--sp-2);
 }
 
-.calendar-month-label {
+.pane-nav-label {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   color: var(--text-secondary);
@@ -420,6 +486,7 @@ body {
   margin-bottom: var(--sp-2);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
+  font-weight: 500;
   color: var(--text-muted);
   text-align: center;
 }
@@ -446,6 +513,7 @@ body {
   font-size: var(--text-sm);
   cursor: default;
   padding: 0;
+  transition: background var(--duration-fast) var(--ease-out);
 }
 
 .calendar-cell-empty {
@@ -456,7 +524,6 @@ body {
 .calendar-cell.has-episode {
   cursor: pointer;
   color: var(--text-primary);
-  transition: background var(--duration-fast) var(--ease-out);
 }
 
 .calendar-cell.has-episode:hover {
@@ -470,6 +537,11 @@ body {
 
 .calendar-cell.is-today {
   border-color: var(--cipher);
+  background: color-mix(in srgb, var(--cipher) 8%, var(--surface-raised));
+}
+
+.calendar-cell-num {
+  font-weight: 500;
 }
 
 .calendar-cell-dot {
@@ -539,8 +611,9 @@ body {
 .stat-tile {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-1);
-  padding: var(--sp-3);
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-4) var(--sp-3);
   background: var(--surface-raised);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-md);
@@ -549,7 +622,7 @@ body {
 
 .stat-tile-value {
   font-family: var(--font-mono);
-  font-size: var(--text-xl);
+  font-size: var(--text-2xl);
   font-weight: 500;
   color: var(--text-accent);
   overflow-wrap: anywhere;
@@ -558,7 +631,25 @@ body {
 .stat-tile-label {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.04em;
   color: var(--text-muted);
+}
+
+.stats-chart-section {
+  padding: var(--sp-4);
+  background: var(--surface-raised);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  box-sizing: border-box;
+}
+
+.stats-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
 }
 
 .stats-chart-title {
@@ -566,17 +657,43 @@ body {
   font-size: var(--text-sm);
   font-weight: 500;
   color: var(--text-secondary);
-  margin: 0 0 var(--sp-3) 0;
-}
-
-.stats-chart-section {
-  overflow-x: auto;
+  margin: 0;
 }
 
 /* ── Trend chart ─────────────────────────────────────────── */
 
-.trend-chart-bar {
-  fill: var(--cipher);
+.trend-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.trend-chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+.trend-chart-legend-dot {
+  width: var(--sp-2);
+  height: var(--sp-2);
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+/* Scales to the container's actual width, preserving the viewBox's aspect
+   ratio (height: auto) — always shows the full month without needing to
+   scroll. Bar color is set per-bar (fill attribute, keyed to that day's
+   peak intensity) rather than here — see trend-chart.ts. */
+.trend-chart-svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .chart-gridline {
@@ -616,6 +733,14 @@ body {
   flex-direction: column;
   gap: var(--sp-2);
   width: min(400px, calc(100vw - var(--sp-8)));
+  /* The container's bounding box is wider than any single toast; without
+     this it silently eats clicks on the tab bar/FAB underneath for the
+     toast's whole lifetime, even over its transparent edges. */
+  pointer-events: none;
+}
+
+.toast-container vault-alert {
+  pointer-events: auto;
 }
 
 /* ── Dialogs ─────────────────────────────────────────────── */
@@ -677,4 +802,132 @@ body {
   color: var(--text-muted);
   pointer-events: none;
   user-select: none;
+}
+
+/* The badge lives outside #app (appended straight to <body> in main.ts),
+   so it doesn't natively know the tab bar is removed during the log-form
+   takeover — without this it keeps floating at "tab bar height" from the
+   bottom, which now lands on top of the Cancel/Save action bar instead of
+   next to a tab bar that's no longer there. */
+#app.is-logging ~ .app-version-badge {
+  display: none;
+}
+
+/* ── Desktop layout (≥ 860px) ────────────────────────────────
+   Below the breakpoint this is a single-column mobile shell: a bottom tab
+   bar plus a floating FAB. At desktop width the tab bar becomes a
+   persistent left sidebar and the FAB becomes a real inline "Log episode"
+   button pinned at the top of it — not a Material-style circle floating
+   over content, which reads as an unstyled mobile view stretched wide.
+   Content also gets real breathing room instead of the same 640px mobile
+   column just centered in more whitespace. ── */
+
+@media (min-width: 860px) {
+  #app {
+    grid-template-columns: var(--sidebar-width) 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "header header"
+      "tabbar main";
+  }
+
+  /* While logging, the sidebar steps aside entirely — the same "focused,
+     chrome-free" intent as the mobile full-screen takeover. */
+  #app.is-logging {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "main";
+  }
+
+  .app-header {
+    padding-left: var(--sp-6);
+    padding-right: var(--sp-6);
+  }
+
+  .app-main {
+    padding: var(--sp-8);
+    max-width: 900px;
+  }
+
+  .log-form-scroll {
+    padding: var(--sp-8);
+    max-width: 720px;
+  }
+
+  .log-form-actions {
+    max-width: 720px;
+    padding-left: var(--sp-8);
+    padding-right: var(--sp-8);
+  }
+
+  .stats-row {
+    grid-template-columns: repeat(3, minmax(0, 220px));
+  }
+
+  /* ── Sidebar nav (replaces the bottom tab bar) ──
+     .tab-bar and .fab-button are DOM siblings (both direct children of
+     #app), not parent/child, so the FAB can't be absolutely positioned
+     "inside" the sidebar in the usual containing-block sense. Instead they
+     share the same named grid area: .tab-bar stretches to fill it (the
+     sidebar surface + nav links, pushed down by padding-top), and
+     .fab-button is placed in that same cell pinned to its top edge. */
+
+  .tab-bar {
+    grid-area: tabbar;
+    flex-direction: column;
+    align-items: stretch;
+    width: var(--sidebar-width);
+    gap: var(--sp-1);
+    border-top: none;
+    border-right: 1px solid var(--surface-border);
+    padding: var(--sp-4) var(--sp-3);
+    padding-top: calc(var(--sp-4) + var(--sp-10) + var(--sp-3));
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .tab-bar-btn {
+    flex: none;
+    min-height: var(--sp-10);
+    padding: 0 var(--sp-3);
+    border-top: none;
+    border-left: 2px solid transparent;
+    text-align: left;
+  }
+
+  .tab-bar-btn:hover {
+    background: var(--surface-hover);
+  }
+
+  .tab-bar-btn.active {
+    border-left-color: var(--cipher);
+    background: var(--surface-hover);
+  }
+
+  /* FAB becomes a real, always-visible button pinned at the top of the
+     sidebar instead of a floating circle over content. */
+  .fab-button {
+    grid-area: tabbar;
+    position: static;
+    align-self: start;
+    justify-self: stretch;
+    margin: var(--sp-4) var(--sp-3) 0;
+    width: auto;
+    height: var(--sp-10);
+    border-radius: var(--radius-md);
+    font-size: var(--text-lg);
+  }
+
+  .fab-label {
+    display: inline;
+  }
+
+  .toast-container {
+    bottom: var(--sp-6);
+  }
+
+  .app-version-badge {
+    left: var(--sp-3);
+    bottom: var(--sp-3);
+  }
 }

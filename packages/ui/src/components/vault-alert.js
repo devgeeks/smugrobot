@@ -1,7 +1,7 @@
 import { TOKEN_BRIDGE } from "./token-bridge.js";
 
 class VaultAlert extends HTMLElement {
-  static observedAttributes = ["variant", "title", "dismissible"];
+  static observedAttributes = ["variant", "title", "dismissible", "solid"];
 
   connectedCallback() {
     if (!this.shadowRoot) this.#render();
@@ -15,14 +15,25 @@ class VaultAlert extends HTMLElement {
     const variant = this.getAttribute("variant") || "info";
     const title = this.getAttribute("title") || "";
     const dismissible = this.hasAttribute("dismissible");
+    // `solid` swaps the translucent tinted background (meant for banners
+    // embedded in page content) for an opaque surface — use it whenever the
+    // alert can float over arbitrary, non-static content (e.g. a toast).
+    const solid = this.hasAttribute("solid");
 
     const icons = { info: "ℹ", success: "✓", warn: "⚠", danger: "✕" };
-    const styles = {
-      info: `color: var(--info-text);    background: color-mix(in srgb, var(--info) 8%, transparent);    border-color: color-mix(in srgb, var(--info) 30%, transparent);`,
-      success: `color: var(--cipher-text);  background: color-mix(in srgb, var(--cipher) 8%, transparent);  border-color: color-mix(in srgb, var(--cipher) 30%, transparent);`,
-      warn: `color: var(--warn-text);    background: color-mix(in srgb, var(--warn) 8%, transparent);    border-color: color-mix(in srgb, var(--warn) 30%, transparent);`,
-      danger: `color: var(--danger-text);  background: color-mix(in srgb, var(--danger) 8%, transparent);  border-color: color-mix(in srgb, var(--danger) 30%, transparent);`,
-    };
+    const styles = solid
+      ? {
+          info: `color: var(--info-text);    background: var(--surface-overlay); border-color: color-mix(in srgb, var(--info) 40%, transparent); box-shadow: var(--shadow-md);`,
+          success: `color: var(--cipher-text);  background: var(--surface-overlay); border-color: color-mix(in srgb, var(--cipher) 40%, transparent); box-shadow: var(--shadow-md);`,
+          warn: `color: var(--warn-text);    background: var(--surface-overlay); border-color: color-mix(in srgb, var(--warn) 40%, transparent); box-shadow: var(--shadow-md);`,
+          danger: `color: var(--danger-text);  background: var(--surface-overlay); border-color: color-mix(in srgb, var(--danger) 40%, transparent); box-shadow: var(--shadow-md);`,
+        }
+      : {
+          info: `color: var(--info-text);    background: color-mix(in srgb, var(--info) 8%, transparent);    border-color: color-mix(in srgb, var(--info) 30%, transparent);`,
+          success: `color: var(--cipher-text);  background: color-mix(in srgb, var(--cipher) 8%, transparent);  border-color: color-mix(in srgb, var(--cipher) 30%, transparent);`,
+          warn: `color: var(--warn-text);    background: color-mix(in srgb, var(--warn) 8%, transparent);    border-color: color-mix(in srgb, var(--warn) 30%, transparent);`,
+          danger: `color: var(--danger-text);  background: color-mix(in srgb, var(--danger) 8%, transparent);  border-color: color-mix(in srgb, var(--danger) 30%, transparent);`,
+        };
 
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
 

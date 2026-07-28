@@ -49,15 +49,6 @@ export function dayKey(iso: string): string {
   return `${y}-${m}-${day}`;
 }
 
-/** Start-of-week (Monday) day key for an ISO timestamp — used to bucket episodes by week. */
-export function weekKey(iso: string): string {
-  const d = new Date(iso);
-  d.setHours(0, 0, 0, 0);
-  const dow = (d.getDay() + 6) % 7; // 0 = Monday
-  d.setDate(d.getDate() - dow);
-  return dayKey(d.toISOString());
-}
-
 /**
  * Builds a YYYY-MM-DD key from local date parts (year, 0-based month, day).
  * Use this for calendar-grid cells instead of `new Date("YYYY-MM-DD").toISOString()`

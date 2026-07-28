@@ -16,6 +16,7 @@ export function showToast(
   const alert = document.createElement("vault-alert");
   alert.setAttribute("variant", variant);
   alert.setAttribute("dismissible", "");
+  alert.setAttribute("solid", "");
   alert.textContent = message;
   container.appendChild(alert);
 

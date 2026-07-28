@@ -30,50 +30,52 @@ export class LogForm {
     const notes = editing?.notes ?? "";
 
     this.el.innerHTML = `
-      <h1 class="pane-title">${editing ? "Edit episode" : "Log a migraine"}</h1>
-      <div class="log-form-fields">
-        <vault-input
-          id="lf-start"
-          type="datetime-local"
-          label="Started"
-          value="${startValue}"
-          required
-        ></vault-input>
-        <vault-toggle id="lf-ongoing" label="Still ongoing" ${ongoing ? "checked" : ""}></vault-toggle>
-        <vault-input
-          id="lf-end"
-          type="datetime-local"
-          label="Ended"
-          value="${endValue}"
-          ${ongoing ? "disabled" : ""}
-        ></vault-input>
-        <vault-slider
-          id="lf-intensity"
-          label="Pain intensity"
-          min="1"
-          max="10"
-          value="${intensity}"
-          hint="1 = mild, 10 = worst pain ever"
-        ></vault-slider>
-        <vault-tag-select id="lf-symptoms" label="Symptoms and triggers">
-          ${PRESET_SYMPTOMS.map(
-            (s) =>
-              `<vault-tag-select-option value="${s.value}">${s.label}</vault-tag-select-option>`,
-          ).join("")}
-        </vault-tag-select>
-        <vault-input
-          id="lf-medication"
-          label="Medication taken"
-          hint="Optional — e.g. Sumatriptan 50mg"
-          value="${escapeAttr(medication)}"
-        ></vault-input>
-        <vault-textarea
-          id="lf-notes"
-          label="Notes"
-          hint="Optional"
-          resize="auto"
-          value="${escapeAttr(notes)}"
-        ></vault-textarea>
+      <div class="log-form-scroll">
+        <h1 class="pane-title">${editing ? "Edit episode" : "Log a migraine"}</h1>
+        <div class="log-form-fields">
+          <vault-input
+            id="lf-start"
+            type="datetime-local"
+            label="Started"
+            value="${startValue}"
+            required
+          ></vault-input>
+          <vault-toggle id="lf-ongoing" label="Still ongoing" ${ongoing ? "checked" : ""}></vault-toggle>
+          <vault-input
+            id="lf-end"
+            type="datetime-local"
+            label="Ended"
+            value="${endValue}"
+            ${ongoing ? "disabled" : ""}
+          ></vault-input>
+          <vault-slider
+            id="lf-intensity"
+            label="Pain intensity"
+            min="1"
+            max="10"
+            value="${intensity}"
+            hint="1 = mild, 10 = worst pain ever"
+          ></vault-slider>
+          <vault-tag-select id="lf-symptoms" label="Symptoms and triggers">
+            ${PRESET_SYMPTOMS.map(
+              (s) =>
+                `<vault-tag-select-option value="${s.value}">${s.label}</vault-tag-select-option>`,
+            ).join("")}
+          </vault-tag-select>
+          <vault-input
+            id="lf-medication"
+            label="Medication taken"
+            hint="Optional — e.g. Sumatriptan 50mg"
+            value="${escapeAttr(medication)}"
+          ></vault-input>
+          <vault-textarea
+            id="lf-notes"
+            label="Notes"
+            hint="Optional"
+            resize="auto"
+            value="${escapeAttr(notes)}"
+          ></vault-textarea>
+        </div>
       </div>
       <div class="log-form-actions">
         <vault-button variant="secondary" size="lg" id="lf-cancel">Cancel</vault-button>

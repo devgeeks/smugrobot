@@ -126,7 +126,7 @@ interface VaultSelectElement extends HTMLElement {
 }
 
 interface VaultAlertElement extends HTMLElement {
-  // variant, title, dismissible: attribute-only — see file header.
+  // variant, title, dismissible, solid: attribute-only — see file header.
   addEventListener(
     type: "vault-dismiss",
     listener: (e: CustomEvent<void>) => void,

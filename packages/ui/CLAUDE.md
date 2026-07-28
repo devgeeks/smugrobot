@@ -17,22 +17,22 @@ Theme is controlled by `data-theme="light"` on `<html>`. Default is dark.
 
 All components are native custom elements. Zero framework required.
 
-| Tag                  | Key attributes                                                                                                                                                                               |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `<vault-button>`     | `variant` (primary\|secondary\|ghost\|danger), `size` (sm\|md\|lg), `disabled`, `loading`                                                                                                    |
-| `<vault-input>`      | `label`, `aria-label`, `type`, `value`, `error`, `hint`, `prefix-icon`, `required`, `disabled`, `readonly`                                                                                   |
-| `<vault-textarea>`   | `label`, `aria-label`, `value`, `rows`, `maxlength`, `resize` (none\|vertical\|auto), `error`, `hint`                                                                                        |
-| `<vault-badge>`      | `variant` (default\|success\|warn\|danger\|info), `dot`                                                                                                                                      |
-| `<vault-card>`       | `padding` (sm\|md\|lg), `border`, `elevated`                                                                                                                                                 |
-| `<vault-toggle>`     | `checked`, `label`, `aria-label`, `hint`, `size` (sm\|md), `disabled`                                                                                                                        |
-| `<vault-select>`     | `label`, `aria-label`, `value`, `error`, `hint`, `required` — children are native `<option>` tags                                                                                            |
-| `<vault-alert>`      | `variant` (info\|success\|warn\|danger), `title`, `dismissible`                                                                                                                              |
-| `<vault-spinner>`    | `size` (sm\|md\|lg), `label` (sr-only text)                                                                                                                                                  |
-| `<vault-avatar>`     | `name`, `src`, `size` (sm\|md\|lg), `status` (online\|offline\|away\|busy)                                                                                                                   |
-| `<vault-listbox>`    | `label`, `aria-label`, `value`, `disabled`, `selectable`, `ghost` — children are `<vault-listbox-option value="…">`                                                                          |
-| `<vault-popover>`    | `placement` (top\|bottom\|top-start\|top-end\|bottom-start\|bottom-end, default `bottom-start`), `open` — trigger goes in `slot="trigger"`, panel content in the default slot                |
-| `<vault-slider>`     | `value` (number, also a real getter/setter), `min`, `max`, `step`, `label`, `aria-label`, `hint`, `disabled`                                                                                 |
-| `<vault-tag-select>` | `value` (string[], property-only — no attribute), `label`, `aria-label`, `hint`, `disabled` — children are `<vault-tag-select-option value="…">`, plus a free-text add field for custom tags |
+| Tag                  | Key attributes                                                                                                                                                                                                                    |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `<vault-button>`     | `variant` (primary\|secondary\|ghost\|danger), `size` (sm\|md\|lg), `disabled`, `loading`                                                                                                                                         |
+| `<vault-input>`      | `label`, `aria-label`, `type`, `value`, `error`, `hint`, `prefix-icon`, `required`, `disabled`, `readonly`                                                                                                                        |
+| `<vault-textarea>`   | `label`, `aria-label`, `value`, `rows`, `maxlength`, `resize` (none\|vertical\|auto), `error`, `hint`                                                                                                                             |
+| `<vault-badge>`      | `variant` (default\|success\|warn\|danger\|info), `dot`                                                                                                                                                                           |
+| `<vault-card>`       | `padding` (sm\|md\|lg), `border`, `elevated`                                                                                                                                                                                      |
+| `<vault-toggle>`     | `checked`, `label`, `aria-label`, `hint`, `size` (sm\|md), `disabled`                                                                                                                                                             |
+| `<vault-select>`     | `label`, `aria-label`, `value`, `error`, `hint`, `required` — children are native `<option>` tags                                                                                                                                 |
+| `<vault-alert>`      | `variant` (info\|success\|warn\|danger), `title`, `dismissible`, `solid` (opaque surface background — use for toasts/anything floating over non-static content, instead of the default translucent tint meant for inline banners) |
+| `<vault-spinner>`    | `size` (sm\|md\|lg), `label` (sr-only text)                                                                                                                                                                                       |
+| `<vault-avatar>`     | `name`, `src`, `size` (sm\|md\|lg), `status` (online\|offline\|away\|busy)                                                                                                                                                        |
+| `<vault-listbox>`    | `label`, `aria-label`, `value`, `disabled`, `selectable`, `ghost` — children are `<vault-listbox-option value="…">`                                                                                                               |
+| `<vault-popover>`    | `placement` (top\|bottom\|top-start\|top-end\|bottom-start\|bottom-end, default `bottom-start`), `open` — trigger goes in `slot="trigger"`, panel content in the default slot                                                     |
+| `<vault-slider>`     | `value` (number, also a real getter/setter), `min`, `max`, `step`, `label`, `aria-label`, `hint`, `disabled`                                                                                                                      |
+| `<vault-tag-select>` | `value` (string[], property-only — no attribute), `label`, `aria-label`, `hint`, `disabled` — children are `<vault-tag-select-option value="…">`, plus a free-text add field for custom tags                                      |
 
 All components emit custom events that bubble through shadow DOM (`composed: true`):
 
