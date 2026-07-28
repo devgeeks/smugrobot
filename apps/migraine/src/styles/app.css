@@ -537,7 +537,7 @@ body {
 
 .toast-container {
   position: fixed;
-  top: calc(var(--sp-4) + env(safe-area-inset-top));
+  bottom: calc(var(--sp-12) + env(safe-area-inset-bottom) + var(--sp-2));
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
