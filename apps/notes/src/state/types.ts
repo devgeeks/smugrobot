@@ -1,4 +1,4 @@
-import type { DocMeta, DocStore, StorageAdapter } from "echidna.js";
+import type { DocMeta, DocStore, StorageAdapter } from "@smugrobot/echidna";
 
 export type Screen = "loading" | "unlock" | "app";
 

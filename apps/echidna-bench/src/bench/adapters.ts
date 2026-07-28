@@ -1,6 +1,6 @@
-import type { StorageAdapter } from "echidna.js";
-import { memoryAdapter } from "echidna.js/adapters/memory";
-import { indexedDbAdapter } from "echidna.js/adapters/indexeddb";
+import type { StorageAdapter } from "@smugrobot/echidna";
+import { memoryAdapter } from "@smugrobot/echidna/adapters/memory";
+import { indexedDbAdapter } from "@smugrobot/echidna/adapters/indexeddb";
 import type { AdapterId } from "../state/types.js";
 
 let indexeddbRunCount = 0;

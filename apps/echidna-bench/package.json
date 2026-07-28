@@ -1,8 +1,5 @@
 {
   "name": "@smugrobot/echidna-bench",
-  "engines": {
-    "node": "24.x"
-  },
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -14,8 +11,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@smugrobot/ui": "*",
-    "echidna.js": "*"
+    "@smugrobot/echidna": "*",
+    "@smugrobot/ui": "*"
   },
   "devDependencies": {
     "husky": "^9.1.7",

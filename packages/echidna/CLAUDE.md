@@ -1,12 +1,12 @@
-# echidna.js — Encrypted Document Store
+# @smugrobot/echidna — Encrypted Document Store
 
-echidna.js is a TypeScript library for storing arbitrary text documents encrypted end-to-end using TweetNaCl (XSalsa20-Poly1305 via `nacl.secretbox`). Metadata is stored as plaintext JSON so documents can be listed, sorted, and filtered without decrypting every body. The encryption key never touches storage — only encrypted blobs and plaintext metadata do.
+@smugrobot/echidna is a TypeScript library for storing arbitrary text documents encrypted end-to-end using TweetNaCl (XSalsa20-Poly1305 via `nacl.secretbox`). Metadata is stored as plaintext JSON so documents can be listed, sorted, and filtered without decrypting every body. The encryption key never touches storage — only encrypted blobs and plaintext metadata do.
 
 ---
 
 ## Keeping docs in sync
 
-This file and `README.md` are both spec/reference documents for echidna.js — this one for agents working on the package, the other for consumers of it. Whenever a code change affects the public API (`DocStore` methods, `EchidnaJsErrorCode`, exported types), adds/removes/changes an adapter, changes the storage layout or blob format, or changes the security model, update the relevant sections of **both** files in the same change. A stale doc here is treated as authoritative instruction by future agents, so letting it drift is worse than having no doc at all.
+This file and `README.md` are both spec/reference documents for @smugrobot/echidna — this one for agents working on the package, the other for consumers of it. Whenever a code change affects the public API (`DocStore` methods, `EchidnaJsErrorCode`, exported types), adds/removes/changes an adapter, changes the storage layout or blob format, or changes the security model, update the relevant sections of **both** files in the same change. A stale doc here is treated as authoritative instruction by future agents, so letting it drift is worse than having no doc at all.
 
 ---
 
@@ -142,8 +142,8 @@ export type EchidnaJsErrorCode =
 Consumers import as:
 
 ```ts
-import { createEncryptedStore } from "echidna.js";
-import { memoryAdapter } from "echidna.js/adapters/memory";
+import { createEncryptedStore } from "@smugrobot/echidna";
+import { memoryAdapter } from "@smugrobot/echidna/adapters/memory";
 ```
 
 ```ts

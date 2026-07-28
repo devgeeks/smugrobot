@@ -1,8 +1,5 @@
 {
   "name": "@smugrobot/migraine",
-  "engines": {
-    "node": "24.x"
-  },
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -14,8 +11,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@smugrobot/echidna": "*",
     "@smugrobot/ui": "*",
-    "echidna.js": "*",
     "escape-html": "^1.0.3",
     "scrypt-js": "^3.0.1"
   },

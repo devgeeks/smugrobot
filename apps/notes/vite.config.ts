@@ -51,11 +51,11 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: [
         {
-          find: /^echidna\.js\/adapters\/(.+)$/,
+          find: /^@smugrobot\/echidna\/adapters\/(.+)$/,
           replacement: path.resolve(__dirname, "../../packages/echidna/src/adapters/$1.ts"),
         },
         {
-          find: "echidna.js",
+          find: "@smugrobot/echidna",
           replacement: path.resolve(__dirname, "../../packages/echidna/src/index.ts"),
         },
       ],
@@ -69,7 +69,7 @@ export default defineConfig(({ mode }) => {
         "@milkdown/utils",
         "@milkdown/transformer",
       ],
-      exclude: ["echidna.js", "@smugrobot/ui"],
+      exclude: ["@smugrobot/echidna", "@smugrobot/ui"],
     },
   };
 });

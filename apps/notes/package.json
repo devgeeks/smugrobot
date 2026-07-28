@@ -1,8 +1,5 @@
 {
   "name": "@smugrobot/notes",
-  "engines": {
-    "node": "24.x"
-  },
   "version": "0.7.0",
   "private": true,
   "type": "module",
@@ -23,8 +20,8 @@
     "@milkdown/preset-gfm": "^7.21.3",
     "@milkdown/transformer": "^7.21.3",
     "@milkdown/utils": "^7.21.3",
+    "@smugrobot/echidna": "*",
     "@smugrobot/ui": "*",
-    "echidna.js": "*",
     "escape-html": "^1.0.3",
     "scrypt-js": "^3.0.1"
   },

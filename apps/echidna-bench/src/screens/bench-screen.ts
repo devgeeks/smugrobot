@@ -4,7 +4,7 @@ import { ConfigPanel } from "../components/config-panel.js";
 import { ResultsTable } from "../components/results-table.js";
 import { ResultsChart } from "../components/results-chart.js";
 import { showToast } from "../utils/toast.js";
-import { EchidnaJsError } from "echidna.js";
+import { EchidnaJsError } from "@smugrobot/echidna";
 import type { BenchConfig } from "../state/types.js";
 
 function describeBenchFailure(err: unknown): string {

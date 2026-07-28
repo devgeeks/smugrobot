@@ -1,4 +1,4 @@
-import { createEncryptedStore } from "echidna.js";
+import { createEncryptedStore } from "@smugrobot/echidna";
 import type { BenchConfig, BenchEvent } from "../state/types.js";
 import { buildAdapter } from "./adapters.js";
 import { preparePayload } from "./generators.js";

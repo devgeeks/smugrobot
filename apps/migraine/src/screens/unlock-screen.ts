@@ -1,6 +1,6 @@
 import { dispatch, getState, subscribe } from "../state/store.js";
 import { createVault, openVault, saveKeyToSession } from "../db/vault.js";
-import { EchidnaJsError } from "echidna.js";
+import { EchidnaJsError } from "@smugrobot/echidna";
 import { showToast } from "../utils/toast.js";
 
 function describeUnlockFailure(err: unknown): { message: string; wrongPassphrase: boolean } {

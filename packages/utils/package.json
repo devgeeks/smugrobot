@@ -1,8 +1,5 @@
 {
   "name": "@smugrobot/utils",
-  "engines": {
-    "node": "24.x"
-  },
   "version": "0.0.1",
   "private": true,
   "type": "module",

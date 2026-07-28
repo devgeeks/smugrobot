@@ -1,4 +1,4 @@
-import type { DocStore } from "echidna.js";
+import type { DocStore } from "@smugrobot/echidna";
 import { generateId } from "../utils/id.js";
 
 export interface Episode {

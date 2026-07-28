@@ -1,6 +1,6 @@
-import { indexedDbAdapter } from "echidna.js/adapters/indexeddb";
-import { createEncryptedStore, EchidnaJsError } from "echidna.js";
-import type { StorageAdapter } from "echidna.js";
+import { indexedDbAdapter } from "@smugrobot/echidna/adapters/indexeddb";
+import { createEncryptedStore, EchidnaJsError } from "@smugrobot/echidna";
+import type { StorageAdapter } from "@smugrobot/echidna";
 import { scrypt } from "scrypt-js";
 
 const SENTINEL_ID = "__vault_sentinel__";

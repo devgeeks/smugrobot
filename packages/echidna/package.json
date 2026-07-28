@@ -1,8 +1,5 @@
 {
-  "name": "echidna.js",
-  "engines": {
-    "node": "24.x"
-  },
+  "name": "@smugrobot/echidna",
   "version": "0.2.1",
   "description": "Encrypted document store with adapters for multiple environments",
   "author": "tommy-carlos williams",

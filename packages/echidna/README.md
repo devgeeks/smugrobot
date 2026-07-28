@@ -1,4 +1,4 @@
-# echidna.js
+# @smugrobot/echidna
 
 Encrypted document store for TypeScript. Documents are encrypted end-to-end using XSalsa20-Poly1305 ([TweetNaCl](https://tweetnacl.js.org/)). Metadata is stored as plaintext so you can list, sort, and filter without decrypting every document. The encryption key never touches storage — only encrypted blobs and plaintext metadata do.
 
@@ -11,7 +11,7 @@ Works in Node.js, browsers, and React Native via swappable storage adapters.
 ## Install
 
 ```sh
-npm install echidna.js
+npm install @smugrobot/echidna
 ```
 
 ---
@@ -19,8 +19,8 @@ npm install echidna.js
 ## Quick start
 
 ```ts
-import { createEncryptedStore } from "echidna.js";
-import { memoryAdapter } from "echidna.js/adapters/memory";
+import { createEncryptedStore } from "@smugrobot/echidna";
+import { memoryAdapter } from "@smugrobot/echidna/adapters/memory";
 
 const store = await createEncryptedStore({
   adapter: memoryAdapter(),
@@ -53,7 +53,7 @@ Import only the adapter you need — each is a separate bundle entry so unused a
 No dependencies. Works everywhere. Primarily useful for testing.
 
 ```ts
-import { memoryAdapter } from "echidna.js/adapters/memory";
+import { memoryAdapter } from "@smugrobot/echidna/adapters/memory";
 
 const adapter = memoryAdapter();
 ```
@@ -63,7 +63,7 @@ const adapter = memoryAdapter();
 Stores each key as a file under a root directory. No extra dependencies.
 
 ```ts
-import { nodeFsAdapter } from "echidna.js/adapters/node-fs";
+import { nodeFsAdapter } from "@smugrobot/echidna/adapters/node-fs";
 
 const adapter = nodeFsAdapter("./my-vault");
 ```
@@ -71,7 +71,7 @@ const adapter = nodeFsAdapter("./my-vault");
 ### Browser (`localStorage`)
 
 ```ts
-import { localStorageAdapter } from "echidna.js/adapters/localstorage";
+import { localStorageAdapter } from "@smugrobot/echidna/adapters/localstorage";
 
 const adapter = localStorageAdapter(); // prefix defaults to 'echidna:'
 const adapter = localStorageAdapter("myapp:vault:"); // custom prefix
@@ -84,7 +84,7 @@ Like the IndexedDB adapter below, this requests [persistent storage](https://dev
 Async, binary-native storage with much higher quotas than `localStorage` (typically up to ~60% of available disk). Requires no encoding overhead — `Uint8Array` values are stored directly.
 
 ```ts
-import { indexedDbAdapter } from "echidna.js/adapters/indexeddb";
+import { indexedDbAdapter } from "@smugrobot/echidna/adapters/indexeddb";
 
 const adapter = await indexedDbAdapter(); // db 'echidna', store 'vault'
 const adapter = await indexedDbAdapter("myapp", "documents"); // custom db and store names
@@ -97,7 +97,7 @@ On init, the adapter calls [`navigator.storage.persist()`](https://developer.moz
 Binary-native filesystem storage for Expo apps. No size constraints beyond device storage, and no base64 overhead — `Uint8Array` values are written directly to disk. Requires `expo-file-system` v17+ as a peer dependency.
 
 ```ts
-import { expoFileSystemAdapter } from "echidna.js/adapters/expo-file-system";
+import { expoFileSystemAdapter } from "@smugrobot/echidna/adapters/expo-file-system";
 import * as FileSystem from "expo-file-system";
 
 const adapter = expoFileSystemAdapter(FileSystem.documentDirectory + "vault/");
@@ -120,8 +120,8 @@ import {
   getDropboxAuthUrl,
   exchangeDropboxCode,
   refreshDropboxToken,
-} from "echidna.js/adapters/dropbox";
-import { createEncryptedStore } from "echidna.js";
+} from "@smugrobot/echidna/adapters/dropbox";
+import { createEncryptedStore } from "@smugrobot/echidna";
 
 // Step 1 — redirect the user to Dropbox for authorization (run once)
 const { verifier, challenge } = await generatePkce();
@@ -174,14 +174,14 @@ Wraps a PouchDB instance you construct and own, so it can double as the local ha
 
 In browsers, `pouchdb-browser` is typically backed by IndexedDB, so this adapter also requests [persistent storage](https://developer.mozilla.org/en-US/docs/Web/API/StorageManager/persist) on init — see the IndexedDB section above for what that does and doesn't protect against.
 
-> **Note:** echidna.js only implements local storage through this adapter. Remote sync — the CouchDB URL, auth, live replication, retry policy — is your app's responsibility, driven directly against the same PouchDB instance you pass in.
+> **Note:** @smugrobot/echidna only implements local storage through this adapter. Remote sync — the CouchDB URL, auth, live replication, retry policy — is your app's responsibility, driven directly against the same PouchDB instance you pass in.
 
 > **Privacy warning:** syncing does not make document metadata private. `docs/{id}/meta` (title, tags, timestamps, size, and any custom fields) is always stored as plaintext JSON — by design, so lists can be filtered without decrypting bodies — and it is unauthenticated, so a malicious or compromised CouchDB server can read _and silently rewrite_ it. Only `docs/{id}/body` is encrypted and MAC-protected; tampering with a body fails loudly (`WRONG_KEY`), and moving one document's body onto another id is caught by the id binding (`TAMPERED`). What is **not** protected: a hostile server operator can see attachment sizes and write timing, can withhold documents, and can roll a body (and its metadata) back to an _earlier version of the same document_ undetectably — there is no vault-level integrity check or version anchor across the whole sync. Don't put anything sensitive in `title`, `tags`, or custom metadata fields if you don't trust the CouchDB server operator. The same server can also write arbitrary values into those fields, so any UI that renders them must treat them as untrusted input — never pass them to `innerHTML` or an equivalent unescaped-HTML sink.
 
 ```ts
 import PouchDB from "pouchdb";
-import { pouchDbAdapter } from "echidna.js/adapters/pouchdb";
-import { createEncryptedStore } from "echidna.js";
+import { pouchDbAdapter } from "@smugrobot/echidna/adapters/pouchdb";
+import { createEncryptedStore } from "@smugrobot/echidna";
 
 const db = new PouchDB("my-vault");
 
@@ -190,7 +190,7 @@ const store = await createEncryptedStore({
   keySource: { type: "passphrase", passphrase: userPassphrase },
 });
 
-// Not part of echidna.js — wire up sync yourself against the same `db`.
+// Not part of @smugrobot/echidna — wire up sync yourself against the same `db`.
 const remote = new PouchDB("https://couchdb.example.com/my-vault", {
   auth: { username: "user", password: "pass" },
 });
@@ -202,7 +202,7 @@ db.sync(remote, { live: true, retry: true });
 `@react-native-async-storage/async-storage` is a **peer dependency** — install it separately in your app.
 
 ```ts
-import { asyncStorageAdapter } from "echidna.js/adapters/async-storage";
+import { asyncStorageAdapter } from "@smugrobot/echidna/adapters/async-storage";
 
 const adapter = asyncStorageAdapter();
 ```
@@ -397,10 +397,10 @@ interface ListOptions {
 
 ## Error handling
 
-All errors thrown by echidna.js are instances of `EchidnaJsError`:
+All errors thrown by @smugrobot/echidna are instances of `EchidnaJsError`:
 
 ```ts
-import { EchidnaJsError } from "echidna.js";
+import { EchidnaJsError } from "@smugrobot/echidna";
 
 try {
   await store.get("doc-id");
@@ -466,7 +466,7 @@ docs/{id}/body     →  binary (encrypted blob)
 Implement the `StorageAdapter` interface to use any backend:
 
 ```ts
-import type { StorageAdapter } from 'echidna.js'
+import type { StorageAdapter } from '@smugrobot/echidna'
 
 const myAdapter: StorageAdapter = {
   async get(key: string): Promise<Uint8Array | null> { ... },

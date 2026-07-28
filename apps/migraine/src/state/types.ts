@@ -1,4 +1,4 @@
-import type { DocStore, StorageAdapter } from "echidna.js";
+import type { DocStore, StorageAdapter } from "@smugrobot/echidna";
 import type { Episode } from "../db/episodes.js";
 
 export type Screen = "loading" | "unlock" | "app";
