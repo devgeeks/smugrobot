@@ -1,7 +1,7 @@
 {
   "name": "@smugrobot/echidna-bench",
   "engines": {
-    "node": "26.x"
+    "node": "24.x"
   },
   "version": "0.1.0",
   "private": true,

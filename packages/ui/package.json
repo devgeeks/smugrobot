@@ -1,7 +1,7 @@
 {
   "name": "@smugrobot/ui",
   "engines": {
-    "node": "26.x"
+    "node": "24.x"
   },
   "version": "0.5.0",
   "private": true,

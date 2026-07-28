@@ -1,7 +1,7 @@
 {
   "name": "@smugrobot/notes",
   "engines": {
-    "node": "26.x"
+    "node": "24.x"
   },
   "version": "0.7.0",
   "private": true,
