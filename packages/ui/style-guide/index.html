@@ -417,6 +417,8 @@
         <a href="#avatar">Avatar</a>
         <a href="#popover">Popover</a>
         <a href="#listbox">Listbox</a>
+        <a href="#slider">Slider</a>
+        <a href="#tag-select">Tag select</a>
 
         <span class="sg-nav-section">Reference</span>
         <a href="#decisions">Design decisions</a>
@@ -2124,6 +2126,167 @@ document.querySelector('vault-popover').close();</pre>
         </section>
 
         <!-- ════════════════════════════════════════════════════════════════
+         SLIDER
+    ════════════════════════════════════════════════════════════════ -->
+        <section class="sg-section" id="slider">
+          <h2 class="sg-section-title">vault-slider</h2>
+          <p class="sg-section-desc">
+            Numeric range input wrapping a native <code>&lt;input type="range"&gt;</code>. Shows the
+            current value beside the label and the min/max under the track. The thumb has a
+            44px-tall hit area for mobile use, even though it renders smaller.
+          </p>
+
+          <div class="sg-sub">
+            <div class="sg-sub-title">States</div>
+            <div class="sg-preview">
+              <div class="sg-col" style="max-width: 320px">
+                <vault-slider label="Pain intensity" min="1" max="10" value="5"></vault-slider>
+                <vault-slider
+                  label="With hint"
+                  min="1"
+                  max="10"
+                  value="8"
+                  hint="1 = mild, 10 = worst pain ever"
+                ></vault-slider>
+                <vault-slider label="Disabled" min="1" max="10" value="3" disabled></vault-slider>
+              </div>
+            </div>
+          </div>
+
+          <pre class="sg-code">
+&lt;vault-slider label="Pain intensity" min="1" max="10" value="5"&gt;&lt;/vault-slider&gt;
+
+slider.addEventListener('vault-change', e =&gt; {
+  console.log(e.detail.value); // number, on release
+});
+slider.addEventListener('vault-input', e =&gt; {
+  console.log(e.detail.value); // number, live while dragging
+});</pre>
+
+          <table class="sg-rule-table">
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Values</th>
+                <th>Default</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>value</td>
+                <td>number — also a real JS property</td>
+                <td>min</td>
+              </tr>
+              <tr>
+                <td>min / max / step</td>
+                <td>number</td>
+                <td>0 / 100 / 1</td>
+              </tr>
+              <tr>
+                <td>label / aria-label</td>
+                <td>string — one is required</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>hint</td>
+                <td>string</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>disabled</td>
+                <td>boolean</td>
+                <td>false</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════════════
+         TAG SELECT
+    ════════════════════════════════════════════════════════════════ -->
+        <section class="sg-section" id="tag-select">
+          <h2 class="sg-section-title">vault-tag-select</h2>
+          <p class="sg-section-desc">
+            Multi-select chip input. Preset options are declared as child
+            <code>&lt;vault-tag-select-option&gt;</code> elements and toggle on click. Typing in the
+            add field and pressing Enter (or the Add button) appends a removable custom tag. The
+            <code>value</code> property (an array) is the only way to read or set the selection —
+            there is no <code>value</code> attribute.
+          </p>
+
+          <div class="sg-sub">
+            <div class="sg-sub-title">Presets and custom tags</div>
+            <div class="sg-preview">
+              <div class="sg-col" style="max-width: 360px">
+                <vault-tag-select id="sg-tag-select" label="Symptoms">
+                  <vault-tag-select-option value="aura">Aura</vault-tag-select-option>
+                  <vault-tag-select-option value="nausea">Nausea</vault-tag-select-option>
+                  <vault-tag-select-option value="light-sensitivity"
+                    >Light sensitivity</vault-tag-select-option
+                  >
+                  <vault-tag-select-option value="sound-sensitivity"
+                    >Sound sensitivity</vault-tag-select-option
+                  >
+                </vault-tag-select>
+                <vault-tag-select label="Disabled" disabled>
+                  <vault-tag-select-option value="aura">Aura</vault-tag-select-option>
+                  <vault-tag-select-option value="nausea">Nausea</vault-tag-select-option>
+                </vault-tag-select>
+              </div>
+            </div>
+          </div>
+
+          <pre class="sg-code">
+&lt;vault-tag-select label="Symptoms"&gt;
+  &lt;vault-tag-select-option value="aura"&gt;Aura&lt;/vault-tag-select-option&gt;
+  &lt;vault-tag-select-option value="nausea"&gt;Nausea&lt;/vault-tag-select-option&gt;
+&lt;/vault-tag-select&gt;
+
+&lt;script type="module"&gt;
+  const tagSelect = document.querySelector('vault-tag-select');
+  tagSelect.value = ['aura']; // pre-select, or preset a custom value
+  tagSelect.addEventListener('vault-change', e =&gt; {
+    console.log(e.detail.value); // string[]
+  });
+&lt;/script&gt;</pre>
+
+          <table class="sg-rule-table">
+            <thead>
+              <tr>
+                <th>Tag</th>
+                <th>Attribute</th>
+                <th>Values</th>
+                <th>Default</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td rowspan="3">vault-tag-select</td>
+                <td>label / aria-label</td>
+                <td>string — one is required</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>hint</td>
+                <td>string</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>disabled</td>
+                <td>boolean</td>
+                <td>false</td>
+              </tr>
+              <tr>
+                <td>vault-tag-select-option</td>
+                <td>value</td>
+                <td>string</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- ════════════════════════════════════════════════════════════════
          DESIGN DECISIONS
     ════════════════════════════════════════════════════════════════ -->
         <section class="sg-section" id="decisions">
@@ -2415,6 +2578,24 @@ document.querySelector('vault-popover').close();</pre>
                 <td>vault-popover</td>
                 <td><code>undefined</code></td>
                 <td>Popover is dismissed (outside click, Escape, or .close())</td>
+              </tr>
+              <tr>
+                <td>vault-input</td>
+                <td>vault-slider</td>
+                <td><code>{ value: number }</code></td>
+                <td>Live, while dragging</td>
+              </tr>
+              <tr>
+                <td>vault-change</td>
+                <td>vault-slider</td>
+                <td><code>{ value: number }</code></td>
+                <td>On release / commit</td>
+              </tr>
+              <tr>
+                <td>vault-change</td>
+                <td>vault-tag-select</td>
+                <td><code>{ value: string[] }</code></td>
+                <td>On every tag add or remove</td>
               </tr>
             </tbody>
           </table>

@@ -24,9 +24,13 @@ npm install echidna.js
 
 A Progressive Web App for writing Markdown notes that are encrypted at rest in IndexedDB. Three-pane layout with folder organisation, GitHub-Flavored Markdown editor (task lists, tables, strikethrough), passphrase-based vault, and a lock button that clears the session key immediately. No network requests after first load.
 
+### [`apps/migraine`](apps/migraine) — private migraine tracker
+
+A Progressive Web App for logging migraine episodes, encrypted at rest in IndexedDB. Log intensity, symptoms/triggers, and medication; browse history, a color-coded calendar, and a trend chart; export your data for a doctor visit. Built mobile-first with a bottom tab bar. No network requests after first load.
+
 ### [`@smugrobot/ui`](packages/ui) — vault-ui design system
 
-Web Components for building privacy-focused interfaces. Works in any framework or plain HTML. Components: `vault-button`, `vault-card`, `vault-input`, `vault-textarea`, `vault-badge`, `vault-alert`, `vault-toggle`, `vault-select`, `vault-spinner`, `vault-avatar`, `vault-listbox`, `vault-popover`.
+Web Components for building privacy-focused interfaces. Works in any framework or plain HTML. Components: `vault-button`, `vault-card`, `vault-input`, `vault-textarea`, `vault-badge`, `vault-alert`, `vault-toggle`, `vault-select`, `vault-spinner`, `vault-avatar`, `vault-listbox`, `vault-popover`, `vault-slider`, `vault-tag-select`.
 
 ### [`@smugrobot/utils`](packages/utils) — shared utilities
 

@@ -34,6 +34,12 @@ interface VaultChangeValueDetail {
 interface VaultChangeCheckedDetail {
   checked: boolean;
 }
+interface VaultSliderDetail {
+  value: number;
+}
+interface VaultTagSelectChangeDetail {
+  value: string[];
+}
 
 // ── Element interfaces ─────────────────────────────────────────────────────
 
@@ -182,6 +188,46 @@ interface VaultPopoverElement extends HTMLElement {
   ): void;
 }
 
+interface VaultSliderElement extends HTMLElement {
+  value: number;
+  // min, max, step, label, hint, disabled: attribute-only — see file header.
+  addEventListener(
+    type: "vault-input",
+    listener: (e: CustomEvent<VaultSliderDetail>) => void,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener(
+    type: "vault-change",
+    listener: (e: CustomEvent<VaultSliderDetail>) => void,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+}
+
+interface VaultTagSelectOptionElement extends HTMLElement {
+  value: string;
+}
+
+interface VaultTagSelectElement extends HTMLElement {
+  /** Array of currently selected tag values — property-only, not attribute-reflected. */
+  value: string[];
+  // label, hint, disabled: attribute-only — see file header.
+  addEventListener(
+    type: "vault-change",
+    listener: (e: CustomEvent<VaultTagSelectChangeDetail>) => void,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ): void;
+}
+
 // ── HTMLElementTagNameMap augmentation ────────────────────────────────────
 
 declare global {
@@ -199,5 +245,8 @@ declare global {
     "vault-popover": VaultPopoverElement;
     "vault-listbox": VaultListboxElement;
     "vault-listbox-option": VaultListboxOptionElement;
+    "vault-slider": VaultSliderElement;
+    "vault-tag-select": VaultTagSelectElement;
+    "vault-tag-select-option": VaultTagSelectOptionElement;
   }
 }
