@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "build": "tsc --noEmit && vite build",
+    "build": "npm run build --workspace=@smugrobot/echidna --workspace=@smugrobot/ui && tsc --noEmit && vite build",
     "preview": "vite preview",
     "deploy": "./deploy.sh",
     "typecheck": "tsc --noEmit"
