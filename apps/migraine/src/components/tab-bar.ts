@@ -1,7 +1,6 @@
 import type { Tab } from "../state/types.js";
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: "log", label: "Log" },
   { id: "history", label: "History" },
   { id: "calendar", label: "Calendar" },
   { id: "stats", label: "Stats" },

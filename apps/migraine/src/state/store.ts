@@ -6,7 +6,8 @@ const initial: AppState = {
   adapter: null,
   store: null,
   episodes: [],
-  activeTab: "log",
+  activeTab: "history",
+  isLogging: false,
   editingEpisodeId: null,
 };
 
@@ -24,9 +25,11 @@ function reducer(state: AppState, action: Action): AppState {
     case "EPISODES_LOADED":
       return { ...state, episodes: action.episodes };
     case "TAB_CHANGED":
-      return { ...state, activeTab: action.tab, editingEpisodeId: null };
-    case "EDIT_EPISODE":
-      return { ...state, editingEpisodeId: action.episodeId, activeTab: "log" };
+      return { ...state, activeTab: action.tab };
+    case "START_LOGGING":
+      return { ...state, isLogging: true, editingEpisodeId: action.episodeId };
+    case "STOP_LOGGING":
+      return { ...state, isLogging: false, editingEpisodeId: null };
     case "LOCKED":
       return { ...initial, screen: "unlock", vaultExists: true, adapter: state.adapter };
     default:

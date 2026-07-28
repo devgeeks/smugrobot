@@ -76,7 +76,7 @@ export class LogForm {
         ></vault-textarea>
       </div>
       <div class="log-form-actions">
-        ${editing ? `<vault-button variant="secondary" size="lg" id="lf-cancel">Cancel</vault-button>` : ""}
+        <vault-button variant="secondary" size="lg" id="lf-cancel">Cancel</vault-button>
         <vault-button variant="primary" size="lg" id="lf-save">${editing ? "Save changes" : "Save episode"}</vault-button>
       </div>
     `;

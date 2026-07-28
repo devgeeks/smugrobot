@@ -4,6 +4,7 @@ import { confirmDialog } from "../utils/dialog.js";
 import { showToast } from "../utils/toast.js";
 import { dayKey } from "../utils/time.js";
 import { TabBar } from "../components/tab-bar.js";
+import { FabButton } from "../components/fab-button.js";
 import { LogForm } from "../components/log-form.js";
 import { HistoryList } from "../components/history-list.js";
 import { CalendarView } from "../components/calendar-view.js";
@@ -48,12 +49,11 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   root.appendChild(main);
 
   const tabBar = new TabBar();
+  const fab = new FabButton();
   const logForm = new LogForm();
   const historyList = new HistoryList();
   const calendarView = new CalendarView();
   const statsPanel = new StatsPanel();
-
-  root.appendChild(tabBar.el);
 
   const exportBtn = header.querySelector(".app-header-export-btn")!;
   exportBtn.addEventListener("click", async () => {
@@ -83,6 +83,7 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   });
 
   tabBar.onTabSelect = (tab: Tab) => dispatch({ type: "TAB_CHANGED", tab });
+  fab.onClick = () => dispatch({ type: "START_LOGGING", episodeId: null });
 
   async function reloadEpisodes(): Promise<void> {
     const store = getState().store;
@@ -93,12 +94,12 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
 
   logForm.onSaved = async () => {
     await reloadEpisodes();
-    dispatch({ type: "TAB_CHANGED", tab: "history" });
+    dispatch({ type: "STOP_LOGGING" });
     showToast("Episode saved.", "success");
   };
-  logForm.onCancel = () => dispatch({ type: "TAB_CHANGED", tab: "history" });
+  logForm.onCancel = () => dispatch({ type: "STOP_LOGGING" });
 
-  const editEpisode = (id: string) => dispatch({ type: "EDIT_EPISODE", episodeId: id });
+  const editEpisode = (id: string) => dispatch({ type: "START_LOGGING", episodeId: id });
   const deleteEpisodeWithConfirm = async (id: string) => {
     const ok = await confirmDialog({
       title: "Delete this episode?",
@@ -118,15 +119,27 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   historyList.onDelete = deleteEpisodeWithConfirm;
   calendarView.onEdit = editEpisode;
 
-  function renderActiveTab(): void {
+  function renderScreen(): void {
     const state = getState();
     main.innerHTML = "";
-    tabBar.render(state.activeTab);
-    if (state.activeTab === "log") {
+    main.classList.toggle("is-logging", state.isLogging);
+
+    if (state.isLogging) {
+      // Full-screen takeover: no tab bar, no FAB — just the header (still
+      // mounted above) and the form, with its own sticky Save/Cancel bar.
+      tabBar.el.remove();
+      fab.el.remove();
       const editing = state.episodes.find((e) => e.id === state.editingEpisodeId) ?? null;
       logForm.render(editing);
       main.appendChild(logForm.el);
-    } else if (state.activeTab === "history") {
+      return;
+    }
+
+    root.appendChild(tabBar.el);
+    root.appendChild(fab.el);
+    tabBar.render(state.activeTab);
+
+    if (state.activeTab === "history") {
       historyList.render(state.episodes);
       main.appendChild(historyList.el);
     } else if (state.activeTab === "calendar") {
@@ -139,9 +152,9 @@ export async function mountAppScreen(root: HTMLElement): Promise<void> {
   }
 
   await reloadEpisodes();
-  renderActiveTab();
+  renderScreen();
 
-  unsub = subscribe(renderActiveTab);
+  unsub = subscribe(renderScreen);
 }
 
 export function unmountAppScreen(): void {

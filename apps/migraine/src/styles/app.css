@@ -1,3 +1,23 @@
+/* ── Shared bottom-of-screen spacing budget ─────────────────
+   Every fixed/sticky bottom element (FAB, toasts, version badge, scroll
+   padding) derives its offset from these so they can't collide. ── */
+
+:root {
+  --tab-bar-height: calc(var(--sp-12) + env(safe-area-inset-bottom));
+  --toast-gap: var(--sp-2); /* clearance between the tab bar and the toast area */
+  --toast-height: var(
+    --sp-12
+  ); /* single-line toast height budget, 48px — only one toast shows at a time */
+  --toast-clearance: calc(
+    var(--tab-bar-height) + var(--toast-gap) + var(--toast-height)
+  ); /* full vertical footprint of the toast area above the tab bar */
+  --fab-size: calc(var(--sp-12) + var(--sp-2)); /* 56px — Material's standard FAB size */
+  --fab-gap: var(--sp-4); /* clearance between the toast area and the FAB */
+  --fab-clearance: calc(
+    var(--toast-clearance) + var(--fab-gap) + var(--fab-size) + var(--sp-4)
+  ); /* full vertical footprint of the toast area + FAB, plus a margin above it */
+}
+
 /* ── Layout ─────────────────────────────────────────────── */
 
 html,
@@ -153,11 +173,16 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: var(--sp-4);
-  padding-bottom: var(--sp-8);
+  padding-bottom: var(--fab-clearance);
   max-width: 640px;
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
+}
+
+.app-main.is-logging {
+  /* No tab bar/FAB while logging — the sticky action bar reserves its own space. */
+  padding-bottom: var(--sp-8);
 }
 
 .pane-title {
@@ -222,13 +247,59 @@ body {
 }
 
 .log-form-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 15;
   display: flex;
   gap: var(--sp-3);
-  margin-top: var(--sp-6);
+  margin: var(--sp-6) calc(-1 * var(--sp-4)) 0;
+  padding: var(--sp-4);
+  padding-bottom: calc(var(--sp-4) + env(safe-area-inset-bottom));
+  background: var(--surface-base);
+  border-top: 1px solid var(--surface-border);
 }
 
 .log-form-actions vault-button {
   flex: 1;
+}
+
+/* ── Floating action button ──────────────────────────────── */
+
+.fab-button {
+  position: fixed;
+  right: var(--sp-6);
+  bottom: calc(var(--toast-clearance) + var(--fab-gap));
+  z-index: 20;
+  width: var(--fab-size);
+  height: var(--fab-size);
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--cipher);
+  color: var(--text-inverse);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xl);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition:
+    box-shadow var(--duration-normal) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.fab-button:hover {
+  box-shadow: var(--shadow-accent);
+}
+
+.fab-button:active {
+  transform: scale(0.94);
+}
+
+.fab-button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 /* ── History list ────────────────────────────────────────── */
@@ -537,7 +608,7 @@ body {
 
 .toast-container {
   position: fixed;
-  bottom: calc(var(--sp-12) + env(safe-area-inset-bottom) + var(--sp-2));
+  bottom: calc(var(--tab-bar-height) + var(--toast-gap));
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
@@ -595,8 +666,8 @@ body {
 
 .app-version-badge {
   position: fixed;
-  right: var(--sp-2);
-  bottom: calc(var(--sp-12) + env(safe-area-inset-bottom) + var(--sp-1));
+  left: var(--sp-2);
+  bottom: calc(var(--tab-bar-height) + var(--sp-1));
   z-index: 5;
   padding: var(--sp-1) var(--sp-2);
   border-radius: var(--radius-sm);

@@ -17,7 +17,7 @@ export class HistoryList {
     if (episodes.length === 0) {
       this.el.innerHTML = `
         <h1 class="pane-title">History</h1>
-        <p class="empty-state">No episodes logged yet. Use the Log tab to add one.</p>
+        <p class="empty-state">No episodes logged yet. Tap + to add one.</p>
       `;
       return;
     }
