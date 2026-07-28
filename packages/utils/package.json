@@ -20,6 +20,7 @@
     "dev": "tsc --watch"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
     "typescript": "*"
   }
 }

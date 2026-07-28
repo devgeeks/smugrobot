@@ -40,6 +40,7 @@
     "styleguide": "open http://localhost:3900/style-guide && npx serve . --listen 3900"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
     "typescript": "*"
   }
 }
